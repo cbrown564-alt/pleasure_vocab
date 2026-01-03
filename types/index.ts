@@ -13,7 +13,8 @@ export type ConceptCategory =
   | 'technique'     // Physical techniques (Angling, Rocking, etc.)
   | 'sensation'     // How things feel (building, spreading, etc.)
   | 'timing'        // Pacing and timing concepts
-  | 'psychological'; // Mental/emotional factors
+  | 'psychological' // Mental/emotional factors
+  | 'anatomy';      // Body understanding and anatomy
 
 // Tier for future paywall
 export type ConceptTier = 'free' | 'premium';
@@ -76,6 +77,53 @@ export interface UserSettings {
   onboardingCompleted: boolean;
   goal: UserGoal | null;
   comfortLevel: ComfortLevel;
+}
+
+// Learning pathway
+export interface Pathway {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;              // Ionicons icon name
+  conceptIds: string[];      // Ordered sequence of concept IDs
+  estimatedTime: string;     // e.g., "15-20 min"
+}
+
+// Pathway progress tracking
+export interface PathwayProgress {
+  pathwayId: string;
+  startedAt: string;         // ISO date string
+  completedAt: string | null; // ISO date string when all concepts explored
+  conceptsCompleted: string[]; // IDs of completed concepts in this pathway
+}
+
+// Conversation starter for communication toolkit
+export interface ConversationStarter {
+  id: string;
+  situation: string;         // e.g., "Introducing a new preference"
+  comfortLevels: {
+    clinical: string;
+    balanced: string;
+    direct: string;
+  };
+  tips: string[];
+}
+
+// Script example for communication toolkit
+export interface ScriptExample {
+  id: string;
+  category: string;          // e.g., "Requesting change", "Positive feedback"
+  opening: string;           // The script text
+  context: string;           // When to use this
+}
+
+// Barrier/fear with reassurance
+export interface CommunicationBarrier {
+  id: string;
+  fear: string;              // What people worry about
+  percentage: number;        // How common (e.g., 42.4)
+  reassurance: string;       // Research-backed response
+  tips: string[];
 }
 
 // Navigation params

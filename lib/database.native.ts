@@ -46,6 +46,14 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
       first_concept_viewed INTEGER DEFAULT 0
     );
 
+    -- Pathway progress tracking
+    CREATE TABLE IF NOT EXISTS pathway_progress (
+      pathway_id TEXT PRIMARY KEY,
+      started_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      completed_at TEXT,
+      concepts_completed TEXT DEFAULT '[]'
+    );
+
     -- Initialize onboarding row if not exists
     INSERT OR IGNORE INTO onboarding (id) VALUES (1);
   `);
@@ -289,6 +297,76 @@ export async function getResonatesCount(): Promise<number> {
   return result?.count ?? 0;
 }
 
+// ============ Pathway Progress Operations ============
+
+export interface PathwayProgressRow {
+  pathway_id: string;
+  started_at: string;
+  completed_at: string | null;
+  concepts_completed: string; // JSON array
+}
+
+export async function getPathwayProgress(pathwayId: string): Promise<PathwayProgressRow | null> {
+  const db = await getDatabase();
+  const result = await db.getFirstAsync<PathwayProgressRow>(
+    'SELECT * FROM pathway_progress WHERE pathway_id = ?',
+    [pathwayId]
+  );
+  return result ?? null;
+}
+
+export async function getAllPathwayProgress(): Promise<PathwayProgressRow[]> {
+  const db = await getDatabase();
+  const results = await db.getAllAsync<PathwayProgressRow>(
+    'SELECT * FROM pathway_progress ORDER BY started_at DESC'
+  );
+  return results;
+}
+
+export async function startPathway(pathwayId: string): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  const existing = await getPathwayProgress(pathwayId);
+
+  if (!existing) {
+    await db.runAsync(
+      `INSERT INTO pathway_progress (pathway_id, started_at, concepts_completed) VALUES (?, ?, '[]')`,
+      [pathwayId, now]
+    );
+  }
+}
+
+export async function updatePathwayProgress(
+  pathwayId: string,
+  conceptId: string,
+  totalConceptsInPathway: number
+): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  let progress = await getPathwayProgress(pathwayId);
+
+  if (!progress) {
+    await startPathway(pathwayId);
+    progress = await getPathwayProgress(pathwayId);
+  }
+
+  if (progress) {
+    const completedConcepts: string[] = JSON.parse(progress.concepts_completed || '[]');
+
+    if (!completedConcepts.includes(conceptId)) {
+      completedConcepts.push(conceptId);
+
+      const isComplete = completedConcepts.length >= totalConceptsInPathway;
+
+      await db.runAsync(
+        `UPDATE pathway_progress SET concepts_completed = ?, completed_at = ? WHERE pathway_id = ?`,
+        [JSON.stringify(completedConcepts), isComplete ? now : null, pathwayId]
+      );
+    }
+  }
+}
+
 // ============ Data Management ============
 
 export async function clearAllData(): Promise<void> {
@@ -296,6 +374,7 @@ export async function clearAllData(): Promise<void> {
   await db.execAsync(`
     DELETE FROM user_concepts;
     DELETE FROM journal_entries;
+    DELETE FROM pathway_progress;
     UPDATE onboarding SET completed = 0, goal = NULL, comfort_level = 'direct', first_concept_viewed = 0 WHERE id = 1;
     DELETE FROM settings;
   `);

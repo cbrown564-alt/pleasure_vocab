@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
   USER_CONCEPTS: '@vocab:user_concepts',
   JOURNAL_ENTRIES: '@vocab:journal_entries',
   SETTINGS: '@vocab:settings',
+  PATHWAY_PROGRESS: '@vocab:pathway_progress',
 };
 
 // ============ Onboarding Operations ============
@@ -209,6 +210,89 @@ export async function getResonatesCount(): Promise<number> {
   return concepts.filter((c) => c.status === 'resonates').length;
 }
 
+// ============ Pathway Progress Operations ============
+
+export interface PathwayProgressRow {
+  pathway_id: string;
+  started_at: string;
+  completed_at: string | null;
+  concepts_completed: string; // JSON array
+}
+
+async function getPathwayProgressMap(): Promise<Record<string, PathwayProgressRow>> {
+  try {
+    const data = await AsyncStorage.getItem(STORAGE_KEYS.PATHWAY_PROGRESS);
+    return data ? JSON.parse(data) : {};
+  } catch {
+    return {};
+  }
+}
+
+async function savePathwayProgressMap(map: Record<string, PathwayProgressRow>): Promise<void> {
+  await AsyncStorage.setItem(STORAGE_KEYS.PATHWAY_PROGRESS, JSON.stringify(map));
+}
+
+export async function getPathwayProgress(pathwayId: string): Promise<PathwayProgressRow | null> {
+  const map = await getPathwayProgressMap();
+  return map[pathwayId] ?? null;
+}
+
+export async function getAllPathwayProgress(): Promise<PathwayProgressRow[]> {
+  const map = await getPathwayProgressMap();
+  return Object.values(map).sort(
+    (a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime()
+  );
+}
+
+export async function startPathway(pathwayId: string): Promise<void> {
+  const map = await getPathwayProgressMap();
+  const now = new Date().toISOString();
+
+  if (!map[pathwayId]) {
+    map[pathwayId] = {
+      pathway_id: pathwayId,
+      started_at: now,
+      completed_at: null,
+      concepts_completed: '[]',
+    };
+    await savePathwayProgressMap(map);
+  }
+}
+
+export async function updatePathwayProgress(
+  pathwayId: string,
+  conceptId: string,
+  totalConceptsInPathway: number
+): Promise<void> {
+  const map = await getPathwayProgressMap();
+  const now = new Date().toISOString();
+
+  if (!map[pathwayId]) {
+    map[pathwayId] = {
+      pathway_id: pathwayId,
+      started_at: now,
+      completed_at: null,
+      concepts_completed: '[]',
+    };
+  }
+
+  const completedConcepts: string[] = JSON.parse(map[pathwayId].concepts_completed || '[]');
+
+  if (!completedConcepts.includes(conceptId)) {
+    completedConcepts.push(conceptId);
+
+    const isComplete = completedConcepts.length >= totalConceptsInPathway;
+
+    map[pathwayId] = {
+      ...map[pathwayId],
+      concepts_completed: JSON.stringify(completedConcepts),
+      completed_at: isComplete ? now : null,
+    };
+
+    await savePathwayProgressMap(map);
+  }
+}
+
 // ============ Settings Operations ============
 
 export async function getSetting(key: string): Promise<string | null> {
@@ -240,6 +324,7 @@ export async function clearAllData(): Promise<void> {
     STORAGE_KEYS.USER_CONCEPTS,
     STORAGE_KEYS.JOURNAL_ENTRIES,
     STORAGE_KEYS.SETTINGS,
+    STORAGE_KEYS.PATHWAY_PROGRESS,
   ]);
 }
 

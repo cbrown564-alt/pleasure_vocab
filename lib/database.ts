@@ -47,5 +47,11 @@ export {
   getJournalEntriesForConcept,
   getExploredCount,
   getResonatesCount,
+  getPathwayProgress,
+  getAllPathwayProgress,
+  startPathway,
+  updatePathwayProgress,
   clearAllData,
 } from './database.native';
+
+export type { PathwayProgressRow } from './database.native';
