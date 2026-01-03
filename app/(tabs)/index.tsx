@@ -7,6 +7,7 @@ import { Text, Card, ProgressBar } from '@/components/ui';
 import { colors, spacing, borderRadius } from '@/constants/theme';
 import { useUserConcepts, useOnboarding, useStats } from '@/hooks/useDatabase';
 import { concepts, getConceptById } from '@/data/vocabulary';
+import { getAllExplainers } from '@/data/explainers';
 
 const goalMessages: Record<string, string> = {
   self_discovery: 'understanding your preferences',
@@ -33,6 +34,9 @@ export default function HomeScreen() {
   const recentlyExplored = userConcepts
     .filter((c) => c.status !== 'unexplored')
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())[0];
+
+  // Get research explainers
+  const explainers = getAllExplainers();
 
   return (
     <ScrollView
@@ -159,6 +163,47 @@ export default function HomeScreen() {
         </Card>
       </View>
 
+      {/* Explore the Science */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text variant="h4">Explore the Science</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/library')}>
+            <Text variant="label" color={colors.secondary[500]}>
+              View all
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.explainerScroll}
+        >
+          {explainers.slice(0, 4).map((explainer) => (
+            <Card
+              key={explainer.id}
+              variant="elevated"
+              padding="md"
+              style={styles.explainerCard}
+              onPress={() => router.push(`/explainer/${explainer.id}`)}
+            >
+              <View style={styles.explainerIconContainer}>
+                <Ionicons
+                  name={explainer.icon as keyof typeof Ionicons.glyphMap}
+                  size={24}
+                  color={colors.secondary[500]}
+                />
+              </View>
+              <Text variant="label" numberOfLines={2} style={styles.explainerTitle}>
+                {explainer.title}
+              </Text>
+              <Text variant="caption" color={colors.text.tertiary}>
+                {explainer.readTime}
+              </Text>
+            </Card>
+          ))}
+        </ScrollView>
+      </View>
+
       {/* All Explored State */}
       {unexploredConcepts.length === 0 && (
         <Card variant="elevated" padding="lg" style={styles.completedCard}>
@@ -256,6 +301,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginBottom: spacing.md,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
   actionCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -299,5 +350,25 @@ const styles = StyleSheet.create({
   },
   tipLabel: {
     marginLeft: spacing.xs,
+  },
+  explainerScroll: {
+    gap: spacing.sm,
+    paddingRight: spacing.md,
+  },
+  explainerCard: {
+    width: 140,
+    alignItems: 'flex-start',
+  },
+  explainerIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.secondary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
+  explainerTitle: {
+    marginBottom: spacing.xs,
   },
 });

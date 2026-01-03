@@ -11,13 +11,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, Card, ProgressBar } from '@/components/ui';
 import { ConceptCard } from '@/components/ConceptCard';
+import { ExplainerCard } from '@/components/ExplainerCard';
 import { colors, spacing, borderRadius } from '@/constants/theme';
 import { useUserConcepts } from '@/hooks/useDatabase';
 import { concepts, getConceptsByCategory } from '@/data/vocabulary';
 import { pathways } from '@/data/pathways';
+import { getAllExplainers } from '@/data/explainers';
 import { ConceptCategory, Pathway } from '@/types';
 
-type ViewMode = 'all' | 'pathways';
+type ViewMode = 'all' | 'pathways' | 'research';
 type CategoryFilter = 'all' | ConceptCategory;
 
 const categoryLabels: Record<ConceptCategory, string> = {
@@ -41,6 +43,8 @@ export default function LibraryScreen() {
   const { concepts: userConcepts, getStatus } = useUserConcepts();
   const [viewMode, setViewMode] = useState<ViewMode>('all');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
+
+  const explainers = getAllExplainers();
 
   const exploredCount = userConcepts.filter(
     (c) => c.status !== 'unexplored'
@@ -162,7 +166,7 @@ export default function LibraryScreen() {
                 viewMode === 'all' ? colors.primary[600] : colors.text.secondary
               }
             >
-              All Concepts
+              Concepts
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -183,10 +187,28 @@ export default function LibraryScreen() {
               Pathways
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.viewToggleButton,
+              viewMode === 'research' && styles.viewToggleActive,
+            ]}
+            onPress={() => setViewMode('research')}
+          >
+            <Text
+              variant="label"
+              color={
+                viewMode === 'research'
+                  ? colors.primary[600]
+                  : colors.text.secondary
+              }
+            >
+              Research
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
-      {viewMode === 'pathways' ? (
+      {viewMode === 'pathways' && (
         <ScrollView
           contentContainerStyle={styles.pathwaysList}
           showsVerticalScrollIndicator={false}
@@ -197,7 +219,23 @@ export default function LibraryScreen() {
           </Text>
           {pathways.map(renderPathwayCard)}
         </ScrollView>
-      ) : (
+      )}
+
+      {viewMode === 'research' && (
+        <ScrollView
+          contentContainerStyle={styles.researchList}
+          showsVerticalScrollIndicator={false}
+        >
+          <Text variant="bodySmall" color={colors.text.secondary} style={styles.researchIntro}>
+            Evidence-based articles that explain the science behind pleasure and intimacy.
+          </Text>
+          {explainers.map((explainer) => (
+            <ExplainerCard key={explainer.id} explainer={explainer} />
+          ))}
+        </ScrollView>
+      )}
+
+      {viewMode === 'all' && (
         <>
           {/* Category Filter */}
           <View style={styles.categoryFilterContainer}>
@@ -344,6 +382,12 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   pathwaysIntro: {
+    marginBottom: spacing.md,
+  },
+  researchList: {
+    padding: spacing.md,
+  },
+  researchIntro: {
     marginBottom: spacing.md,
   },
   pathwayCard: {

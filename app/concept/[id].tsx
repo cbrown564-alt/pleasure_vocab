@@ -9,11 +9,13 @@ import { StatusBadge } from '@/components/ui/Badge';
 import { colors, spacing, borderRadius } from '@/constants/theme';
 import { useUserConcept, useJournal } from '@/hooks/useDatabase';
 import { getConceptById } from '@/data/vocabulary';
+import { getExplainersForConcept } from '@/data/explainers';
 
 export default function ConceptDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const concept = getConceptById(id);
+  const relatedExplainers = getExplainersForConcept(id);
   const { status, setStatus, markExplored } = useUserConcept(id);
   const { entries, create } = useJournal(id);
   const [showJournalInput, setShowJournalInput] = useState(false);
@@ -104,6 +106,46 @@ export default function ConceptDetailScreen() {
             Source: {concept.source}
           </Text>
         </Card>
+
+        {/* Related Research */}
+        {relatedExplainers.length > 0 && (
+          <View style={styles.section}>
+            <Text variant="labelSmall" style={styles.sectionTitle}>
+              Learn the Science
+            </Text>
+            {relatedExplainers.map((explainer) => (
+              <TouchableOpacity
+                key={explainer.id}
+                style={styles.explainerCard}
+                onPress={() => router.push(`/explainer/${explainer.id}`)}
+              >
+                <View style={styles.explainerIcon}>
+                  <Ionicons
+                    name={explainer.icon as keyof typeof Ionicons.glyphMap}
+                    size={20}
+                    color={colors.secondary[500]}
+                  />
+                </View>
+                <View style={styles.explainerContent}>
+                  <Text variant="label">{explainer.title}</Text>
+                  <Text variant="caption" color={colors.text.secondary} numberOfLines={1}>
+                    {explainer.subtitle}
+                  </Text>
+                </View>
+                <View style={styles.explainerBadge}>
+                  <Text variant="caption" color={colors.text.tertiary}>
+                    {explainer.readTime}
+                  </Text>
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={16}
+                  color={colors.neutral[400]}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         {/* Journal Section */}
         <View style={styles.section}>
@@ -316,5 +358,30 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderRadius: borderRadius.full,
     gap: spacing.xs,
+  },
+  explainerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.background.primary,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+  },
+  explainerIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.secondary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
+  },
+  explainerContent: {
+    flex: 1,
+  },
+  explainerBadge: {
+    marginRight: spacing.sm,
   },
 });

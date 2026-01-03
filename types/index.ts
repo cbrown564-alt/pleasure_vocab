@@ -126,6 +126,48 @@ export interface CommunicationBarrier {
   tips: string[];
 }
 
+// Research explainer - accessible science summary
+export interface ResearchExplainer {
+  id: string;
+  title: string;
+  subtitle: string;          // One-line hook
+  icon: string;              // Ionicons icon name
+  readTime: string;          // e.g., "5 min read"
+
+  // Content sections
+  overview: string;          // 2-3 sentence intro
+  keyTakeaways: string[];    // 3-5 bullet points
+
+  // Main content sections
+  sections: {
+    title: string;
+    content: string;         // 2-3 paragraphs
+    statistic?: {
+      value: string;
+      label: string;
+      source: string;
+    };
+  }[];
+
+  // Misconceptions
+  misconceptions: {
+    myth: string;
+    fact: string;
+  }[];
+
+  // Research sources
+  keySources: {
+    citation: string;
+    finding: string;
+  }[];
+
+  // Linking
+  relatedConceptIds: string[];
+  relatedExplainerIds: string[];
+
+  tier: ConceptTier;
+}
+
 // Navigation params
 export type RootStackParamList = {
   '(tabs)': undefined;
