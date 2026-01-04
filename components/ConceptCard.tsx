@@ -9,10 +9,11 @@ import { Text } from './ui/Typography';
 interface ConceptCardProps {
   concept: Concept;
   status: ConceptStatus;
+  isCollected?: boolean;
   onPress?: () => void;
 }
 
-export function ConceptCard({ concept, status, onPress }: ConceptCardProps) {
+export function ConceptCard({ concept, status, isCollected, onPress }: ConceptCardProps) {
   const handlePress = () => {
     if (onPress) {
       onPress();
@@ -37,14 +38,20 @@ export function ConceptCard({ concept, status, onPress }: ConceptCardProps) {
     <TouchableOpacity
       onPress={handlePress}
       activeOpacity={0.9}
-      style={[styles.card, !isUnexplored && { borderLeftColor: statusColor, borderLeftWidth: 4 }]}
+      style={[
+        styles.card,
+        !isUnexplored && { borderLeftColor: statusColor, borderLeftWidth: 4 },
+        isCollected && styles.collectedCard
+      ]}
     >
       <View style={styles.content}>
         <View style={styles.header}>
           <Text variant="label" color={colors.text.tertiary} style={styles.category}>
             {concept.category}
           </Text>
-          {status === 'resonates' && (
+          {isCollected ? (
+            <Ionicons name="checkmark-circle" size={16} color={colors.primary[500]} />
+          ) : status === 'resonates' && (
             <Ionicons name="heart" size={16} color={colors.primary[500]} />
           )}
         </View>
@@ -82,6 +89,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.neutral[100], // Very subtle border
     overflow: 'hidden',
+  },
+  collectedCard: {
+    borderColor: colors.primary[300],
+    borderWidth: 2,
+    backgroundColor: colors.primary[50], // Slight tint
   },
   content: {
     padding: spacing.lg,

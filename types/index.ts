@@ -19,6 +19,17 @@ export type ConceptCategory =
 // Tier for future paywall
 export type ConceptTier = 'free' | 'premium';
 
+export type ConceptSlideType = 'cover' | 'context' | 'visual' | 'deep_dive' | 'reflection';
+
+export interface ConceptSlide {
+  type: ConceptSlideType;
+  title?: string; // Overrides default title if needed
+  content: string;
+  image?: any;
+}
+
+export type DiagramType = 'angling' | 'rocking' | 'shallowing' | 'pairing' | 'iceberg' | 'nerve-density' | 'cuv-complex' | 'warmup-window' | 'none';
+
 // A vocabulary concept
 export interface Concept {
   id: string;
@@ -31,6 +42,10 @@ export interface Concept {
   recognitionPrompts: string[]; // "Have you noticed..." questions
   relatedConcepts: string[];    // IDs of related concepts
   tier: ConceptTier;
+
+  // New Core Experience Fields
+  diagramType?: DiagramType;
+  slides?: ConceptSlide[];
 }
 
 // User's tracked state for a concept

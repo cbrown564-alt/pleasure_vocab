@@ -26,6 +26,33 @@ The adjustment can be small - even a slight change in pelvic tilt can shift sens
     ],
     relatedConcepts: ['rocking', 'pairing'],
     tier: 'free',
+    diagramType: 'angling',
+    slides: [
+      {
+        type: 'cover',
+        content: 'Rotating, raising, or lowering the pelvis during penetration to adjust where internal stimulation occurs.',
+      },
+      {
+        type: 'context',
+        title: 'The Why',
+        content: 'Angling involves making subtle adjustments to pelvic position during penetrative activity. By tilting, raising, or lowering your pelvis, you can change the angle of penetration to target different areas of internal sensation.',
+      },
+      {
+        type: 'visual',
+        title: 'See It In Action',
+        content: 'The adjustment can be small—even a slight change in pelvic tilt can shift sensations significantly. Some find certain angles consistently feel better, while others enjoy varying the angle throughout an experience.',
+      },
+      {
+        type: 'deep_dive',
+        title: 'The Evidence',
+        content: 'Identified in the OMGyes Pleasure Report research as one of four named techniques associated with enhanced pleasure. The research found that having language for this movement helped women recognize and replicate what works for them.',
+      },
+      {
+        type: 'reflection',
+        title: 'Try This',
+        content: 'Have you ever noticed yourself tilting your hips to change how something feels? Next time, try intentionally adjusting your pelvic angle to see how it changes the sensation.',
+      },
+    ],
   },
   {
     id: 'rocking',
@@ -48,6 +75,33 @@ This technique can be particularly relevant because it allows for simultaneous i
     ],
     relatedConcepts: ['angling', 'pairing'],
     tier: 'free',
+    diagramType: 'rocking',
+    slides: [
+      {
+        type: 'cover',
+        content: 'A grinding or rocking motion that keeps consistent contact with external areas during penetration.',
+      },
+      {
+        type: 'context',
+        title: 'The Why',
+        content: 'Rocking refers to a grinding, circular, or back-and-forth motion during penetrative activity that maintains continuous contact between bodies - particularly at the point where external sensitive areas meet a partner\'s body.',
+      },
+      {
+        type: 'visual',
+        title: 'See It In Action',
+        content: 'Unlike thrusting motions that create movement in and out, rocking keeps bodies close together with a rhythmic motion that provides consistent external stimulation alongside any internal sensations.',
+      },
+      {
+        type: 'deep_dive',
+        title: 'The Evidence',
+        content: 'Research shows that consistent external stimulation is important for pleasure for many women. Rocking was identified as a specific named technique that facilitates this during partnered penetrative activity.',
+      },
+      {
+        type: 'reflection',
+        title: 'Try This',
+        content: 'Have you noticed a difference between grinding/rocking motions versus thrusting? Notice if staying close and moving rhythmically helps maintain pleasure.',
+      },
+    ],
   },
   {
     id: 'shallowing',
@@ -70,6 +124,33 @@ This technique can involve gentle circling, light pressure, teasing movements, o
     ],
     relatedConcepts: ['pairing'],
     tier: 'free',
+    diagramType: 'shallowing',
+    slides: [
+      {
+        type: 'cover',
+        content: 'Focusing stimulation at or just inside the vaginal entrance rather than deeper penetration.',
+      },
+      {
+        type: 'context',
+        title: 'The Why',
+        content: 'Shallowing describes pleasurable touch that focuses on the vaginal entrance and the area just inside - using fingertips, tongue, or the tip of a toy or partner rather than deeper penetration.',
+      },
+      {
+        type: 'visual',
+        title: 'See It In Action',
+        content: 'The entrance area has a high concentration of nerve endings. Shallowing treats this area as a destination rather than just a passage to somewhere else.',
+      },
+      {
+        type: 'deep_dive',
+        title: 'The Evidence',
+        content: 'The vaginal entrance (introitus) contains a high density of nerve endings. Research identified shallowing as a distinct technique that many women find pleasurable, challenging assumptions that deeper always means better.',
+      },
+      {
+        type: 'reflection',
+        title: 'Try This',
+        content: 'Have you noticed that the entrance area can feel especially sensitive? Try exploring gentle, shallow touch rather than deeper stimulation.',
+      },
+    ],
   },
   {
     id: 'pairing',
@@ -92,6 +173,33 @@ Pairing can happen in many ways - reaching down yourself, guiding a partner's ha
     ],
     relatedConcepts: ['angling', 'rocking', 'shallowing'],
     tier: 'free',
+    diagramType: 'pairing',
+    slides: [
+      {
+        type: 'cover',
+        content: 'Adding external clitoral stimulation during penetration, either solo or with a partner.',
+      },
+      {
+        type: 'context',
+        title: 'The Why',
+        content: 'Pairing means combining internal penetration with external clitoral stimulation - using your own hand, a partner\'s hand, a toy, or body positioning to add external touch during penetrative activity.',
+      },
+      {
+        type: 'visual',
+        title: 'See It In Action',
+        content: 'This technique directly addresses what research consistently shows: most women need clitoral stimulation for orgasm, and penetration alone often doesn\'t provide sufficient clitoral contact.',
+      },
+      {
+        type: 'deep_dive',
+        title: 'The Evidence',
+        content: 'Extensive research shows that the clitoris, not the vagina, is the primary site of orgasmic sensation for most women. Studies find that adding clitoral stimulation during penetration significantly increases likelihood of orgasm.',
+      },
+      {
+        type: 'reflection',
+        title: 'Try This',
+        content: 'Do you find that penetration feels better when combined with external touch? Try adding your own hand or a toy during partnered experiences.',
+      },
+    ],
   },
 
   // ============ SENSATIONS & QUALITIES ============
