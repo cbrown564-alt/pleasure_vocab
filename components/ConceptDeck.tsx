@@ -34,11 +34,11 @@ const DiagramPlaceholder = ({ type }: { type: DiagramType }) => {
     );
 };
 
-const Slide = ({ item, concept, onFinish }: { item: ConceptSlide, concept: Concept, onFinish: () => void }) => {
-    const { type, title, content, image } = item;
+const Slide = ({ item, concept, onFinish, isLast }: { item: ConceptSlide, concept: Concept, onFinish: () => void, isLast: boolean }) => {
+    const { type, title, content } = item;
 
-    // COVER SLIDE
-    if (type === 'cover') {
+    // RECOGNIZE SLIDE - Connect to user's experience
+    if (type === 'recognize') {
         return (
             <View style={styles.slide}>
                 <View style={[styles.centeredContent]}>
@@ -48,8 +48,8 @@ const Slide = ({ item, concept, onFinish }: { item: ConceptSlide, concept: Conce
 
                     <ThemedText variant="h1" align="center" style={styles.heroTitle}>{concept.name}</ThemedText>
 
-                    <View style={styles.definitionCard}>
-                        <ThemedText variant="h3" align="center" style={styles.definitionText}>
+                    <View style={styles.recognizeCard}>
+                        <ThemedText variant="h3" align="center" style={styles.recognizeText}>
                             {content}
                         </ThemedText>
                     </View>
@@ -63,19 +63,19 @@ const Slide = ({ item, concept, onFinish }: { item: ConceptSlide, concept: Conce
         );
     }
 
-    // CONTEXT SLIDE ("The Why") - Clean Editorial, slightly warmer
-    if (type === 'context') {
+    // NAME SLIDE - Give the vocabulary/definition
+    if (type === 'name') {
         return (
             <View style={[styles.slide, { backgroundColor: colors.primary[50] }]}>
                 <View style={styles.centeredContent}>
                     <View style={styles.iconCircle}>
-                        <Ionicons name="bulb-outline" size={28} color={colors.primary[600]} />
+                        <Ionicons name="bookmark-outline" size={28} color={colors.primary[600]} />
                     </View>
 
-                    <ThemedText variant="h2" align="center" style={styles.contextTitle}>{title || 'The Why'}</ThemedText>
+                    <ThemedText variant="h2" align="center" style={styles.nameTitle}>{title || 'The Word'}</ThemedText>
 
                     <View style={{ maxWidth: '90%' }}>
-                        <ThemedText variant="body" align="center" style={styles.contextBody}>
+                        <ThemedText variant="body" align="center" style={styles.nameBody}>
                             {content}
                         </ThemedText>
                     </View>
@@ -84,52 +84,28 @@ const Slide = ({ item, concept, onFinish }: { item: ConceptSlide, concept: Conce
         );
     }
 
-    // DEEP DIVE / EVIDENCE ("Research Card") - Card look
-    if (type === 'deep_dive') {
+    // UNDERSTAND SLIDE - Evidence + insight
+    if (type === 'understand') {
         return (
             <View style={styles.slide}>
                 <View style={styles.centeredContent}>
                     <ThemedText variant="h4" align="center" color={colors.text.tertiary} style={{ marginBottom: spacing.lg }}>
-                        THE EVIDENCE
+                        THE RESEARCH
                     </ThemedText>
 
                     <View style={styles.evidenceCard}>
-                        <Ionicons name="quote" size={32} color={colors.primary[200]} style={styles.quoteIcon} />
+                        <Ionicons name="stats-chart-outline" size={28} color={colors.primary[400]} style={styles.quoteIcon} />
                         <ThemedText variant="h3" style={styles.evidenceText}>
                             {content}
                         </ThemedText>
-                        <View style={styles.evidenceFooter}>
-                            <ThemedText variant="caption" color={colors.text.tertiary}>Research Basis</ThemedText>
-                        </View>
                     </View>
                 </View>
             </View>
         );
     }
 
-    // VISUAL SLIDE ("Dark Mode" / Visual focus)
-    if (type === 'visual') {
-        return (
-            <View style={styles.slide}>
-                <View style={styles.centeredContent}>
-                    <ThemedText variant="h2" align="center" style={styles.slideTitle}>{title || 'See it in action'}</ThemedText>
-
-                    <ThemedText variant="body" align="center" style={styles.visualBody}>{content}</ThemedText>
-
-                    <View style={styles.visualContainer}>
-                        {concept.diagramType ? (
-                            <DiagramPlaceholder type={concept.diagramType} />
-                        ) : image ? (
-                            <Image source={image} style={styles.image} resizeMode="contain" />
-                        ) : null}
-                    </View>
-                </View>
-            </View>
-        );
-    }
-
-    // FINAL / REFLECTION SLIDE (Actionable)
-    if (type === 'reflection') {
+    // EXPLORE SLIDE - Category-appropriate action (final slide)
+    if (type === 'explore') {
         return (
             <View style={styles.slide}>
                 <View style={styles.centeredContent}>
@@ -137,35 +113,37 @@ const Slide = ({ item, concept, onFinish }: { item: ConceptSlide, concept: Conce
                         <Ionicons name="sparkles" size={40} color={colors.primary[500]} />
                     </View>
 
-                    <ThemedText variant="h2" align="center" style={styles.slideTitle}>{title || 'Try This'}</ThemedText>
+                    <ThemedText variant="h2" align="center" style={styles.slideTitle}>{title || 'Explore'}</ThemedText>
 
-                    <View style={styles.reflectionCard}>
-                        <ThemedText variant="h3" align="center" style={styles.reflectionText}>{content}</ThemedText>
+                    <View style={styles.exploreCard}>
+                        <ThemedText variant="h3" align="center" style={styles.exploreText}>{content}</ThemedText>
                     </View>
 
-                    <View style={styles.actionContainer}>
-                        <Button
-                            title="Collect this Word"
-                            onPress={onFinish}
-                            variant="primary"
-                            size="lg"
-                            fullWidth
-                            style={styles.collectButton}
-                        />
-                        <ThemedText variant="caption" align="center" color={colors.text.tertiary} style={{ marginTop: 12 }}>
-                            Add to your library to track mastery
-                        </ThemedText>
-                    </View>
+                    {isLast && (
+                        <View style={styles.actionContainer}>
+                            <Button
+                                title="Collect this Word"
+                                onPress={onFinish}
+                                variant="primary"
+                                size="lg"
+                                fullWidth
+                                style={styles.collectButton}
+                            />
+                            <ThemedText variant="caption" align="center" color={colors.text.tertiary} style={{ marginTop: 12 }}>
+                                Add to your vocabulary
+                            </ThemedText>
+                        </View>
+                    )}
                 </View>
             </View>
         );
     }
 
-    // Fallback
+    // Fallback (should not be reached with current types)
     return (
         <View style={styles.slide}>
             <View style={styles.centeredContent}>
-                <ThemedText variant="h2" align="center" style={styles.slideTitle}>{title || type.toUpperCase()}</ThemedText>
+                <ThemedText variant="h2" align="center" style={styles.slideTitle}>{title || String(type).toUpperCase()}</ThemedText>
                 <ThemedText variant="body" align="center" style={styles.BodyCentered}>{content}</ThemedText>
             </View>
         </View>
@@ -184,11 +162,10 @@ export const ConceptDeck = ({ concept }: { concept: Concept }) => {
 
     // Construct slides if not present (legacy fallback)
     const slides: ConceptSlide[] = concept.slides || [
-        { type: 'cover', content: concept.definition },
-        { type: 'context', title: 'The Why', content: concept.description },
-        { type: 'deep_dive', title: 'The Evidence', content: concept.researchBasis },
-        { type: 'visual', title: 'Visualize It', content: 'Visual representation placeholder.' },
-        { type: 'reflection', title: 'Try This', content: concept.recognitionPrompts[0] || 'Have you noticed this?' }
+        { type: 'recognize', content: concept.recognitionPrompts[0] || 'Have you experienced this?' },
+        { type: 'name', content: concept.definition },
+        { type: 'understand', content: concept.researchBasis },
+        { type: 'explore', content: concept.recognitionPrompts[1] || 'Try noticing this next time.' }
     ];
 
     const handleScroll = (event: any) => {
@@ -226,7 +203,7 @@ export const ConceptDeck = ({ concept }: { concept: Concept }) => {
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
                 keyExtractor={(_, index) => index.toString()}
-                renderItem={({ item }) => <Slide item={item} concept={concept} onFinish={onFinish} />}
+                renderItem={({ item, index }) => <Slide item={item} concept={concept} onFinish={onFinish} isLast={index === slides.length - 1} />}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
             />
@@ -288,7 +265,7 @@ const styles = StyleSheet.create({
 
     // TYPOGRAPHY & COMPONENTS
 
-    // Cover
+    // Recognize slide
     categoryLabel: {
         letterSpacing: 2,
         marginBottom: spacing.sm,
@@ -299,10 +276,10 @@ const styles = StyleSheet.create({
         marginBottom: spacing.xl,
         lineHeight: 48,
     },
-    definitionCard: {
+    recognizeCard: {
         marginBottom: spacing.xl * 2,
     },
-    definitionText: {
+    recognizeText: {
         fontSize: 22,
         lineHeight: 34,
         fontStyle: 'italic',
@@ -317,7 +294,7 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
 
-    // Context ("The Why")
+    // Name slide
     iconCircle: {
         width: 56,
         height: 56,
@@ -327,18 +304,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: spacing.md,
     },
-    contextTitle: {
+    nameTitle: {
         fontSize: 28,
         color: colors.primary[800],
         marginBottom: spacing.lg,
     },
-    contextBody: {
+    nameBody: {
         fontSize: 20,
         lineHeight: 32,
         color: colors.text.primary,
     },
 
-    // Evidence ("Research Card")
+    // Understand slide (Evidence/Research)
     evidenceCard: {
         backgroundColor: colors.background.surface,
         padding: spacing.xl,
@@ -356,64 +333,26 @@ const styles = StyleSheet.create({
         fontSize: 20,
         lineHeight: 30,
         color: colors.text.secondary,
-        fontFamily: typography.fontFamily.headingItalic, // Quote feel
-        marginBottom: spacing.md,
-    },
-    evidenceFooter: {
-        borderTopWidth: 1,
-        borderTopColor: colors.neutral[100],
-        paddingTop: spacing.md,
-        alignItems: 'flex-start',
+        fontFamily: typography.fontFamily.headingItalic,
     },
 
-    // Visual
+    // Explore slide (Action/Final)
     slideTitle: {
         fontSize: 32,
         color: colors.text.primary,
         marginBottom: spacing.md,
     },
-    visualBody: {
-        fontSize: 18,
-        lineHeight: 28,
-        color: colors.text.secondary,
-        marginBottom: spacing.lg,
-    },
-    visualContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        aspectRatio: 1,
-        width: '100%',
-        backgroundColor: colors.background.surface,
-        borderRadius: 24,
-        ...shadows.lg,
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-        borderRadius: 24,
-    },
-    diagramContainer: {
-        width: '100%',
-        height: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    diagramPlaceholder: {
-        alignItems: 'center',
-    },
-
-    // Reflection / Final
     sparkleContainer: {
         marginBottom: spacing.md,
     },
-    reflectionCard: {
+    exploreCard: {
         marginBottom: 40,
         justifyContent: 'center',
         paddingHorizontal: spacing.sm,
     },
-    reflectionText: {
-        fontSize: 26,
-        lineHeight: 40,
+    exploreText: {
+        fontSize: 24,
+        lineHeight: 38,
         color: colors.text.primary,
     },
     actionContainer: {
@@ -422,6 +361,17 @@ const styles = StyleSheet.create({
     },
     collectButton: {
         ...shadows.md,
+    },
+
+    // Diagram placeholder (for future use)
+    diagramContainer: {
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    diagramPlaceholder: {
+        alignItems: 'center',
     },
 
     // Fallback

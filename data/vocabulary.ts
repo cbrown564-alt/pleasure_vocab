@@ -29,28 +29,21 @@ The adjustment can be small - even a slight change in pelvic tilt can shift sens
     diagramType: 'angling',
     slides: [
       {
-        type: 'cover',
-        content: 'Tilting your pelvis to change where sensation lands inside.',
+        type: 'recognize',
+        content: 'Have you ever shifted your hips during penetration to find an angle that felt better?',
       },
       {
-        type: 'context',
-        title: 'The Why',
-        content: 'Most people discover this instinctively—shifting hips mid-experience to find what feels better. Giving it a name transforms an unconscious adjustment into a tool you can use intentionally and communicate about.',
+        type: 'name',
+        content: 'That instinct has a name. Angling is the subtle art of tilting your pelvis—forward, back, or side-to-side—to change where sensation lands inside.',
       },
       {
-        type: 'visual',
-        title: 'See It In Action',
-        content: 'Picture a subtle tilt: pelvis forward, back, or side-to-side. Even 10-15 degrees changes which internal areas receive pressure. The front wall, back wall, or deeper regions each offer different sensations.',
+        type: 'understand',
+        content: '87.5% of women use this technique. Research shows that having specific language for movements helps people recognize and repeat what works—turning vague "it felt good that time" into knowledge you can use.',
       },
       {
-        type: 'deep_dive',
-        title: 'The Evidence',
-        content: '87.5% of women report using this technique to enhance pleasure. Having specific language for this movement helped women recognize and replicate what works—turning vague "it felt good that time" into repeatable knowledge.',
-      },
-      {
-        type: 'reflection',
+        type: 'explore',
         title: 'Try This',
-        content: 'Next time, pause and experiment: tilt your pelvis slightly forward, then back. Notice if one angle creates more intensity or a different quality of sensation. Your body already knows—now your mind can too.',
+        content: 'During penetration, experiment: tilt your pelvis slightly forward, then back. Even 10-15 degrees shifts which internal areas receive pressure. Notice which angle creates more intensity.',
       },
     ],
   },
@@ -78,28 +71,21 @@ This technique can be particularly relevant because it allows for simultaneous i
     diagramType: 'rocking',
     slides: [
       {
-        type: 'cover',
-        content: 'A grinding motion that maintains steady contact with external sensitive areas.',
+        type: 'recognize',
+        content: 'Have you noticed that grinding or circular movements sometimes feel better than thrusting?',
       },
       {
-        type: 'context',
-        title: 'The Why',
-        content: 'Thrusting creates separation. Rocking keeps bodies close—maintaining the continuous external contact that most women need. It\'s hands-free clitoral stimulation built into the movement itself.',
+        type: 'name',
+        content: 'Rocking is a grinding, wave-like motion that keeps bodies pressed close together—providing continuous clitoral contact during penetration without needing hands.',
       },
       {
-        type: 'visual',
-        title: 'See It In Action',
-        content: 'Imagine a wave or figure-eight motion rather than in-and-out. Bodies stay pressed together while hips create rhythmic pressure. The motion happens at the point of contact, not through separation.',
+        type: 'understand',
+        content: 'Only 18% of women can orgasm from penetration alone. Rocking bridges the gap by maintaining external pressure throughout. Lesbian couples—who rock more and thrust less—report orgasm rates 21 points higher than heterosexual women.',
       },
       {
-        type: 'deep_dive',
-        title: 'The Evidence',
-        content: 'Only 18% of women can orgasm from penetration alone—most need clitoral involvement. Rocking bridges this gap by providing consistent external pressure during penetration, which is why lesbian couples (who rock more and thrust less) report higher orgasm rates.',
-      },
-      {
-        type: 'reflection',
+        type: 'explore',
         title: 'Try This',
-        content: 'Compare the two: traditional in-out motion versus staying close with a grinding rhythm. Notice what happens to your external sensations. Which creates more continuity?',
+        content: 'Instead of in-and-out, stay close and move your hips in a wave or figure-eight. Notice what happens to your external sensations when contact stays continuous.',
       },
     ],
   },
@@ -127,28 +113,21 @@ This technique can involve gentle circling, light pressure, teasing movements, o
     diagramType: 'shallowing',
     slides: [
       {
-        type: 'cover',
-        content: 'Lingering at the entrance—where nerve endings are most concentrated.',
+        type: 'recognize',
+        content: 'Have you noticed that the first moments of penetration—right at the entrance—can feel especially sensitive?',
       },
       {
-        type: 'context',
-        title: 'The Why',
-        content: 'Deeper isn\'t always better. The vaginal entrance is actually the most nerve-rich zone. Shallowing treats this area as the destination, not just the doorway.',
+        type: 'name',
+        content: 'Shallowing means lingering at the vaginal entrance with fingertips, tongue, or a toy tip. The entrance isn\'t just a doorway—it\'s the most nerve-rich zone.',
       },
       {
-        type: 'visual',
-        title: 'See It In Action',
-        content: 'Picture fingertips, a tongue, or a toy tip circling and teasing just at the opening. Gentle pressure, slow movements, the anticipation of more. The first inch holds more sensation than people realize.',
+        type: 'understand',
+        content: '84% of women use this technique. 40% report that staying shallow first makes everything after feel more pleasurable. It\'s not just teasing—it\'s priming.',
       },
       {
-        type: 'deep_dive',
-        title: 'The Evidence',
-        content: '84% of women use this technique. And 40% report that lingering at the entrance makes everything that comes after feel more pleasurable—it\'s not just teasing, it\'s priming.',
-      },
-      {
-        type: 'reflection',
+        type: 'explore',
         title: 'Try This',
-        content: 'Instead of rushing past the entrance, stay there. Circle slowly. Notice how sensitive this area actually is when you give it attention rather than treating it as a passage.',
+        content: 'Instead of rushing deeper, stay at the entrance. Circle slowly. Give this area attention as a destination, not just a passage. Notice what your body has been trying to tell you.',
       },
     ],
   },
@@ -176,28 +155,21 @@ Pairing can happen in many ways - reaching down yourself, guiding a partner's ha
     diagramType: 'pairing',
     slides: [
       {
-        type: 'cover',
-        content: 'Adding clitoral touch during penetration—the combination most bodies actually need.',
+        type: 'recognize',
+        content: 'Have you found that penetration alone doesn\'t quite get you there—but adding clitoral touch changes everything?',
       },
       {
-        type: 'context',
-        title: 'The Why',
-        content: 'Penetration alone doesn\'t reach the clitoris for most women. Pairing fills that gap: your hand, their hand, a toy—whatever brings external stimulation into the mix. It\'s not "extra help." It\'s how anatomy actually works.',
+        type: 'name',
+        content: 'Pairing means adding clitoral stimulation during penetration—your hand, their hand, or a toy. It\'s not "extra help." It\'s how anatomy actually works.',
       },
       {
-        type: 'visual',
-        title: 'See It In Action',
-        content: 'Picture adding your own touch during penetration. Or guiding a partner\'s hand. Or a small vibrator held between bodies. The clitoris gets consistent attention while penetration continues.',
+        type: 'understand',
+        content: '70% of women use pairing. Orgasm rates jump from 21-30% (penetration alone) to 51-60% (with clitoral touch). Nearly 75% say clitoral stimulation is either necessary or makes orgasms feel significantly better.',
       },
       {
-        type: 'deep_dive',
-        title: 'The Evidence',
-        content: '70% of women use pairing. And for good reason: orgasm rates jump from 21-30% (penetration alone) to 51-60% (with clitoral stimulation added). Nearly 75% of women say clitoral touch is either necessary or makes orgasms feel better.',
-      },
-      {
-        type: 'reflection',
+        type: 'explore',
         title: 'Try This',
-        content: 'During penetration, add your own touch to your clitoris. Notice the difference. This isn\'t a workaround—it\'s giving your body what it\'s actually designed to respond to.',
+        content: 'During penetration, reach down and add touch to your clitoris. This isn\'t a workaround—it\'s giving your body what it\'s designed to respond to.',
       },
     ],
   },
@@ -226,28 +198,21 @@ Understanding building as a named experience helps recognize that arousal doesn'
     tier: 'free',
     slides: [
       {
-        type: 'cover',
-        content: 'Arousal gathering momentum—a wave that grows stronger over time.',
+        type: 'recognize',
+        content: 'Have you felt arousal start small—a hint of warmth, a whisper of tingling—then slowly intensify into something unmistakable?',
       },
       {
-        type: 'context',
-        title: 'The Why',
-        content: 'Pleasure doesn\'t have to arrive instantly. Building is that gradual intensification—warmth becoming heat, tingling becoming insistence. Rushing past this phase often means missing the best part.',
+        type: 'name',
+        content: 'Building is the gradual gathering of arousal over time. Not instant heat, but warmth becoming fire. Anticipation and sensation start to blur together.',
       },
       {
-        type: 'visual',
-        title: 'See It In Action',
-        content: 'Imagine a wave forming far out at sea, growing as it approaches shore. Building feels like that—subtle at first, then unmistakable. Anticipation and sensation start to blur together.',
+        type: 'understand',
+        content: 'Extended arousal periods correlate with stronger orgasms. Rushing past the building phase often diminishes the eventual peak. Your body is designed to accumulate sensation—giving it time pays off.',
       },
       {
-        type: 'deep_dive',
-        title: 'The Evidence',
-        content: 'Research shows extended arousal periods correlate with more satisfying experiences and stronger orgasms. Women who allow time for building—rather than rushing to peak—report more intense pleasure overall.',
-      },
-      {
-        type: 'reflection',
-        title: 'Try This',
-        content: 'Next time you notice arousal starting, resist the urge to intensify immediately. Stay with the subtle sensations. Let them grow on their own timeline. Notice how they deepen.',
+        type: 'explore',
+        title: 'Notice This',
+        content: 'Next time arousal starts, resist the urge to intensify immediately. Stay with the subtle sensations. Let them grow on their own timeline. The building itself is part of the pleasure.',
       },
     ],
   },
@@ -272,6 +237,25 @@ Recognizing a plateau helps you respond to it intentionally. You might choose to
     ],
     relatedConcepts: ['building', 'edging'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you reached a point where arousal stays steady—not fading, but not climbing either? Like hovering at a certain altitude?',
+      },
+      {
+        type: 'name',
+        content: 'Plateauing is sustained arousal at a consistent level. Sometimes it\'s a natural pause before orgasm. Other times, it\'s your body signaling that something needs to shift.',
+      },
+      {
+        type: 'understand',
+        content: 'Research identifies plateau as a normal phase in arousal cycles. Recognizing it helps you respond intentionally—either savoring the sustained pleasure or taking it as information that a change would help.',
+      },
+      {
+        type: 'explore',
+        title: 'Notice This',
+        content: 'When you feel arousal holding steady, ask: Is this a delicious hover? Or is my body asking for something different? Both are valid. The awareness itself is the skill.',
+      },
+    ],
   },
   {
     id: 'edging',
@@ -294,6 +278,25 @@ Edging requires body awareness - learning to recognize your own signs of approac
     ],
     relatedConcepts: ['building', 'plateauing', 'embodied-presence'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you ever gotten close to orgasm, pulled back, then approached again—and noticed the eventual release felt more intense?',
+      },
+      {
+        type: 'name',
+        content: 'Edging is intentionally approaching the threshold of orgasm, then easing back before crossing it. The cycle can repeat multiple times, building intensity with each approach.',
+      },
+      {
+        type: 'understand',
+        content: 'Studies on orgasm intensity suggest that delayed release following extended arousal often feels more powerful. Edging also builds body awareness—learning to recognize your own point of no return.',
+      },
+      {
+        type: 'explore',
+        title: 'Try This',
+        content: 'When you feel orgasm approaching, slow down or pause. Let the intensity recede slightly. Then build again. Notice: does the eventual release feel different when you\'ve edged first?',
+      },
+    ],
   },
   {
     id: 'spreading',
@@ -316,6 +319,25 @@ Noticing spreading can enhance the experience of pleasure by expanding attention
     ],
     relatedConcepts: ['building', 'pulsing', 'embodied-presence'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you felt pleasure radiate outward from where you\'re being touched—warmth or tingling traveling through your body like ripples in water?',
+      },
+      {
+        type: 'name',
+        content: 'Spreading is when arousal expands beyond the point of contact. What starts as localized sensation flows through the pelvis, up the spine, through the limbs—sometimes across the whole body.',
+      },
+      {
+        type: 'understand',
+        content: 'Research on embodied sexuality finds that awareness of whole-body sensation correlates with more satisfying experiences. Spreading often indicates deep relaxation and full engagement.',
+      },
+      {
+        type: 'explore',
+        title: 'Notice This',
+        content: 'During arousal, expand your attention beyond where you\'re being touched. Can you feel sensation in areas that aren\'t receiving direct contact? Let your awareness follow wherever the pleasure spreads.',
+      },
+    ],
   },
   {
     id: 'pulsing',
@@ -338,6 +360,25 @@ Having language for this sensation helps recognize it when it's happening, and h
     ],
     relatedConcepts: ['building', 'spreading'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you noticed a rhythmic, throbbing quality during high arousal or orgasm—like waves of sensation beating through you?',
+      },
+      {
+        type: 'name',
+        content: 'Pulsing is the rhythmic, wave-like quality that pleasure can take on. During orgasm, pelvic muscles contract in pulses. But pulsing sensations can occur throughout arousal, not just at climax.',
+      },
+      {
+        type: 'understand',
+        content: 'Orgasm research documents rhythmic contractions occurring approximately every 0.8 seconds during climax. Many people find that stimulation matching this natural pulse rhythm feels especially good.',
+      },
+      {
+        type: 'explore',
+        title: 'Notice This',
+        content: 'During high arousal, tune into any rhythmic quality. Can you feel a pulse or throb? Some find that syncing stimulation to this natural rhythm—or playing against it—creates interesting effects.',
+      },
+    ],
   },
 
   // ============ TIMING & PACING ============
@@ -362,6 +403,25 @@ Understanding the warm-up window reframes extended foreplay not as a requirement
     ],
     relatedConcepts: ['building', 'responsive-desire'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you noticed that touch feels better after you\'ve had time to warm up—and that rushing makes everything feel less enjoyable?',
+      },
+      {
+        type: 'name',
+        content: 'The warm-up window is the time your body needs for full arousal before genital touch feels best. For many women, this is 20+ minutes of whole-body stimulation.',
+      },
+      {
+        type: 'understand',
+        content: 'Blood flow to genital tissue, natural lubrication, and full-body arousal take time to peak. Research shows adequate warm-up correlates with better lubrication, comfort, and reported pleasure. This isn\'t a flaw—it\'s physiology.',
+      },
+      {
+        type: 'explore',
+        title: 'Reframe This',
+        content: 'Extended warm-up isn\'t an obligation or delay. It\'s giving your body what it needs to feel fully alive. Consider: what would change if you stopped thinking of it as "foreplay" and started treating it as the main event?',
+      },
+    ],
   },
   {
     id: 'responsive-desire',
@@ -384,6 +444,25 @@ Understanding responsive desire can be liberating. It means you don't need to "f
     ],
     relatedConcepts: ['spontaneous-desire', 'warmup-window'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Do you rarely feel random urges for sex—but once things start, you get into it and enjoy yourself fully?',
+      },
+      {
+        type: 'name',
+        content: 'Responsive desire means sexual interest emerges in response to something—a partner\'s touch, an erotic situation—rather than appearing spontaneously as an internal urge beforehand.',
+      },
+      {
+        type: 'understand',
+        content: 'About 30% of women experience primarily responsive desire, and most people experience it sometimes. It\'s not low libido—it\'s a different pathway to the same destination. The absence of spontaneous urges doesn\'t mean anything is wrong.',
+      },
+      {
+        type: 'explore',
+        title: 'Reframe This',
+        content: 'You don\'t need to "feel like it" beforehand to enjoy sex. If you have responsive desire, the key is creating conditions for desire to emerge—then seeing what unfolds once you start.',
+      },
+    ],
   },
   {
     id: 'spontaneous-desire',
@@ -406,6 +485,25 @@ Understanding spontaneous desire as one pattern among others helps remove the ex
     ],
     relatedConcepts: ['responsive-desire'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Do you sometimes feel sexually interested out of nowhere—an urge that appears without any obvious cause?',
+      },
+      {
+        type: 'name',
+        content: 'Spontaneous desire is sexual interest that arises on its own, without an external trigger. It\'s what people typically call "being in the mood" or "feeling horny."',
+      },
+      {
+        type: 'understand',
+        content: 'About 75% of men and 15% of women experience primarily spontaneous desire. It tends to be more common early in relationships and often decreases over time. Having less spontaneous desire isn\'t a problem—it\'s just one pattern among several.',
+      },
+      {
+        type: 'explore',
+        title: 'Reframe This',
+        content: 'Spontaneous desire isn\'t the "right" kind of desire—it\'s just one kind. If it shows up for you, enjoy it. If it doesn\'t, that\'s equally normal. Desire can arrive through many doors.',
+      },
+    ],
   },
   {
     id: 'golden-trio',
@@ -428,6 +526,25 @@ The takeaway isn't that everyone should do exactly this combination, but rather 
     ],
     relatedConcepts: ['pairing', 'warmup-window'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you noticed that combining different kinds of stimulation—not just penetration—leads to more intense experiences?',
+      },
+      {
+        type: 'name',
+        content: 'The golden trio is intercourse + manual stimulation + oral sex in the same encounter. Research found this combination produces the highest orgasm rates—not because it\'s magic, but because it ensures the clitoris gets attention.',
+      },
+      {
+        type: 'understand',
+        content: 'Intercourse alone: 50% orgasm. Add manual stimulation: 71%. Add oral too: 86%. The pattern is clear—variety and clitoral involvement dramatically improve outcomes. Yet fewer than half of heterosexual couples regularly include oral sex.',
+      },
+      {
+        type: 'explore',
+        title: 'Consider This',
+        content: 'The golden trio isn\'t a recipe to follow mechanically. It\'s information: multiple types of stimulation, especially those involving the clitoris, tend to work better than penetration alone. How might you incorporate more variety?',
+      },
+    ],
   },
 
   // ============ PSYCHOLOGICAL FACTORS ============
@@ -452,6 +569,25 @@ Spectatoring is common but interferes with arousal and pleasure. The good news i
     ],
     relatedConcepts: ['embodied-presence', 'sexual-self-esteem'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you ever caught yourself watching yourself during sex—thinking about how you look, whether you\'re taking too long, or what your partner might be thinking?',
+      },
+      {
+        type: 'name',
+        content: 'Spectatoring is mentally stepping outside yourself during sex to observe and judge what\'s happening. Instead of feeling, you\'re watching. Instead of sensation, you\'re running commentary.',
+      },
+      {
+        type: 'understand',
+        content: 'Women report higher levels of appearance-based distraction than men during sex. This self-monitoring correlates with lower arousal, fewer orgasms, and higher rates of faking orgasm. The good news: it\'s addressable.',
+      },
+      {
+        type: 'explore',
+        title: 'Practice This',
+        content: 'When you notice yourself watching rather than feeling, gently redirect attention to sensation. What does this touch actually feel like? What sensations are present right now? Return to your body.',
+      },
+    ],
   },
   {
     id: 'embodied-presence',
@@ -474,6 +610,25 @@ Cultivating embodied presence can significantly enhance sexual experience. When 
     ],
     relatedConcepts: ['spectatoring', 'body-appreciation'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you experienced moments of being so absorbed in physical sensation that thinking temporarily faded—fully in your body rather than your head?',
+      },
+      {
+        type: 'name',
+        content: 'Embodied presence is the opposite of spectatoring. It\'s being fully absorbed in sensation, attention anchored in what you\'re actually feeling rather than caught in thoughts, judgments, or mental chatter.',
+      },
+      {
+        type: 'understand',
+        content: 'Mindfulness-based sex therapy significantly improves the connection between physical and psychological arousal. Women who remain focused on bodily sensations report higher arousal, more orgasms, and greater satisfaction.',
+      },
+      {
+        type: 'explore',
+        title: 'Practice This',
+        content: 'When your mind wanders, gently return attention to physical sensation. What does this touch feel like? Where exactly do you feel it? Embodied presence is a skill you can strengthen through practice.',
+      },
+    ],
   },
   {
     id: 'non-concordance',
@@ -496,6 +651,25 @@ Understanding non-concordance is liberating. It means you can trust your felt ex
     ],
     relatedConcepts: ['responsive-desire', 'embodied-presence'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you ever felt mentally aroused while your body showed no physical signs—or noticed physical wetness when you weren\'t actually interested?',
+      },
+      {
+        type: 'name',
+        content: 'Non-concordance is when physical arousal signals (like lubrication) don\'t match how turned on you actually feel. Your body might respond while you\'re not interested, or you might feel desire while your body stays quiet.',
+      },
+      {
+        type: 'understand',
+        content: 'For women, there\'s only about 10-26% overlap between physical and subjective arousal. Bodies respond to sexually relevant stimuli automatically—it doesn\'t mean desire or consent. Trust your felt experience, not just physical signs.',
+      },
+      {
+        type: 'explore',
+        title: 'Reframe This',
+        content: 'Physical response doesn\'t equal wanting. Lack of visible response doesn\'t mean absence of interest. You get to trust your own experience of arousal rather than judging by physical signs alone.',
+      },
+    ],
   },
   {
     id: 'sexual-self-esteem',
@@ -518,6 +692,25 @@ Sexual self-esteem can be affected by many factors: upbringing, past experiences
     ],
     relatedConcepts: ['body-appreciation', 'spectatoring'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'How do you feel about yourself as a sexual person? Do you carry confidence into intimate experiences—or do negative beliefs hold you back?',
+      },
+      {
+        type: 'name',
+        content: 'Sexual self-esteem is your sense of yourself as a sexual being—whether you view your sexuality positively, feel confident in your desirability, and believe you deserve pleasure.',
+      },
+      {
+        type: 'understand',
+        content: 'Sexual self-esteem strongly predicts orgasm frequency, arousal, and satisfaction. Women who consider orgasm "very important" achieve it about 90% of the time. Believing you deserve pleasure appears to help you experience it.',
+      },
+      {
+        type: 'explore',
+        title: 'Reflect On This',
+        content: 'What beliefs about yourself as a sexual person might be limiting your pleasure? Sexual self-esteem can be developed—through positive experiences, self-exploration, and challenging inherited shame.',
+      },
+    ],
   },
   {
     id: 'body-appreciation',
@@ -540,6 +733,25 @@ Body appreciation isn't about thinking your body is perfect or ignoring appearan
     ],
     relatedConcepts: ['embodied-presence', 'sexual-self-esteem', 'spectatoring'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'During sex, are you more focused on how your body looks—or how it feels? Do appearance concerns pull you out of sensation?',
+      },
+      {
+        type: 'name',
+        content: 'Body appreciation means relating to your body based on sensation and function rather than visual evaluation. It\'s appreciating what your body feels and does, not how it looks.',
+      },
+      {
+        type: 'understand',
+        content: 'Body mass index shows no relationship to sexual function—but psychological relationship with your body matters enormously. Women who focus on body function versus appearance during sex report more orgasms and less distraction.',
+      },
+      {
+        type: 'explore',
+        title: 'Practice This',
+        content: 'During intimacy, when appearance concerns arise, redirect to sensation. What does this feel like? What is your body capable of experiencing right now? Let function matter more than form.',
+      },
+    ],
   },
 
   // ============ ANATOMY UNDERSTANDING ============
@@ -564,6 +776,25 @@ This anatomical reality explains why external stimulation is important for most 
     ],
     relatedConcepts: ['nerve-density', 'clitourethrovaginal', 'internal-stimulation'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Did you know that what you can see of the clitoris is just the tip? The full structure extends about 9cm inside your body.',
+      },
+      {
+        type: 'name',
+        content: 'The clitoris is an internal organ with external visibility. It includes legs (crura) that wrap around the vaginal canal and erectile bulbs that fill with blood during arousal—far larger than textbooks traditionally showed.',
+      },
+      {
+        type: 'understand',
+        content: 'MRI imaging revealed this hidden structure. It explains why the "G-spot" area is sensitive—it\'s where internal clitoral tissue can be reached through the vaginal wall. Most vaginal pleasure involves the clitoris indirectly.',
+      },
+      {
+        type: 'explore',
+        title: 'Know This',
+        content: 'Understanding this internal structure changes the picture. External stimulation matters because that\'s where the clitoris is most accessible—but the whole organ can be engaged from multiple angles.',
+      },
+    ],
   },
   {
     id: 'nerve-density',
@@ -586,6 +817,25 @@ Understanding nerve density helps explain why clitoral stimulation is central to
     ],
     relatedConcepts: ['clitoral-structure', 'pairing'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you noticed how incredibly sensitive the clitoral area can be—how subtle differences in pressure or touch create dramatically different sensations?',
+      },
+      {
+        type: 'name',
+        content: 'The clitoral glans contains over 8,000 nerve endings packed into a structure much smaller than the penis (which has roughly the same number spread across a larger area). This density explains its extraordinary sensitivity.',
+      },
+      {
+        type: 'understand',
+        content: 'This concentration of nerve endings is why clitoral stimulation is central to most women\'s orgasms—and why approach matters so much. All those nerves respond to subtleties of pressure, rhythm, and technique.',
+      },
+      {
+        type: 'explore',
+        title: 'Know This',
+        content: 'Direct, intense touch on the glans can feel like too much, while the right touch produces intense pleasure. Sensitivity varies individually and changes with arousal level. Your nerve endings are communicating—listen to them.',
+      },
+    ],
   },
   {
     id: 'clitourethrovaginal',
@@ -608,6 +858,25 @@ Understanding the CUV complex resolves debates about whether the G-spot "exists.
     ],
     relatedConcepts: ['clitoral-structure', 'internal-stimulation'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you experienced sensitivity on the front wall of the vagina—an area that feels different from the rest?',
+      },
+      {
+        type: 'name',
+        content: 'The CUV complex (clitourethrovaginal) describes how the clitoris, urethra, and front vaginal wall are interconnected. They\'re not separate structures—they form an integrated tissue cluster.',
+      },
+      {
+        type: 'understand',
+        content: 'This explains "G-spot" sensitivity without requiring a mysterious separate organ. Pressure on the front vaginal wall affects internal clitoral tissue and the urethra—all richly supplied with nerves. The sensitivity is real; the anatomy explains it.',
+      },
+      {
+        type: 'explore',
+        title: 'Know This',
+        content: 'There isn\'t a magic button to find. Instead, the front vaginal wall is an area where multiple sensitive structures can be reached. Understanding this shifts focus from "finding the spot" to exploring what actually feels good.',
+      },
+    ],
   },
   {
     id: 'internal-stimulation',
@@ -630,6 +899,25 @@ Techniques like angling and certain positions work because they optimize contact
     ],
     relatedConcepts: ['clitourethrovaginal', 'clitoral-structure', 'angling'],
     tier: 'free',
+    slides: [
+      {
+        type: 'recognize',
+        content: 'Have you noticed that certain angles or positions create pleasurable sensations on the front wall of the vagina—different from deeper penetration?',
+      },
+      {
+        type: 'name',
+        content: 'Internal clitoral stimulation means reaching the internal portions of the clitoris through the vaginal wall. The "G-spot" isn\'t a separate organ—it\'s where clitoral and urethral tissue can be felt from inside.',
+      },
+      {
+        type: 'understand',
+        content: 'This reframes "vaginal orgasm"—it\'s often still clitoral stimulation, just accessed differently. Techniques like angling work because they optimize contact with this anterior wall area where internal structures can be reached.',
+      },
+      {
+        type: 'explore',
+        title: 'Try This',
+        content: 'Explore the front wall (toward your belly button) with fingers or a curved toy. Notice if certain spots feel more sensitive. Understanding the anatomy helps you explore intentionally rather than hoping to find something by accident.',
+      },
+    ],
   },
 ];
 
