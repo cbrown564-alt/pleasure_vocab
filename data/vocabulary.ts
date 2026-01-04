@@ -30,27 +30,27 @@ The adjustment can be small - even a slight change in pelvic tilt can shift sens
     slides: [
       {
         type: 'cover',
-        content: 'Rotating, raising, or lowering the pelvis during penetration to adjust where internal stimulation occurs.',
+        content: 'Tilting your pelvis to change where sensation lands inside.',
       },
       {
         type: 'context',
         title: 'The Why',
-        content: 'Angling involves making subtle adjustments to pelvic position during penetrative activity. By tilting, raising, or lowering your pelvis, you can change the angle of penetration to target different areas of internal sensation.',
+        content: 'Most people discover this instinctively—shifting hips mid-experience to find what feels better. Giving it a name transforms an unconscious adjustment into a tool you can use intentionally and communicate about.',
       },
       {
         type: 'visual',
         title: 'See It In Action',
-        content: 'The adjustment can be small—even a slight change in pelvic tilt can shift sensations significantly. Some find certain angles consistently feel better, while others enjoy varying the angle throughout an experience.',
+        content: 'Picture a subtle tilt: pelvis forward, back, or side-to-side. Even 10-15 degrees changes which internal areas receive pressure. The front wall, back wall, or deeper regions each offer different sensations.',
       },
       {
         type: 'deep_dive',
         title: 'The Evidence',
-        content: 'Identified in the OMGyes Pleasure Report research as one of four named techniques associated with enhanced pleasure. The research found that having language for this movement helped women recognize and replicate what works for them.',
+        content: '87.5% of women report using this technique to enhance pleasure. Having specific language for this movement helped women recognize and replicate what works—turning vague "it felt good that time" into repeatable knowledge.',
       },
       {
         type: 'reflection',
         title: 'Try This',
-        content: 'Have you ever noticed yourself tilting your hips to change how something feels? Next time, try intentionally adjusting your pelvic angle to see how it changes the sensation.',
+        content: 'Next time, pause and experiment: tilt your pelvis slightly forward, then back. Notice if one angle creates more intensity or a different quality of sensation. Your body already knows—now your mind can too.',
       },
     ],
   },
@@ -79,27 +79,27 @@ This technique can be particularly relevant because it allows for simultaneous i
     slides: [
       {
         type: 'cover',
-        content: 'A grinding or rocking motion that keeps consistent contact with external areas during penetration.',
+        content: 'A grinding motion that maintains steady contact with external sensitive areas.',
       },
       {
         type: 'context',
         title: 'The Why',
-        content: 'Rocking refers to a grinding, circular, or back-and-forth motion during penetrative activity that maintains continuous contact between bodies - particularly at the point where external sensitive areas meet a partner\'s body.',
+        content: 'Thrusting creates separation. Rocking keeps bodies close—maintaining the continuous external contact that most women need. It\'s hands-free clitoral stimulation built into the movement itself.',
       },
       {
         type: 'visual',
         title: 'See It In Action',
-        content: 'Unlike thrusting motions that create movement in and out, rocking keeps bodies close together with a rhythmic motion that provides consistent external stimulation alongside any internal sensations.',
+        content: 'Imagine a wave or figure-eight motion rather than in-and-out. Bodies stay pressed together while hips create rhythmic pressure. The motion happens at the point of contact, not through separation.',
       },
       {
         type: 'deep_dive',
         title: 'The Evidence',
-        content: 'Research shows that consistent external stimulation is important for pleasure for many women. Rocking was identified as a specific named technique that facilitates this during partnered penetrative activity.',
+        content: 'Only 18% of women can orgasm from penetration alone—most need clitoral involvement. Rocking bridges this gap by providing consistent external pressure during penetration, which is why lesbian couples (who rock more and thrust less) report higher orgasm rates.',
       },
       {
         type: 'reflection',
         title: 'Try This',
-        content: 'Have you noticed a difference between grinding/rocking motions versus thrusting? Notice if staying close and moving rhythmically helps maintain pleasure.',
+        content: 'Compare the two: traditional in-out motion versus staying close with a grinding rhythm. Notice what happens to your external sensations. Which creates more continuity?',
       },
     ],
   },
@@ -128,27 +128,27 @@ This technique can involve gentle circling, light pressure, teasing movements, o
     slides: [
       {
         type: 'cover',
-        content: 'Focusing stimulation at or just inside the vaginal entrance rather than deeper penetration.',
+        content: 'Lingering at the entrance—where nerve endings are most concentrated.',
       },
       {
         type: 'context',
         title: 'The Why',
-        content: 'Shallowing describes pleasurable touch that focuses on the vaginal entrance and the area just inside - using fingertips, tongue, or the tip of a toy or partner rather than deeper penetration.',
+        content: 'Deeper isn\'t always better. The vaginal entrance is actually the most nerve-rich zone. Shallowing treats this area as the destination, not just the doorway.',
       },
       {
         type: 'visual',
         title: 'See It In Action',
-        content: 'The entrance area has a high concentration of nerve endings. Shallowing treats this area as a destination rather than just a passage to somewhere else.',
+        content: 'Picture fingertips, a tongue, or a toy tip circling and teasing just at the opening. Gentle pressure, slow movements, the anticipation of more. The first inch holds more sensation than people realize.',
       },
       {
         type: 'deep_dive',
         title: 'The Evidence',
-        content: 'The vaginal entrance (introitus) contains a high density of nerve endings. Research identified shallowing as a distinct technique that many women find pleasurable, challenging assumptions that deeper always means better.',
+        content: '84% of women use this technique. And 40% report that lingering at the entrance makes everything that comes after feel more pleasurable—it\'s not just teasing, it\'s priming.',
       },
       {
         type: 'reflection',
         title: 'Try This',
-        content: 'Have you noticed that the entrance area can feel especially sensitive? Try exploring gentle, shallow touch rather than deeper stimulation.',
+        content: 'Instead of rushing past the entrance, stay there. Circle slowly. Notice how sensitive this area actually is when you give it attention rather than treating it as a passage.',
       },
     ],
   },
@@ -177,27 +177,27 @@ Pairing can happen in many ways - reaching down yourself, guiding a partner's ha
     slides: [
       {
         type: 'cover',
-        content: 'Adding external clitoral stimulation during penetration, either solo or with a partner.',
+        content: 'Adding clitoral touch during penetration—the combination most bodies actually need.',
       },
       {
         type: 'context',
         title: 'The Why',
-        content: 'Pairing means combining internal penetration with external clitoral stimulation - using your own hand, a partner\'s hand, a toy, or body positioning to add external touch during penetrative activity.',
+        content: 'Penetration alone doesn\'t reach the clitoris for most women. Pairing fills that gap: your hand, their hand, a toy—whatever brings external stimulation into the mix. It\'s not "extra help." It\'s how anatomy actually works.',
       },
       {
         type: 'visual',
         title: 'See It In Action',
-        content: 'This technique directly addresses what research consistently shows: most women need clitoral stimulation for orgasm, and penetration alone often doesn\'t provide sufficient clitoral contact.',
+        content: 'Picture adding your own touch during penetration. Or guiding a partner\'s hand. Or a small vibrator held between bodies. The clitoris gets consistent attention while penetration continues.',
       },
       {
         type: 'deep_dive',
         title: 'The Evidence',
-        content: 'Extensive research shows that the clitoris, not the vagina, is the primary site of orgasmic sensation for most women. Studies find that adding clitoral stimulation during penetration significantly increases likelihood of orgasm.',
+        content: '70% of women use pairing. And for good reason: orgasm rates jump from 21-30% (penetration alone) to 51-60% (with clitoral stimulation added). Nearly 75% of women say clitoral touch is either necessary or makes orgasms feel better.',
       },
       {
         type: 'reflection',
         title: 'Try This',
-        content: 'Do you find that penetration feels better when combined with external touch? Try adding your own hand or a toy during partnered experiences.',
+        content: 'During penetration, add your own touch to your clitoris. Notice the difference. This isn\'t a workaround—it\'s giving your body what it\'s actually designed to respond to.',
       },
     ],
   },
@@ -224,6 +224,32 @@ Understanding building as a named experience helps recognize that arousal doesn'
     ],
     relatedConcepts: ['plateauing', 'edging', 'warmup-window'],
     tier: 'free',
+    slides: [
+      {
+        type: 'cover',
+        content: 'Arousal gathering momentum—a wave that grows stronger over time.',
+      },
+      {
+        type: 'context',
+        title: 'The Why',
+        content: 'Pleasure doesn\'t have to arrive instantly. Building is that gradual intensification—warmth becoming heat, tingling becoming insistence. Rushing past this phase often means missing the best part.',
+      },
+      {
+        type: 'visual',
+        title: 'See It In Action',
+        content: 'Imagine a wave forming far out at sea, growing as it approaches shore. Building feels like that—subtle at first, then unmistakable. Anticipation and sensation start to blur together.',
+      },
+      {
+        type: 'deep_dive',
+        title: 'The Evidence',
+        content: 'Research shows extended arousal periods correlate with more satisfying experiences and stronger orgasms. Women who allow time for building—rather than rushing to peak—report more intense pleasure overall.',
+      },
+      {
+        type: 'reflection',
+        title: 'Try This',
+        content: 'Next time you notice arousal starting, resist the urge to intensify immediately. Stay with the subtle sensations. Let them grow on their own timeline. Notice how they deepen.',
+      },
+    ],
   },
   {
     id: 'plateauing',
