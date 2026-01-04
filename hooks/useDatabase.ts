@@ -1,27 +1,27 @@
 // React hooks for database operations
 
-import { useState, useEffect, useCallback } from 'react';
 import {
-  getDatabase,
-  getOnboardingState,
-  updateOnboarding,
+  clearAllData,
+  createJournalEntry,
+  deleteJournalEntry,
   getAllUserConcepts,
-  getUserConcept,
-  updateConceptStatus,
-  markConceptExplored,
+  getDatabase,
+  getExploredCount,
   getJournalEntries,
   getJournalEntriesForConcept,
-  createJournalEntry,
-  updateJournalEntry,
-  deleteJournalEntry,
-  getExploredCount,
+  getOnboardingState,
   getResonatesCount,
-  clearAllData,
-  OnboardingRow,
-  UserConceptRow,
+  getUserConcept,
   JournalEntryRow,
+  markConceptExplored,
+  OnboardingRow,
+  updateConceptStatus,
+  updateJournalEntry,
+  updateOnboarding,
+  UserConceptRow,
 } from '@/lib/database';
-import { ConceptStatus, UserGoal, ComfortLevel } from '@/types';
+import { ComfortLevel, ConceptStatus, UserGoal } from '@/types';
+import { useCallback, useEffect, useState } from 'react';
 
 // ============ Database Initialization ============
 
@@ -55,6 +55,10 @@ export function useInitDatabase() {
   return { isReady, error };
 }
 
+import { events, EVENTS } from '@/lib/events';
+
+// ... (imports)
+
 // ============ Onboarding Hook ============
 
 export function useOnboarding() {
@@ -70,6 +74,14 @@ export function useOnboarding() {
 
   useEffect(() => {
     load();
+    const handleUpdate = () => load();
+    events.on(EVENTS.ONBOARDING_UPDATED, handleUpdate);
+    events.on(EVENTS.DATA_CLEARED, handleUpdate);
+
+    return () => {
+      events.off(EVENTS.ONBOARDING_UPDATED, handleUpdate);
+      events.off(EVENTS.DATA_CLEARED, handleUpdate);
+    };
   }, [load]);
 
   const update = useCallback(
@@ -80,7 +92,8 @@ export function useOnboarding() {
       firstConceptViewed?: boolean;
     }) => {
       await updateOnboarding(updates);
-      await load();
+      events.emit(EVENTS.ONBOARDING_UPDATED);
+      await load(); // optional since listener catches it, but immediate consistency is good
     },
     [load]
   );
@@ -283,6 +296,7 @@ export function useClearData() {
   const clear = useCallback(async () => {
     setIsClearing(true);
     await clearAllData();
+    events.emit(EVENTS.DATA_CLEARED);
     setIsClearing(false);
   }, []);
 

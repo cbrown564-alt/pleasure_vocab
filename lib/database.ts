@@ -2,7 +2,6 @@
 // Metro bundler resolves to .native.ts or .web.ts at runtime
 // This file provides TypeScript types and re-exports for IDE support
 
-import { Platform } from 'react-native';
 
 // Type definitions (shared between platforms)
 export interface OnboardingRow {
@@ -30,28 +29,8 @@ export interface JournalEntryRow {
 // Re-export from platform-specific implementation
 // Note: Metro bundler will resolve the actual implementation at build time
 export {
-  initDatabase,
-  getDatabase,
-  getSetting,
-  setSetting,
-  getOnboardingState,
-  updateOnboarding,
-  getUserConcept,
-  getAllUserConcepts,
-  updateConceptStatus,
-  markConceptExplored,
-  createJournalEntry,
-  updateJournalEntry,
-  deleteJournalEntry,
-  getJournalEntries,
-  getJournalEntriesForConcept,
-  getExploredCount,
-  getResonatesCount,
-  getPathwayProgress,
-  getAllPathwayProgress,
-  startPathway,
-  updatePathwayProgress,
-  clearAllData,
-} from './database.native';
+  clearAllData, createJournalEntry, deleteJournalEntry, getAllPathwayProgress, getAllUserConcepts, getDatabase, getExploredCount, getJournalEntries,
+  getJournalEntriesForConcept, getOnboardingState, getPathwayProgress, getResonatesCount, getSetting, getUserConcept, initDatabase, markConceptExplored, setSetting, startPathway, updateConceptStatus, updateJournalEntry, updateOnboarding, updatePathwayProgress
+} from './databaseImpl';
 
-export type { PathwayProgressRow } from './database.native';
+export type { PathwayProgressRow } from './databaseImpl';

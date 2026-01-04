@@ -1,59 +1,66 @@
-import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
-import { router } from 'expo-router';
-import { Container, Button, Text } from '@/components/ui';
+import { Button, Text } from '@/components/ui';
 import { colors, spacing } from '@/constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import React from 'react';
+import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
-  return (
-    <Container style={styles.container} padding>
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text variant="h1" align="center" style={styles.title}>
-            Welcome
-          </Text>
-          <Text variant="body" align="center" color={colors.text.secondary} style={styles.subtitle}>
-            A vocabulary builder for understanding and communicating about pleasure
-          </Text>
-        </View>
+  const insets = useSafeAreaInsets();
 
-        <View style={styles.features}>
-          <FeatureItem
-            title="Research-grounded"
-            description="Built on peer-reviewed studies about what actually enhances pleasure"
-          />
-          <FeatureItem
-            title="Build your vocabulary"
-            description="Learn specific terms that make it easier to understand and discuss preferences"
-          />
-          <FeatureItem
-            title="Private by design"
-            description="All your data stays on your device. Nothing is ever uploaded."
-          />
+  return (
+    <View style={styles.container}>
+      {/* Rich, warm gradient background */}
+      <LinearGradient
+        colors={[colors.primary[50], '#FFF0EA', colors.background.primary]}
+        locations={[0, 0.4, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+
+      {/* Decorative element - large organic shape */}
+      <View style={styles.orbitContainer}>
+        <View style={styles.orbitCircle} />
+      </View>
+
+      <View style={[styles.content, { paddingTop: insets.top + spacing['4xl'] }]}>
+        <View style={styles.header}>
+          <View style={styles.iconBadge}>
+            <Ionicons name="sparkles" size={28} color={colors.primary[600]} />
+          </View>
+
+          <Text variant="h1" align="center" style={styles.title}>
+            Find the words for what feels good.
+          </Text>
+
+          <Text variant="body" align="center" color={colors.text.secondary} style={styles.subtitle}>
+            A vocabulary builder for understanding and communicating your pleasure.
+          </Text>
         </View>
       </View>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.xl }]}>
         <Button
-          title="Get Started"
-          onPress={() => router.push('/onboarding/privacy')}
+          title="Begin"
+          onPress={() => router.push('/onboarding/goals')}
           fullWidth
           size="lg"
+          style={styles.beginButton}
         />
-      </View>
-    </Container>
-  );
-}
 
-function FeatureItem({ title, description }: { title: string; description: string }) {
-  return (
-    <View style={styles.feature}>
-      <View style={styles.featureDot} />
-      <View style={styles.featureText}>
-        <Text variant="h4">{title}</Text>
-        <Text variant="bodySmall" style={styles.featureDescription}>
-          {description}
-        </Text>
+        <TouchableOpacity
+          onPress={() => router.push('/onboarding/privacy')}
+          style={styles.privacyLink}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="shield-checkmark-outline" size={14} color={colors.text.tertiary} />
+          <Text variant="caption" color={colors.text.tertiary} style={styles.privacyText}>
+            Our Privacy Promise
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -61,44 +68,73 @@ function FeatureItem({ title, description }: { title: string; description: strin
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.background.secondary,
+    flex: 1,
+    backgroundColor: colors.background.primary,
+  },
+  orbitContainer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  orbitCircle: {
+    width: width * 1.2,
+    height: width * 1.2,
+    borderRadius: (width * 1.2) / 2,
+    borderWidth: 1,
+    borderColor: 'rgba(232, 96, 60, 0.1)', // Primary color very faint
+    top: -height * 0.15,
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    paddingTop: spacing['2xl'],
+    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
   },
   header: {
-    marginBottom: spacing['2xl'],
+    alignItems: 'center',
+    maxWidth: 340,
+  },
+  iconBadge: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xl,
+    shadowColor: colors.primary[900],
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
   },
   title: {
-    marginBottom: spacing.md,
+    fontSize: 40,
+    lineHeight: 48,
+    marginBottom: spacing.lg,
+    color: colors.text.primary,
   },
   subtitle: {
-    paddingHorizontal: spacing.lg,
-  },
-  features: {
-    gap: spacing.lg,
-  },
-  feature: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  featureDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary[500],
-    marginTop: 8,
-    marginRight: spacing.md,
-  },
-  featureText: {
-    flex: 1,
-  },
-  featureDescription: {
-    marginTop: spacing.xs,
+    fontSize: 18,
+    lineHeight: 28,
+    maxWidth: 280,
   },
   footer: {
-    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
+  },
+  beginButton: {
+    marginBottom: spacing.lg,
+    height: 56, // Taller button for emphasis
+  },
+  privacyLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.sm,
+  },
+  privacyText: {
+    marginLeft: spacing.xs,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    fontSize: 11,
   },
 });

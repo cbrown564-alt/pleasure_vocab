@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert, Switch } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { Text, Card, Button } from '@/components/ui';
-import { colors, spacing, borderRadius } from '@/constants/theme';
+import { Card, Text } from '@/components/ui';
+import { colors, spacing } from '@/constants/theme';
 import { useClearData, useOnboarding } from '@/hooks/useDatabase';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import { Alert, Platform, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const comfortLabels: Record<string, string> = {
   clinical: 'Clinical',
@@ -24,23 +24,19 @@ export default function SettingsModal() {
   const { clear, isClearing } = useClearData();
   const { goal, comfortLevel, update } = useOnboarding();
   const [appLockEnabled, setAppLockEnabled] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  const handleClearData = () => {
-    Alert.alert(
-      'Clear All Data',
-      'This will permanently delete all your preferences, journal entries, and progress. This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear Data',
-          style: 'destructive',
-          onPress: async () => {
-            await clear();
-            router.replace('/onboarding/welcome');
-          },
-        },
-      ]
-    );
+  const performClear = async () => {
+    try {
+      await clear();
+      router.replace('/onboarding/welcome');
+      if (Platform.OS === 'web') {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Failed to clear data:', error);
+      Alert.alert('Error', 'Failed to clear data. Please try again.');
+    }
   };
 
   const handleToggleAppLock = (value: boolean) => {
@@ -113,13 +109,36 @@ export default function SettingsModal() {
               />
             </View>
             <View style={styles.divider} />
-            <SettingRow
-              icon="trash-outline"
-              label="Clear All Data"
-              value=""
-              onPress={handleClearData}
-              destructive
-            />
+
+            {showClearConfirm ? (
+              <View style={styles.confirmContainer}>
+                <Text variant="bodySmall" color={colors.error} style={{ marginBottom: spacing.sm }}>
+                  Are you sure? This will delete all your data permanently.
+                </Text>
+                <View style={styles.confirmButtons}>
+                  <TouchableOpacity
+                    style={[styles.confirmBtn, styles.cancelBtn]}
+                    onPress={() => setShowClearConfirm(false)}
+                  >
+                    <Text variant="bodyBold">Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.confirmBtn, styles.deleteBtn]}
+                    onPress={performClear}
+                  >
+                    <Text variant="bodyBold" color="white">Yes, Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <SettingRow
+                icon="trash-outline"
+                label="Clear All Data"
+                value=""
+                onPress={() => setShowClearConfirm(true)}
+                destructive
+              />
+            )}
           </Card>
         </View>
 
@@ -145,6 +164,25 @@ export default function SettingsModal() {
                 1.0.0
               </Text>
             </View>
+          </Card>
+        </View>
+
+        {/* Development Section (Hidden in prod usually, but useful here) */}
+        <View style={styles.section}>
+          <Text variant="labelSmall" style={styles.sectionTitle}>
+            Development
+          </Text>
+
+          <Card variant="outlined" padding="none">
+            <SettingRow
+              icon="refresh-outline"
+              label="Reset Onboarding"
+              value=""
+              onPress={async () => {
+                await update({ completed: false });
+                router.replace('/onboarding/welcome');
+              }}
+            />
           </Card>
         </View>
 
@@ -275,5 +313,25 @@ const styles = StyleSheet.create({
   },
   privacyTitle: {
     marginLeft: spacing.xs,
+  },
+  confirmContainer: {
+    padding: spacing.md,
+    backgroundColor: colors.error + '10', // 10% opacity
+  },
+  confirmButtons: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    justifyContent: 'flex-end',
+  },
+  confirmBtn: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 8,
+  },
+  cancelBtn: {
+    backgroundColor: colors.neutral[100],
+  },
+  deleteBtn: {
+    backgroundColor: colors.error,
   },
 });

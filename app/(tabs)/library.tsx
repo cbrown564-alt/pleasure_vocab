@@ -13,6 +13,7 @@ import React, { useMemo, useState } from 'react';
 import {
   Dimensions,
   FlatList,
+  Image,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -78,11 +79,18 @@ export default function LibraryScreen() {
         onPress={() => router.push(`/pathway/${pathway.id}`)}
       >
         <View style={styles.pathwayIcon}>
-          <Ionicons
-            name={pathway.icon as keyof typeof Ionicons.glyphMap}
-            size={28}
-            color={colors.primary[500]}
-          />
+          {pathway.image ? (
+            <Image
+              source={pathway.image}
+              style={{ width: '100%', height: '100%', borderRadius: 20 }}
+            />
+          ) : (
+            <Ionicons
+              name={pathway.icon as keyof typeof Ionicons.glyphMap}
+              size={28}
+              color={colors.primary[500]}
+            />
+          )}
         </View>
         <View style={styles.pathwayContent}>
           <Text variant="h3" style={{ marginBottom: spacing.xs }}>{pathway.name}</Text>

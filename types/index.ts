@@ -85,6 +85,7 @@ export interface Pathway {
   name: string;
   description: string;
   icon: string;              // Ionicons icon name
+  image?: any;               // Require path for local asset
   conceptIds: string[];      // Ordered sequence of concept IDs
   estimatedTime: string;     // e.g., "15-20 min"
 }
@@ -132,6 +133,7 @@ export interface ResearchExplainer {
   title: string;
   subtitle: string;          // One-line hook
   icon: string;              // Ionicons icon name
+  image?: any;               // Require path for local asset
   readTime: string;          // e.g., "5 min read"
 
   // Content sections

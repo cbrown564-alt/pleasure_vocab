@@ -1,66 +1,75 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { router } from 'expo-router';
+import { Button, Text } from '@/components/ui';
+import { borderRadius, colors, spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-import { Container, Button, Text, Card } from '@/components/ui';
-import { colors, spacing } from '@/constants/theme';
+import { router } from 'expo-router';
+import React from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function PrivacyScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <Container style={styles.container} padding scroll>
-      <View style={styles.content}>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: insets.top + spacing.xl }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="shield-checkmark" size={48} color={colors.secondary[500]} />
+          {/* Shield Visual */}
+          <View style={styles.shieldContainer}>
+            <View style={styles.shieldRing}>
+              <Ionicons name="shield-checkmark" size={48} color={colors.secondary[600]} />
+            </View>
           </View>
+
           <Text variant="h2" align="center" style={styles.title}>
             Your privacy is protected
           </Text>
-          <Text variant="body" align="center" color={colors.text.secondary}>
+          <Text variant="body" align="center" color={colors.text.secondary} style={styles.subtitle}>
             We designed this app with privacy as a core principle, not an afterthought.
           </Text>
         </View>
 
         <View style={styles.features}>
           <PrivacyFeature
-            icon="phone-portrait-outline"
+            icon="server-outline"
             title="Local-only storage"
-            description="All your preferences, journal entries, and progress are stored only on this device. Nothing is uploaded to any server."
+            description="All your preferences and journal entries are stored only on this device."
           />
           <PrivacyFeature
             icon="eye-off-outline"
             title="No tracking"
-            description="We don't track what content you view or which concepts resonate with you. Your exploration is completely private."
+            description="We don't track what content you view or which concepts resonate with you."
           />
           <PrivacyFeature
             icon="lock-closed-outline"
-            title="App lock available"
-            description="You can enable biometric or PIN protection to keep the app private even if someone else uses your phone."
+            title="App lock ready"
+            description="You will be able to enable biometric protection in settings."
           />
           <PrivacyFeature
             icon="trash-outline"
-            title="Easy data deletion"
-            description="You can clear all your data at any time from the settings. It's permanently removed—we don't keep backups."
+            title="Easy deletion"
+            description="Clear all your data at any time. It's permanently removed."
           />
         </View>
-      </View>
 
-      <View style={styles.footer}>
+        <View style={styles.spacer} />
+      </ScrollView>
+
+      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.lg }]}>
         <Button
-          title="Continue"
-          onPress={() => router.push('/onboarding/goals')}
+          title="Return to Welcome"
+          onPress={() => router.back()}
+          variant="outline"
           fullWidth
           size="lg"
         />
-        <Button
-          title="Back"
-          onPress={() => router.back()}
-          variant="ghost"
-          fullWidth
-          style={styles.backButton}
-        />
       </View>
-    </Container>
+    </View>
   );
 }
 
@@ -74,60 +83,82 @@ function PrivacyFeature({
   description: string;
 }) {
   return (
-    <Card variant="filled" padding="md" style={styles.feature}>
-      <View style={styles.featureHeader}>
-        <Ionicons name={icon} size={24} color={colors.secondary[600]} />
+    <View style={styles.featureRow}>
+      <View style={styles.featureIcon}>
+        <Ionicons name={icon} size={24} color={colors.secondary[700]} />
+      </View>
+      <View style={styles.featureContent}>
         <Text variant="h4" style={styles.featureTitle}>
           {title}
         </Text>
+        <Text variant="bodySmall" color={colors.text.secondary}>
+          {description}
+        </Text>
       </View>
-      <Text variant="bodySmall">{description}</Text>
-    </Card>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: colors.background.secondary,
   },
   content: {
-    flex: 1,
-    paddingTop: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   header: {
     alignItems: 'center',
     marginBottom: spacing.xl,
   },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  shieldContainer: {
+    marginBottom: spacing.lg,
+  },
+  shieldRing: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     backgroundColor: colors.secondary[100],
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.secondary[200],
   },
   title: {
     marginBottom: spacing.sm,
   },
+  subtitle: {
+    maxWidth: 300,
+  },
   features: {
-    gap: spacing.md,
+    gap: spacing.lg,
+    backgroundColor: colors.background.primary,
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
   },
-  feature: {
-    marginBottom: 0,
-  },
-  featureHeader: {
+  featureRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
+    alignItems: 'flex-start',
+  },
+  featureIcon: {
+    marginRight: spacing.md,
+    marginTop: 2,
+  },
+  featureContent: {
+    flex: 1,
   },
   featureTitle: {
-    marginLeft: spacing.sm,
+    marginBottom: 4,
+  },
+  spacer: {
+    height: spacing.xl,
   },
   footer: {
-    paddingVertical: spacing.lg,
-  },
-  backButton: {
-    marginTop: spacing.sm,
-  },
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    backgroundColor: colors.background.secondary,
+  }
 });

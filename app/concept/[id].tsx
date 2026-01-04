@@ -71,13 +71,22 @@ export default function ConceptDetailScreen() {
           <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Text variant="h4" style={styles.stickyTitle} numberOfLines={1}>{concept.name}</Text>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.backButtonFixed}>
+          <Ionicons name="home-outline" size={24} color={colors.text.primary} />
+        </TouchableOpacity>
       </Animated.View>
 
       {/* Floating Back Button (visible initially) */}
       <Animated.View style={[styles.floatingBack, { top: insets.top + spacing.sm, opacity: scrollY.interpolate({ inputRange: [0, 100], outputRange: [1, 0] }) }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.roundBackBtn}>
           <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* Floating Home Button (visible initially) */}
+      <Animated.View style={[styles.floatingHome, { top: insets.top + spacing.sm, opacity: scrollY.interpolate({ inputRange: [0, 100], outputRange: [1, 0] }) }]}>
+        <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.roundBackBtn}>
+          <Ionicons name="home-outline" size={24} color={colors.text.primary} />
         </TouchableOpacity>
       </Animated.View>
 
@@ -235,7 +244,8 @@ export default function ConceptDetailScreen() {
       </Animated.ScrollView>
 
       {/* Navigation Footer */}
-      {nextConcept && (
+      {/* Navigation Footer */}
+      {nextConcept ? (
         <View style={[styles.navFooter, { paddingBottom: insets.bottom + spacing.md }]}>
           <TouchableOpacity
             style={styles.nextButton}
@@ -256,6 +266,25 @@ export default function ConceptDetailScreen() {
             </View>
             <View style={styles.nextIcon}>
               <Ionicons name="arrow-forward" size={24} color={colors.primary[600]} />
+            </View>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={[styles.navFooter, { paddingBottom: insets.bottom + spacing.md }]}>
+          <TouchableOpacity
+            style={[styles.nextButton, { backgroundColor: colors.secondary[500] }]}
+            onPress={() => router.push('/(tabs)')}
+          >
+            <View>
+              <Text variant="labelSmall" color={colors.secondary[100]} style={{ marginBottom: 4 }}>
+                COMPLETE
+              </Text>
+              <Text variant="h3" color={colors.text.inverse}>
+                Return Home
+              </Text>
+            </View>
+            <View style={[styles.nextIcon, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+              <Ionicons name="home" size={24} color={colors.text.inverse} />
             </View>
           </TouchableOpacity>
         </View>
@@ -298,6 +327,11 @@ const styles = StyleSheet.create({
   floatingBack: {
     position: 'absolute',
     left: spacing.md,
+    zIndex: 10,
+  },
+  floatingHome: {
+    position: 'absolute',
+    right: spacing.md,
     zIndex: 10,
   },
   roundBackBtn: {

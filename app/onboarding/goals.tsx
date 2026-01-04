@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Container, Button, Text } from '@/components/ui';
-import { colors, spacing, borderRadius } from '@/constants/theme';
+import { Button, Text } from '@/components/ui';
+import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
 import { useOnboarding } from '@/hooks/useDatabase';
 import { UserGoal } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface GoalOption {
   id: UserGoal;
@@ -19,42 +20,47 @@ const goals: GoalOption[] = [
     id: 'self_discovery',
     icon: 'compass',
     title: 'Self-discovery',
-    description: 'I want to better understand my own preferences and what feels good to me',
+    description: 'I want to better understand my own preferences.',
   },
   {
     id: 'partner_communication',
     icon: 'chatbubbles',
     title: 'Partner communication',
-    description: 'I want language to communicate more clearly with my partner',
+    description: 'I want language to communicate clearly with my partner.',
   },
   {
     id: 'expanding_knowledge',
     icon: 'book',
     title: 'Expanding knowledge',
-    description: "I'm curious to learn more about pleasure research and vocabulary",
+    description: "I'm curious to learn more about pleasure research.",
   },
 ];
 
 export default function GoalsScreen() {
-  const { update } = useOnboarding();
+  const { update, completeOnboarding } = useOnboarding();
   const [selectedGoal, setSelectedGoal] = useState<UserGoal | null>(null);
+  const insets = useSafeAreaInsets();
 
   const handleContinue = async () => {
     if (selectedGoal) {
       await update({ goal: selectedGoal });
-      router.push('/onboarding/comfort');
+      await completeOnboarding();
+      router.replace('/(tabs)');
     }
   };
 
   return (
-    <Container style={styles.container} padding>
-      <View style={styles.content}>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg }]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <Text variant="h2" style={styles.title}>
             What brings you here?
           </Text>
           <Text variant="body" color={colors.text.secondary}>
-            This helps us personalize your experience. You can always change this later.
+            Select a focus to personalize your path.
           </Text>
         </View>
 
@@ -68,9 +74,9 @@ export default function GoalsScreen() {
             />
           ))}
         </View>
-      </View>
+      </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.lg }]}>
         <Button
           title="Continue"
           onPress={handleContinue}
@@ -86,7 +92,7 @@ export default function GoalsScreen() {
           style={styles.backButton}
         />
       </View>
-    </Container>
+    </View>
   );
 }
 
@@ -103,50 +109,51 @@ function GoalCard({
     <TouchableOpacity
       style={[styles.goalCard, isSelected && styles.goalCardSelected]}
       onPress={onSelect}
-      activeOpacity={0.7}
+      activeOpacity={0.9}
     >
       <View style={[styles.iconContainer, isSelected && styles.iconContainerSelected]}>
         <Ionicons
           name={goal.icon}
-          size={24}
+          size={28}
           color={isSelected ? colors.primary[600] : colors.neutral[500]}
         />
       </View>
       <View style={styles.goalText}>
         <Text
           variant="h4"
+          style={{ fontSize: 18, marginBottom: 4 }}
           color={isSelected ? colors.primary[700] : colors.text.primary}
         >
           {goal.title}
         </Text>
-        <Text variant="bodySmall" style={styles.goalDescription}>
+        <Text variant="bodySmall" style={styles.goalDescription} color={colors.text.secondary}>
           {goal.description}
         </Text>
       </View>
-      <View style={styles.checkContainer}>
-        {isSelected ? (
+
+      {isSelected && (
+        <View style={styles.checkmark}>
           <Ionicons name="checkmark-circle" size={24} color={colors.primary[500]} />
-        ) : (
-          <View style={styles.unchecked} />
-        )}
-      </View>
+        </View>
+      )}
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: colors.background.secondary,
   },
   content: {
-    flex: 1,
-    paddingTop: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   header: {
     marginBottom: spacing.xl,
   },
   title: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   options: {
     gap: spacing.md,
@@ -154,50 +161,44 @@ const styles = StyleSheet.create({
   goalCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.md,
+    padding: spacing.lg,
     borderRadius: borderRadius.lg,
     backgroundColor: colors.background.primary,
     borderWidth: 2,
-    borderColor: colors.neutral[200],
+    borderColor: 'transparent',
+    ...shadows.sm,
   },
   goalCardSelected: {
     borderColor: colors.primary[500],
     backgroundColor: colors.primary[50],
+    ...shadows.md,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: colors.neutral[100],
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
   },
   iconContainerSelected: {
-    backgroundColor: colors.primary[100],
+    backgroundColor: colors.background.primary,
   },
   goalText: {
     flex: 1,
-    marginRight: spacing.sm,
+    paddingRight: spacing.sm,
   },
   goalDescription: {
-    marginTop: spacing.xs,
+    lineHeight: 20,
   },
-  checkContainer: {
-    width: 24,
-    height: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  unchecked: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.neutral[300],
+  checkmark: {
+    marginLeft: spacing.xs,
   },
   footer: {
-    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    backgroundColor: colors.background.secondary,
   },
   backButton: {
     marginTop: spacing.sm,

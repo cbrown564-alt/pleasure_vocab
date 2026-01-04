@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /* -------------------------------------------------------------------------- */
@@ -65,16 +65,24 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       {/* 1. Header & Greeting */}
+      {/* 1. Header & Greeting */}
       <View style={styles.header}>
-        <Text variant="label" color={colors.primary[600]} style={{ letterSpacing: 1.5 }}>
-          UNDERSTANDING YOURSELF
-        </Text>
-        <Text variant="h1" style={styles.greetingTitle}>
-          {greeting}
-        </Text>
-        <Text variant="body" color={colors.text.secondary} style={{ marginTop: spacing.xs }}>
-          Ready to discover something new about yourself?
-        </Text>
+        <Image
+          source={require('@/assets/images/ui/home-welcome.png')}
+          style={styles.headerImage}
+          resizeMode="cover"
+        />
+        <View style={styles.headerContent}>
+          <Text variant="label" color={colors.primary[600]} style={{ letterSpacing: 1.5 }}>
+            UNDERSTANDING YOURSELF
+          </Text>
+          <Text variant="h1" style={styles.greetingTitle}>
+            {greeting}
+          </Text>
+          <Text variant="body" color={colors.text.secondary} style={{ marginTop: spacing.xs }}>
+            Ready to discover something new about yourself?
+          </Text>
+        </View>
       </View>
 
       {/* 2. Daily Suggestion Hero */}
@@ -94,7 +102,11 @@ export default function HomeScreen() {
               <View style={styles.categoryPill}>
                 <Text variant="labelSmall" color={colors.text.inverse}>{suggestion.category}</Text>
               </View>
-              <Ionicons name="sparkles" size={20} color={colors.text.inverse} />
+              <Image
+                source={require('@/assets/images/ui/daily-discovery.png')}
+                style={{ width: 32, height: 32, opacity: 0.9 }}
+                resizeMode="contain"
+              />
             </View>
 
             <View style={styles.heroContent}>
@@ -195,6 +207,17 @@ const styles = StyleSheet.create({
   // Header
   header: {
     marginBottom: spacing['2xl'],
+    marginTop: -spacing.xl, // Pull up to counteract content padding if needed
+    marginHorizontal: -spacing.lg, // Full width
+  },
+  headerImage: {
+    width: '100%',
+    height: 180,
+    opacity: 0.9,
+  },
+  headerContent: {
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.md,
   },
   greetingTitle: {
     fontSize: 36,

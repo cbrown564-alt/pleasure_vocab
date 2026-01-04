@@ -10,8 +10,8 @@ import {
 } from '@expo-google-fonts/playfair-display';
 import { Stack, router, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -31,23 +31,21 @@ function RootLayoutNav() {
   const segments = useSegments();
   const { isReady: dbReady } = useInitDatabase();
   const { isLoading: onboardingLoading, isCompleted: onboardingCompleted } = useOnboarding();
-  const [hasNavigated, setHasNavigated] = useState(false);
 
   useEffect(() => {
-    if (!dbReady || onboardingLoading || hasNavigated) return;
+    if (!dbReady || onboardingLoading) return;
 
     const inOnboarding = segments[0] === 'onboarding';
 
     if (!onboardingCompleted && !inOnboarding) {
       // User hasn't completed onboarding, redirect to welcome
-      router.replace('/onboarding/welcome');
-      setHasNavigated(true);
+      // Use setTimeout to ensure navigation happens after mount/update
+      setTimeout(() => router.replace('/onboarding/welcome'), 0);
     } else if (onboardingCompleted && inOnboarding) {
       // User completed onboarding but is in onboarding flow, redirect to main
-      router.replace('/(tabs)');
-      setHasNavigated(true);
+      setTimeout(() => router.replace('/(tabs)'), 0);
     }
-  }, [dbReady, onboardingLoading, onboardingCompleted, segments, hasNavigated]);
+  }, [dbReady, onboardingLoading, onboardingCompleted, segments]);
 
   return (
     <Stack
@@ -109,11 +107,13 @@ export default function RootLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+
+
+const styles = {
   loading: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
     backgroundColor: colors.background.primary,
   },
-});
+};

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
-import { Container, Button, Text, Card } from '@/components/ui';
-import { colors, spacing, borderRadius } from '@/constants/theme';
+import { Button, Card, Text } from '@/components/ui';
+import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
 import { useOnboarding } from '@/hooks/useDatabase';
 import { ComfortLevel } from '@/types';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ComfortOption {
   id: ComfortLevel;
@@ -37,6 +38,7 @@ const comfortLevels: ComfortOption[] = [
 export default function ComfortScreen() {
   const { update } = useOnboarding();
   const [selected, setSelected] = useState<ComfortLevel>('direct');
+  const insets = useSafeAreaInsets();
 
   const handleContinue = async () => {
     await update({ comfortLevel: selected });
@@ -44,8 +46,11 @@ export default function ComfortScreen() {
   };
 
   return (
-    <Container style={styles.container} padding>
-      <View style={styles.content}>
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg }]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <Text variant="h2" style={styles.title}>
             Choose your comfort level
@@ -67,16 +72,16 @@ export default function ComfortScreen() {
         </View>
 
         <Card variant="filled" padding="md" style={styles.previewCard}>
-          <Text variant="labelSmall" style={styles.previewLabel}>
-            Preview
+          <Text variant="labelSmall" style={styles.previewLabel} color={colors.text.tertiary}>
+            PREVIEW
           </Text>
-          <Text variant="body">
+          <Text variant="body" style={{ fontStyle: 'italic', lineHeight: 24 }}>
             {comfortLevels.find((l) => l.id === selected)?.example}
           </Text>
         </Card>
-      </View>
+      </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.lg }]}>
         <Button
           title="Continue"
           onPress={handleContinue}
@@ -91,7 +96,7 @@ export default function ComfortScreen() {
           style={styles.backButton}
         />
       </View>
-    </Container>
+    </View>
   );
 }
 
@@ -108,7 +113,7 @@ function ComfortCard({
     <TouchableOpacity
       style={[styles.comfortCard, isSelected && styles.comfortCardSelected]}
       onPress={onSelect}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
       <View style={styles.radioContainer}>
         <View style={[styles.radio, isSelected && styles.radioSelected]}>
@@ -122,7 +127,9 @@ function ComfortCard({
         >
           {level.title}
         </Text>
-        <Text variant="bodySmall">{level.description}</Text>
+        <Text variant="bodySmall" color={colors.text.secondary}>
+          {level.description}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -130,11 +137,12 @@ function ComfortCard({
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: colors.background.secondary,
   },
   content: {
-    flex: 1,
-    paddingTop: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   header: {
     marginBottom: spacing.xl,
@@ -143,7 +151,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   options: {
-    gap: spacing.sm,
+    gap: spacing.md,
     marginBottom: spacing.xl,
   },
   comfortCard: {
@@ -153,7 +161,8 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.lg,
     backgroundColor: colors.background.primary,
     borderWidth: 2,
-    borderColor: colors.neutral[200],
+    borderColor: 'transparent',
+    ...shadows.sm,
   },
   comfortCardSelected: {
     borderColor: colors.primary[500],
@@ -163,9 +172,9 @@ const styles = StyleSheet.create({
     marginRight: spacing.md,
   },
   radio: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     borderWidth: 2,
     borderColor: colors.neutral[400],
     alignItems: 'center',
@@ -175,9 +184,9 @@ const styles = StyleSheet.create({
     borderColor: colors.primary[500],
   },
   radioInner: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: colors.primary[500],
   },
   comfortText: {
@@ -185,12 +194,17 @@ const styles = StyleSheet.create({
   },
   previewCard: {
     backgroundColor: colors.background.tertiary,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.primary[300],
   },
   previewLabel: {
     marginBottom: spacing.xs,
+    letterSpacing: 1,
   },
   footer: {
-    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    backgroundColor: colors.background.secondary,
   },
   backButton: {
     marginTop: spacing.sm,

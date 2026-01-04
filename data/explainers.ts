@@ -9,6 +9,7 @@ export const explainers: ResearchExplainer[] = [
     title: 'The Orgasm Gap',
     subtitle: 'Why it exists and what actually closes it',
     icon: 'stats-chart',
+    image: require('../assets/images/explainers/orgasm-gap.png'),
     readTime: '6 min read',
 
     overview:
@@ -116,6 +117,7 @@ Building vocabulary for your preferences—knowing the words for what you like a
     title: 'Anatomy 101',
     subtitle: 'The clitoris is bigger than you think',
     icon: 'body',
+    image: require('../assets/images/explainers/anatomy-101.png'),
     readTime: '5 min read',
 
     overview:
@@ -214,6 +216,7 @@ This anatomical knowledge can help with exploration and communication. Instead o
     title: 'The Mind-Body Connection',
     subtitle: 'Why your brain matters as much as your body',
     icon: 'bulb',
+    image: require('../assets/images/explainers/mind-body.png'),
     readTime: '6 min read',
 
     overview:

@@ -5,7 +5,7 @@ import { getConceptById } from '@/data/vocabulary';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
-import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Animated, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ExplainerDetailScreen() {
@@ -48,7 +48,14 @@ export default function ExplainerDetailScreen() {
       >
         {/* Editorial Header */}
         <View style={styles.articleHeader}>
+          {explainer.image && (
+            <View style={styles.heroImageContainer}>
+              <Image source={explainer.image} style={styles.heroImage} resizeMode="cover" />
+            </View>
+          )}
+
           <View style={styles.metaRow}>
+            {/* Context Badge */}
             <View style={styles.iconBadge}>
               <Ionicons
                 name={explainer.icon as keyof typeof Ionicons.glyphMap}
@@ -56,11 +63,17 @@ export default function ExplainerDetailScreen() {
                 color={colors.primary[600]}
               />
             </View>
-            <Text variant="label" color={colors.text.tertiary}>{explainer.readTime.toUpperCase()} READ</Text>
+            <Text variant="label" color={colors.text.tertiary}>
+              {explainer.readTime.toUpperCase()} READ
+            </Text>
           </View>
 
-          <Text variant="h1" style={styles.title}>{explainer.title}</Text>
-          <Text variant="h3" style={styles.subtitle}>{explainer.subtitle}</Text>
+          <Text variant="h1" style={styles.title}>
+            {explainer.title}
+          </Text>
+          <Text variant="h3" style={styles.subtitle}>
+            {explainer.subtitle}
+          </Text>
         </View>
 
         <View style={styles.separator} />
@@ -197,6 +210,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.neutral[100],
   },
+  header: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   backButton: {
     padding: spacing.xs,
   },
@@ -245,6 +265,17 @@ const styles = StyleSheet.create({
     width: '40%',
     marginBottom: spacing.lg,
   },
+  heroImageContainer: {
+    marginBottom: spacing.md,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
+    backgroundColor: colors.primary[50],
+  },
+  heroImage: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    height: undefined,
+  },
 
   // Content
   leadParagraph: {
@@ -258,7 +289,7 @@ const styles = StyleSheet.create({
   takeawaysBox: {
     backgroundColor: colors.secondary[50],
     padding: spacing.xl,
-    borderRadius: borderRadius.none, // Editorial style box
+    borderRadius: 0, // Editorial style box
     borderTopWidth: 4,
     borderTopColor: colors.secondary[500],
     marginBottom: spacing.xl,

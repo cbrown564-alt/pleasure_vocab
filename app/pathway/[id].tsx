@@ -1,13 +1,13 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { Text, Card, ProgressBar } from '@/components/ui';
-import { colors, spacing, borderRadius } from '@/constants/theme';
-import { useUserConcepts } from '@/hooks/useDatabase';
+import { Card, ProgressBar, Text } from '@/components/ui';
+import { borderRadius, colors, spacing } from '@/constants/theme';
 import { getPathwayById } from '@/data/pathways';
 import { getConceptById } from '@/data/vocabulary';
+import { useUserConcepts } from '@/hooks/useDatabase';
+import { Ionicons } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from 'expo-router';
+import React from 'react';
+import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function PathwayDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -60,11 +60,18 @@ export default function PathwayDetailScreen() {
         {/* Pathway Header */}
         <View style={styles.pathwayHeader}>
           <View style={styles.pathwayIcon}>
-            <Ionicons
-              name={pathway.icon as keyof typeof Ionicons.glyphMap}
-              size={32}
-              color={colors.primary[500]}
-            />
+            {pathway.image ? (
+              <Image
+                source={pathway.image}
+                style={{ width: '100%', height: '100%', borderRadius: 36 }}
+              />
+            ) : (
+              <Ionicons
+                name={pathway.icon as keyof typeof Ionicons.glyphMap}
+                size={32}
+                color={colors.primary[500]}
+              />
+            )}
           </View>
           <Text variant="h2" style={styles.pathwayName}>
             {pathway.name}
@@ -113,7 +120,10 @@ export default function PathwayDetailScreen() {
           {nextConceptId && (
             <TouchableOpacity
               style={styles.continueButton}
-              onPress={() => router.push(`/concept/${nextConceptId}`)}
+              onPress={() => router.push({
+                pathname: '/concept/[id]',
+                params: { id: nextConceptId, pathway: pathway.id }
+              })}
             >
               <Text variant="label" color={colors.background.primary}>
                 Continue Learning
@@ -163,7 +173,10 @@ export default function PathwayDetailScreen() {
                   styles.conceptCard,
                   isNext ? styles.conceptCardNext : undefined,
                 ]}
-                onPress={() => router.push(`/concept/${conceptId}`)}
+                onPress={() => router.push({
+                  pathname: '/concept/[id]',
+                  params: { id: conceptId, pathway: pathway.id }
+                })}
               >
                 <View style={styles.conceptRow}>
                   <View

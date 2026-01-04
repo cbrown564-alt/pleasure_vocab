@@ -1,6 +1,7 @@
+export { Badge, StatusBadge } from './Badge';
 export { Button } from './Button';
 export { Card } from './Card';
-export { Text } from './Typography';
-export { ProgressBar } from './ProgressBar';
-export { Badge, StatusBadge } from './Badge';
 export { Container } from './Container';
+export { ProgressBar } from './ProgressBar';
+export { Text } from './Typography';
+

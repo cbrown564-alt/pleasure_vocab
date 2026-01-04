@@ -7,12 +7,13 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
   FlatList,
+  Image,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -109,13 +110,11 @@ export default function JournalScreen() {
         />
       ) : !showNewEntry ? (
         <View style={styles.emptyState}>
-          <View style={styles.emptyIconContainer}>
-            <Ionicons
-              name="book-outline"
-              size={48}
-              color={colors.primary[300]}
-            />
-          </View>
+          <Image
+            source={require('@/assets/images/ui/empty-journal.png')}
+            style={styles.emptyIllustration}
+            resizeMode="contain"
+          />
           <Text variant="h3" align="center" color={colors.text.secondary} style={{ marginBottom: spacing.sm }}>
             Your personal space
           </Text>
@@ -300,14 +299,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: -50,
   },
-  emptyIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.secondary[50],
-    alignItems: 'center',
-    justifyContent: 'center',
+  emptyIllustration: {
+    width: 160,
+    height: 160,
     marginBottom: spacing.lg,
+    opacity: 0.8,
   },
   emptyText: {
     marginBottom: spacing.lg,

@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const goalLabels: Record<string, string> = {
@@ -199,11 +199,16 @@ export default function ProfileScreen() {
               })}
             </ScrollView>
           ) : (
-            <Card variant="outlined" padding="md" style={styles.emptyShelf}>
+            <View style={styles.emptyShelf}>
+              <Image
+                source={require('@/assets/images/ui/empty-collection.png')}
+                style={styles.emptyShelfIllustration}
+                resizeMode="contain"
+              />
               <Text variant="bodySmall" style={{ fontStyle: 'italic', textAlign: 'center' }} color={colors.text.tertiary}>
                 Your collection is empty. Explore concepts to start building your profile.
               </Text>
-            </Card>
+            </View>
           )}
         </View>
 
@@ -376,6 +381,12 @@ const styles = StyleSheet.create({
   emptyShelf: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 100,
+    paddingVertical: spacing.lg,
+  },
+  emptyShelfIllustration: {
+    width: 120,
+    height: 120,
+    marginBottom: spacing.md,
+    opacity: 0.6,
   },
 });
