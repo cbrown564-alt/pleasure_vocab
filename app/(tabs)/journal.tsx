@@ -1,24 +1,24 @@
+import { Button, Text } from '@/components/ui';
+import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
+import { getConceptById } from '@/data/vocabulary';
+import { useJournal } from '@/hooks/useDatabase';
+import { JournalEntryRow } from '@/lib/database';
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
-  View,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { Text, Card, Button } from '@/components/ui';
-import { colors, spacing, borderRadius } from '@/constants/theme';
-import { useJournal } from '@/hooks/useDatabase';
-import { getConceptById } from '@/data/vocabulary';
-import { JournalEntryRow } from '@/lib/database';
 
 export default function JournalScreen() {
   const insets = useSafeAreaInsets();
-  const { entries, create, remove, isLoading } = useJournal();
+  const { entries, create, remove } = useJournal();
   const [showNewEntry, setShowNewEntry] = useState(false);
   const [newEntryText, setNewEntryText] = useState('');
 
@@ -34,13 +34,14 @@ export default function JournalScreen() {
     await remove(id);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDateDay = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
+    return date.getDate();
+  };
+
+  const formatDateMonth = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { month: 'short' });
   };
 
   return (
@@ -49,34 +50,29 @@ export default function JournalScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text variant="h2">Reflection Journal</Text>
-          {!showNewEntry && (
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => setShowNewEntry(true)}
-            >
-              <Ionicons name="add" size={24} color={colors.primary[500]} />
-            </TouchableOpacity>
-          )}
-        </View>
-        <Text variant="bodySmall" color={colors.text.secondary}>
-          A private space for your thoughts and discoveries
-        </Text>
+        <Text variant="h2" style={styles.pageTitle}>Reflections</Text>
+        {!showNewEntry && (
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setShowNewEntry(true)}
+          >
+            <Ionicons name="create-outline" size={24} color={colors.primary[600]} />
+          </TouchableOpacity>
+        )}
       </View>
 
       {showNewEntry && (
-        <Card variant="elevated" padding="md" style={styles.newEntryCard}>
+        <View style={styles.composeContainer}>
           <TextInput
             style={styles.input}
-            placeholder="What's on your mind?"
+            placeholder="What's been on your mind regarding your journey?"
             placeholderTextColor={colors.text.tertiary}
             multiline
             value={newEntryText}
             onChangeText={setNewEntryText}
             autoFocus
           />
-          <View style={styles.newEntryActions}>
+          <View style={styles.composeActions}>
             <Button
               title="Cancel"
               variant="ghost"
@@ -93,7 +89,7 @@ export default function JournalScreen() {
               disabled={!newEntryText.trim()}
             />
           </View>
-        </Card>
+        </View>
       )}
 
       {entries.length > 0 ? (
@@ -101,10 +97,11 @@ export default function JournalScreen() {
           data={entries}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <JournalEntryCard
+            <JournalEntryRowItem
               entry={item}
               onDelete={() => handleDelete(item.id)}
-              formatDate={formatDate}
+              formatDateDay={formatDateDay}
+              formatDateMonth={formatDateMonth}
             />
           )}
           contentContainerStyle={styles.list}
@@ -112,14 +109,15 @@ export default function JournalScreen() {
         />
       ) : !showNewEntry ? (
         <View style={styles.emptyState}>
-          <Ionicons
-            name="book-outline"
-            size={64}
-            color={colors.neutral[300]}
-            style={styles.emptyIcon}
-          />
-          <Text variant="h4" align="center" color={colors.text.secondary}>
-            Your journal is empty
+          <View style={styles.emptyIconContainer}>
+            <Ionicons
+              name="book-outline"
+              size={48}
+              color={colors.primary[300]}
+            />
+          </View>
+          <Text variant="h3" align="center" color={colors.text.secondary} style={{ marginBottom: spacing.sm }}>
+            Your personal space
           </Text>
           <Text
             variant="bodySmall"
@@ -127,14 +125,12 @@ export default function JournalScreen() {
             color={colors.text.tertiary}
             style={styles.emptyText}
           >
-            Use this space to record thoughts, observations, and discoveries as
-            you explore vocabulary concepts.
+            Use this space to record thoughts, discoveries, and feelings. These are private to you.
           </Text>
           <Button
             title="Write First Entry"
             variant="outline"
             onPress={() => setShowNewEntry(true)}
-            style={styles.emptyButton}
           />
         </View>
       ) : null}
@@ -142,14 +138,16 @@ export default function JournalScreen() {
   );
 }
 
-function JournalEntryCard({
+function JournalEntryRowItem({
   entry,
   onDelete,
-  formatDate,
+  formatDateDay,
+  formatDateMonth
 }: {
   entry: JournalEntryRow;
   onDelete: () => void;
-  formatDate: (date: string) => string;
+  formatDateDay: (d: string) => number;
+  formatDateMonth: (d: string) => string;
 }) {
   const [showActions, setShowActions] = useState(false);
   const linkedConcept = entry.concept_id
@@ -157,41 +155,41 @@ function JournalEntryCard({
     : null;
 
   return (
-    <Card variant="elevated" padding="md" style={styles.entryCard}>
+    <View style={styles.entryRow}>
+      {/* Date Column */}
+      <View style={styles.dateColumn}>
+        <Text variant="h3" color={colors.text.primary} style={{ lineHeight: 28 }}>{formatDateDay(entry.created_at)}</Text>
+        <Text variant="labelSmall" color={colors.text.tertiary}>{formatDateMonth(entry.created_at).toUpperCase()}</Text>
+      </View>
+
+      {/* Content Column */}
       <TouchableOpacity
+        style={styles.entryContentBox}
         onLongPress={() => setShowActions(!showActions)}
         activeOpacity={0.9}
       >
-        <Text variant="body" style={styles.entryContent}>
+        <Text variant="body" style={styles.entryText}>
           {entry.content}
         </Text>
 
-        <View style={styles.entryFooter}>
-          <View style={styles.entryMeta}>
-            <Text variant="caption">{formatDate(entry.created_at)}</Text>
+        {(linkedConcept || showActions) && (
+          <View style={styles.entryFooter}>
             {linkedConcept && (
-              <View style={styles.linkedConcept}>
-                <Ionicons
-                  name="link"
-                  size={12}
-                  color={colors.primary[500]}
-                  style={styles.linkIcon}
-                />
-                <Text variant="caption" color={colors.primary[500]}>
-                  {linkedConcept.name}
-                </Text>
+              <View style={styles.conceptTag}>
+                <Ionicons name="pricetag-outline" size={12} color={colors.primary[600]} />
+                <Text variant="caption" color={colors.primary[600]}>{linkedConcept.name}</Text>
               </View>
             )}
-          </View>
 
-          {showActions && (
-            <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
-              <Ionicons name="trash-outline" size={18} color={colors.error} />
-            </TouchableOpacity>
-          )}
-        </View>
+            {showActions && (
+              <TouchableOpacity onPress={onDelete} style={styles.deleteBtn}>
+                <Text variant="caption" color={colors.error}>Delete</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </TouchableOpacity>
-    </Card>
+    </View>
   );
 }
 
@@ -201,88 +199,118 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.secondary,
   },
   header: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-    backgroundColor: colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
-  },
-  headerTop: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: colors.background.secondary,
+  },
+  pageTitle: {
+    fontFamily: 'PlayfairDisplay_700Bold',
+    fontSize: 32,
   },
   addButton: {
     padding: spacing.xs,
+    backgroundColor: colors.primary[50], // light circle
+    borderRadius: 20,
   },
-  newEntryCard: {
-    margin: spacing.md,
-    marginBottom: 0,
+
+  // Compose
+  composeContainer: {
+    margin: spacing.lg,
+    padding: spacing.md,
+    backgroundColor: colors.background.primary,
+    borderRadius: borderRadius.md,
+    ...shadows.md,
   },
   input: {
     minHeight: 120,
-    fontSize: 16,
+    fontSize: 18,
+    fontFamily: 'Inter_400Regular',
     color: colors.text.primary,
     textAlignVertical: 'top',
-    lineHeight: 24,
+    lineHeight: 28,
   },
-  newEntryActions: {
+  composeActions: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: spacing.sm,
-    marginTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.neutral[200],
-    paddingTop: spacing.md,
-  },
-  list: {
-    padding: spacing.md,
-  },
-  entryCard: {
-    marginBottom: spacing.md,
-  },
-  entryContent: {
-    lineHeight: 24,
-  },
-  entryFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginTop: spacing.md,
     paddingTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.neutral[100],
   },
-  entryMeta: {
+
+  // List
+  list: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  entryRow: {
+    flexDirection: 'row',
+    marginBottom: spacing.xl,
+  },
+  dateColumn: {
+    width: 50,
+    alignItems: 'center',
+    paddingTop: 4,
+    marginRight: spacing.md,
+  },
+  entryContentBox: {
+    flex: 1,
+    backgroundColor: colors.background.primary, // white paper
+    padding: spacing.lg,
+    borderRadius: borderRadius.md, // slightly rounded
+    borderBottomLeftRadius: 0, // editorial look
+    ...shadows.sm,
+  },
+  entryText: {
+    fontSize: 17,
+    lineHeight: 26,
+    color: colors.text.secondary,
+  },
+  entryFooter: {
+    marginTop: spacing.md,
+    paddingTop: spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral[100],
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  conceptTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: 4,
+    backgroundColor: colors.primary[50],
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
-  linkedConcept: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  deleteBtn: {
+    padding: 4,
   },
-  linkIcon: {
-    marginRight: spacing.xs,
-  },
-  deleteButton: {
-    padding: spacing.xs,
-  },
+
+  // Empty
   emptyState: {
     flex: 1,
+    padding: spacing.xl,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: spacing.xl,
+    marginTop: -50,
   },
-  emptyIcon: {
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.secondary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: spacing.lg,
   },
   emptyText: {
-    marginTop: spacing.sm,
     marginBottom: spacing.lg,
-  },
-  emptyButton: {
-    marginTop: spacing.md,
+    maxWidth: 260,
   },
 });

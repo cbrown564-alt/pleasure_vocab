@@ -1,10 +1,19 @@
-import { useEffect, useState } from 'react';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+} from '@expo-google-fonts/inter';
+import {
+  PlayfairDisplay_700Bold,
+  PlayfairDisplay_700Bold_Italic,
+  useFonts,
+} from '@expo-google-fonts/playfair-display';
 import { Stack, router, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useFonts } from 'expo-font';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/theme';
 import { useInitDatabase, useOnboarding } from '@/hooks/useDatabase';
@@ -44,7 +53,7 @@ function RootLayoutNav() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.background.secondary },
+        contentStyle: { backgroundColor: colors.background.primary },
       }}
     >
       <Stack.Screen name="(tabs)" />
@@ -67,7 +76,13 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({});
+  const [fontsLoaded, fontError] = useFonts({
+    PlayfairDisplay_700Bold,
+    PlayfairDisplay_700Bold_Italic,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+  });
 
   useEffect(() => {
     if (fontError) throw fontError;
@@ -99,6 +114,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
   },
 });

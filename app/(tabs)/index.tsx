@@ -1,28 +1,28 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { Text, Card, ProgressBar } from '@/components/ui';
-import { colors, spacing, borderRadius } from '@/constants/theme';
-import { useUserConcepts, useOnboarding, useStats } from '@/hooks/useDatabase';
-import { concepts, getConceptById } from '@/data/vocabulary';
+import { Text } from '@/components/ui';
+import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
 import { getAllExplainers } from '@/data/explainers';
+import { concepts, getConceptById } from '@/data/vocabulary';
+import { useOnboarding, useStats, useUserConcepts } from '@/hooks/useDatabase';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const goalMessages: Record<string, string> = {
-  self_discovery: 'understanding your preferences',
-  partner_communication: 'communicating with partners',
-  expanding_knowledge: 'expanding your knowledge',
+  self_discovery: 'Understanding yourself',
+  partner_communication: 'Better communication',
+  expanding_knowledge: 'Expanding horizons',
 };
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { concepts: userConcepts, getStatus } = useUserConcepts();
   const { goal } = useOnboarding();
-  const { exploredCount, resonatesCount } = useStats();
+  const { exploredCount } = useStats();
 
   const totalCount = concepts.length;
-  const progress = totalCount > 0 ? exploredCount / totalCount : 0;
+  // const progress = totalCount > 0 ? exploredCount / totalCount : 0;
 
   // Find next unexplored concept
   const unexploredConcepts = concepts.filter(
@@ -35,212 +35,162 @@ export default function HomeScreen() {
     .filter((c) => c.status !== 'unexplored')
     .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())[0];
 
-  // Get research explainers
   const explainers = getAllExplainers();
 
   return (
     <ScrollView
-      style={[styles.container, { paddingTop: insets.top }]}
-      contentContainerStyle={styles.content}
+      style={[styles.container]}
+      contentContainerStyle={[styles.content, { paddingTop: insets.top + spacing.lg }]}
       showsVerticalScrollIndicator={false}
     >
-      {/* Welcome Header */}
+      {/* Hero Greeting */}
       <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <Text variant="h2">Welcome back</Text>
-          <TouchableOpacity
-            onPress={() => router.push('/modal')}
-            style={styles.settingsButton}
-          >
-            <Ionicons name="settings-outline" size={24} color={colors.text.secondary} />
-          </TouchableOpacity>
-        </View>
-        {goal && (
-          <Text variant="body" color={colors.text.secondary} style={styles.goalText}>
-            You're focused on {goalMessages[goal] || 'your journey'}
-          </Text>
-        )}
+        <Text variant="label" color={colors.text.accent} style={styles.greetingLabel}>
+          {goal ? goalMessages[goal] : 'Your Journey'}
+        </Text>
+        <Text variant="h1" style={styles.greetingTitle}>
+          Good evening.
+        </Text>
+        <Text variant="body" style={styles.greetingSubtitle}>
+          Ready to discover something new about yourself?
+        </Text>
       </View>
 
-      {/* Progress Card */}
-      <Card variant="elevated" padding="lg" style={styles.progressCard}>
-        <View style={styles.progressHeader}>
-          <View>
-            <Text variant="h4">Your Progress</Text>
-            <Text variant="bodySmall" color={colors.text.secondary}>
-              {exploredCount} of {totalCount} concepts explored
-            </Text>
-          </View>
-          <View style={styles.statBadge}>
-            <Ionicons name="heart" size={16} color={colors.primary[500]} />
-            <Text variant="label" color={colors.primary[500]}>
-              {resonatesCount}
-            </Text>
-          </View>
-        </View>
-        <ProgressBar progress={progress} style={styles.progressBar} />
-        <TouchableOpacity
-          style={styles.viewProfileLink}
-          onPress={() => router.push('/(tabs)/profile')}
-        >
-          <Text variant="label" color={colors.primary[500]}>
-            View your profile
-          </Text>
-          <Ionicons name="chevron-forward" size={16} color={colors.primary[500]} />
-        </TouchableOpacity>
-      </Card>
-
-      {/* Quick Actions */}
-      <View style={styles.section}>
-        <Text variant="h4" style={styles.sectionTitle}>
-          Quick Actions
-        </Text>
-
-        {/* Next Concept to Explore */}
-        {nextConcept && (
-          <Card
-            variant="elevated"
-            padding="md"
-            style={styles.actionCard}
+      {/* Primary Action / Featured Card */}
+      {nextConcept ? (
+        <View style={styles.featuredSection}>
+          <Text variant="label" style={styles.sectionLabel}>Daily Suggestion</Text>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            style={styles.featuredCard}
             onPress={() => router.push(`/concept/${nextConcept.id}`)}
           >
-            <View style={styles.actionIcon}>
-              <Ionicons name="sparkles" size={24} color={colors.primary[500]} />
-            </View>
-            <View style={styles.actionContent}>
-              <Text variant="label" color={colors.text.secondary}>
-                Next to explore
-              </Text>
-              <Text variant="h4">{nextConcept.name}</Text>
-              <Text variant="bodySmall" numberOfLines={1}>
-                {nextConcept.definition}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
-          </Card>
-        )}
+            <View style={styles.featuredCardContent}>
+              <View style={styles.featuredCardHeader}>
+                <View style={styles.categoryTag}>
+                  <Text variant="labelSmall" color={colors.text.inverse}>
+                    {nextConcept.category}
+                  </Text>
+                </View>
+                <Ionicons name="sparkles" size={20} color={colors.text.inverse} />
+              </View>
 
-        {/* Continue Where You Left Off */}
-        {recentlyExplored && (
-          <Card
-            variant="outlined"
-            padding="md"
-            style={styles.actionCard}
-            onPress={() => router.push(`/concept/${recentlyExplored.concept_id}`)}
-          >
-            <View style={[styles.actionIcon, styles.actionIconSecondary]}>
-              <Ionicons name="refresh" size={24} color={colors.secondary[500]} />
-            </View>
-            <View style={styles.actionContent}>
-              <Text variant="label" color={colors.text.secondary}>
-                Continue exploring
-              </Text>
-              <Text variant="h4">
-                {getConceptById(recentlyExplored.concept_id)?.name}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
-          </Card>
-        )}
+              <View style={styles.featuredCardText}>
+                <Text variant="h2" color={colors.text.inverse} style={styles.featuredTitle}>
+                  {nextConcept.name}
+                </Text>
+                <Text variant="body" color="rgba(255,255,255,0.9)" numberOfLines={2}>
+                  {nextConcept.definition}
+                </Text>
+              </View>
 
-        {/* Journal Prompt */}
-        <Card
-          variant="filled"
-          padding="md"
-          style={styles.actionCard}
-          onPress={() => router.push('/(tabs)/journal')}
-        >
-          <View style={[styles.actionIcon, styles.actionIconTertiary]}>
-            <Ionicons name="create" size={24} color={colors.neutral[600]} />
-          </View>
-          <View style={styles.actionContent}>
-            <Text variant="label" color={colors.text.secondary}>
-              Reflection
-            </Text>
-            <Text variant="h4">Write in your journal</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
-        </Card>
-      </View>
-
-      {/* Explore the Science */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text variant="h4">Explore the Science</Text>
-          <TouchableOpacity onPress={() => router.push('/(tabs)/library')}>
-            <Text variant="label" color={colors.secondary[500]}>
-              View all
-            </Text>
+              <View style={styles.featuredCardFooter}>
+                <Text variant="label" color={colors.text.inverse}>Start Exploring</Text>
+                <Ionicons name="arrow-forward" size={16} color={colors.text.inverse} />
+              </View>
+            </View>
+            <View style={styles.featuredCardBackground} />
           </TouchableOpacity>
         </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.explainerScroll}
-        >
-          {explainers.slice(0, 4).map((explainer) => (
-            <Card
-              key={explainer.id}
-              variant="elevated"
-              padding="md"
-              style={styles.explainerCard}
-              onPress={() => router.push(`/explainer/${explainer.id}`)}
+      ) : (
+        <View style={styles.completedHero}>
+          <Text variant="h3">All concepts explored!</Text>
+          <Text variant="body">Time to reflect and deepen your practice.</Text>
+        </View>
+      )}
+
+      {/* Progress / stats strip */}
+      <View style={styles.statsRow}>
+        <View style={styles.statItem}>
+          <Text variant="h2" style={styles.statValue}>{exploredCount}</Text>
+          <Text variant="caption">Concepts Explored</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text variant="h2" style={styles.statValue}>
+            {Math.round((exploredCount / totalCount) * 100)}%
+          </Text>
+          <Text variant="caption">Journey Complete</Text>
+        </View>
+      </View>
+
+      {/* Quick Actions Grid */}
+      <View style={styles.section}>
+        <Text variant="h4" style={styles.sectionTitle}>Continue</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.actionScroll}>
+
+          {/* Resume Previous */}
+          {recentlyExplored && (
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={() => router.push(`/concept/${recentlyExplored.concept_id}`)}
             >
-              <View style={styles.explainerIconContainer}>
-                <Ionicons
-                  name={explainer.icon as keyof typeof Ionicons.glyphMap}
-                  size={24}
-                  color={colors.secondary[500]}
-                />
+              <View style={[styles.actionIcon, { backgroundColor: colors.secondary[100] }]}>
+                <Ionicons name="time" size={24} color={colors.secondary[700]} />
               </View>
-              <Text variant="label" numberOfLines={2} style={styles.explainerTitle}>
-                {explainer.title}
+              <Text variant="bodyBold" style={styles.actionText}>Resume</Text>
+              <Text variant="caption" numberOfLines={1}>
+                {getConceptById(recentlyExplored.concept_id)?.name}
               </Text>
-              <Text variant="caption" color={colors.text.tertiary}>
-                {explainer.readTime}
-              </Text>
-            </Card>
-          ))}
+            </TouchableOpacity>
+          )}
+
+          {/* Library Shortcut */}
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => router.push('/(tabs)/library')}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: colors.neutral[100] }]}>
+              <Ionicons name="library" size={24} color={colors.neutral[700]} />
+            </View>
+            <Text variant="bodyBold" style={styles.actionText}>Library</Text>
+            <Text variant="caption">Browse all</Text>
+          </TouchableOpacity>
+
+          {/* Random / Surprise Me (Future feature) */}
+          <TouchableOpacity
+            style={styles.actionCard}
+          // onPress={() => router.push('/random')} 
+          >
+            <View style={[styles.actionIcon, { backgroundColor: colors.primary[100] }]}>
+              <Ionicons name="shuffle" size={24} color={colors.primary[600]} />
+            </View>
+            <Text variant="bodyBold" style={styles.actionText}>Shuffle</Text>
+            <Text variant="caption">Discover random</Text>
+          </TouchableOpacity>
+
         </ScrollView>
       </View>
 
-      {/* All Explored State */}
-      {unexploredConcepts.length === 0 && (
-        <Card variant="elevated" padding="lg" style={styles.completedCard}>
-          <Ionicons
-            name="checkmark-circle"
-            size={48}
-            color={colors.secondary[500]}
-            style={styles.completedIcon}
-          />
-          <Text variant="h4" align="center">
-            You've explored all concepts!
-          </Text>
-          <Text
-            variant="bodySmall"
-            align="center"
-            color={colors.text.secondary}
-            style={styles.completedText}
-          >
-            Visit your Profile to review what resonates with you, or use the
-            Journal to reflect on your discoveries.
-          </Text>
-        </Card>
-      )}
-
-      {/* Tip Card */}
-      <Card variant="filled" padding="md" style={styles.tipCard}>
-        <View style={styles.tipHeader}>
-          <Ionicons name="bulb-outline" size={20} color={colors.secondary[600]} />
-          <Text variant="label" color={colors.secondary[600]} style={styles.tipLabel}>
-            Tip
-          </Text>
+      {/* Research / Science Teaser */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text variant="h4">Science & Insight</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/library?view=research')}>
+            <Text variant="label" color={colors.primary[600]}>See All</Text>
+          </TouchableOpacity>
         </View>
-        <Text variant="bodySmall">
-          Take your time with each concept. There's no rush—the goal is to build
-          understanding and vocabulary at your own pace.
-        </Text>
-      </Card>
+
+        {explainers.slice(0, 2).map((explainer) => (
+          <TouchableOpacity
+            key={explainer.id}
+            activeOpacity={0.8}
+            onPress={() => router.push(`/explainer/${explainer.id}`)}
+            style={styles.explainerRow}
+          >
+            <View style={styles.explainerIcon}>
+              <Ionicons name={explainer.icon as any} size={20} color={colors.secondary[600]} />
+            </View>
+            <View style={styles.explainerContent}>
+              <Text variant="bodyBold">{explainer.title}</Text>
+              <Text variant="caption">{explainer.readTime} read</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.neutral[300]} />
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View style={{ height: 100 }} />
     </ScrollView>
   );
 }
@@ -248,58 +198,111 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
   },
   content: {
-    padding: spacing.md,
-    paddingBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
   },
   header: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
   },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  greetingLabel: {
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    fontSize: 12,
+    marginBottom: spacing.xs,
   },
-  settingsButton: {
-    padding: spacing.xs,
+  greetingTitle: {
+    marginBottom: spacing.xs,
   },
-  goalText: {
-    marginTop: spacing.xs,
+  greetingSubtitle: {
+    color: colors.text.secondary,
+    maxWidth: '80%',
   },
-  progressCard: {
-    marginBottom: spacing.lg,
+
+  // Featured Section
+  featuredSection: {
+    marginBottom: spacing.xl,
   },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+  sectionLabel: {
     marginBottom: spacing.md,
+    marginLeft: spacing.xs,
   },
-  statBadge: {
+  featuredCard: {
+    height: 320,
+    borderRadius: borderRadius.xl,
+    overflow: 'hidden',
+    position: 'relative',
+    ...shadows.lg,
+    backgroundColor: colors.primary[500], // Fallback
+  },
+  featuredCardBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.primary[600], // Simulate gradient or image
+    zIndex: -1,
+  },
+  featuredCardContent: {
+    flex: 1,
+    padding: spacing.lg,
+    justifyContent: 'space-between',
+  },
+  featuredCardHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.primary[50],
+  },
+  categoryTag: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
     paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    paddingVertical: 4,
     borderRadius: borderRadius.full,
-    gap: spacing.xs,
   },
-  progressBar: {
+  featuredCardText: {
     marginBottom: spacing.md,
   },
-  viewProfileLink: {
+  featuredTitle: {
+    fontSize: 32, // Custom large size
+    marginBottom: spacing.sm,
+  },
+  featuredCardFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     gap: spacing.xs,
   },
-  section: {
-    marginBottom: spacing.lg,
+  completedHero: {
+    padding: spacing.xl,
+    backgroundColor: colors.secondary[100],
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing.xl,
+    alignItems: 'center',
   },
-  sectionTitle: {
-    marginBottom: spacing.md,
+
+  // Stats
+  statsRow: {
+    flexDirection: 'row',
+    marginBottom: spacing.xl,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.background.secondary, // Light cream strip
+    borderRadius: borderRadius.lg,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statValue: {
+    color: colors.primary[600],
+    marginBottom: -4,
+  },
+  statDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: colors.neutral[200],
+  },
+
+  // Sections
+  section: {
+    marginBottom: spacing.xl,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -307,68 +310,54 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.md,
   },
+  sectionTitle: {
+    marginBottom: spacing.md,
+  },
+  actionScroll: {
+    gap: spacing.md,
+    paddingRight: spacing.md,
+  },
   actionCard: {
-    flexDirection: 'row',
+    width: 110,
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    backgroundColor: colors.background.surface,
+    ...shadows.sm,
     alignItems: 'center',
-    marginBottom: spacing.sm,
   },
   actionIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: colors.primary[100],
-    alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  actionIconSecondary: {
-    backgroundColor: colors.secondary[100],
-  },
-  actionIconTertiary: {
-    backgroundColor: colors.neutral[200],
-  },
-  actionContent: {
-    flex: 1,
-  },
-  completedCard: {
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.sm,
   },
-  completedIcon: {
-    marginBottom: spacing.md,
+  actionText: {
+    marginBottom: 2,
   },
-  completedText: {
-    marginTop: spacing.sm,
-  },
-  tipCard: {
-    backgroundColor: colors.secondary[50],
-  },
-  tipHeader: {
+
+  // Explainer Rows
+  explainerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    padding: spacing.md,
+    backgroundColor: colors.background.surface,
+    borderRadius: borderRadius.md,
     marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.neutral[100],
   },
-  tipLabel: {
-    marginLeft: spacing.xs,
-  },
-  explainerScroll: {
-    gap: spacing.sm,
-    paddingRight: spacing.md,
-  },
-  explainerCard: {
-    width: 140,
-    alignItems: 'flex-start',
-  },
-  explainerIconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  explainerIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colors.secondary[50],
-    alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.sm,
+    alignItems: 'center',
+    marginRight: spacing.md,
   },
-  explainerTitle: {
-    marginBottom: spacing.xs,
+  explainerContent: {
+    flex: 1,
   },
 });

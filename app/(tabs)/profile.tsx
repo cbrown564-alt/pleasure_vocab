@@ -1,13 +1,14 @@
-import React, { useMemo } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Card, Text } from '@/components/ui';
+import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
+import { concepts, getConceptById } from '@/data/vocabulary';
+import { useOnboarding, useStats, useUserConcepts } from '@/hooks/useDatabase';
+import { ConceptCategory } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
-import { Text, Card, ProgressBar } from '@/components/ui';
-import { colors, spacing, borderRadius } from '@/constants/theme';
-import { useUserConcepts, useOnboarding, useStats } from '@/hooks/useDatabase';
-import { concepts, getConceptById, getConceptsByCategory } from '@/data/vocabulary';
-import { ConceptStatus, ConceptCategory } from '@/types';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import React, { useMemo } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const goalLabels: Record<string, string> = {
   self_discovery: 'Self-discovery',
@@ -19,37 +20,26 @@ const categoryLabels: Record<ConceptCategory, string> = {
   technique: 'Techniques',
   sensation: 'Sensations',
   timing: 'Timing & Pacing',
-  psychological: 'Psychological Factors',
-  anatomy: 'Anatomy Understanding',
-};
-
-const categoryDescriptions: Record<ConceptCategory, string> = {
-  technique: 'You\'re drawn to specific physical techniques and movements.',
-  sensation: 'You appreciate vocabulary for describing how pleasure feels.',
-  timing: 'Understanding rhythm and pacing resonates with you.',
-  psychological: 'The mental and emotional aspects of pleasure speak to you.',
-  anatomy: 'You value understanding how your body works.',
+  psychological: 'Psychological',
+  anatomy: 'Anatomy',
 };
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { concepts: userConcepts, getStatus } = useUserConcepts();
+  const { concepts: userConcepts } = useUserConcepts();
   const { goal } = useOnboarding();
   const { exploredCount, resonatesCount } = useStats();
 
   const totalCount = concepts.length;
   const progress = totalCount > 0 ? exploredCount / totalCount : 0;
 
-  // Group concepts by status
+  // Group concepts
   const resonatesConcepts = userConcepts.filter((c) => c.status === 'resonates');
-  const curiousConcepts = userConcepts.filter((c) => c.status === 'curious');
-  const exploredConcepts = userConcepts.filter((c) => c.status === 'explored');
 
   // Calculate pattern insights
   const patternInsights = useMemo(() => {
     if (resonatesConcepts.length < 2) return null;
 
-    // Count resonating concepts by category
     const categoryCounts: Record<string, number> = {};
     resonatesConcepts.forEach((uc) => {
       const concept = getConceptById(uc.concept_id);
@@ -58,7 +48,6 @@ export default function ProfileScreen() {
       }
     });
 
-    // Find categories with the most resonating concepts
     const sortedCategories = Object.entries(categoryCounts)
       .sort(([, a], [, b]) => b - a)
       .filter(([, count]) => count >= 1);
@@ -67,301 +56,160 @@ export default function ProfileScreen() {
 
     const topCategory = sortedCategories[0][0] as ConceptCategory;
     const topCategoryCount = sortedCategories[0][1];
-    const totalInCategory = getConceptsByCategory(topCategory).length;
 
-    return {
-      topCategory,
-      topCategoryCount,
-      totalInCategory,
-      allCategories: sortedCategories as [ConceptCategory, number][],
-    };
+    return { topCategory, topCategoryCount };
   }, [resonatesConcepts]);
 
   return (
-    <ScrollView
-      style={[styles.container, { paddingTop: insets.top }]}
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <Text variant="h2">Your Profile</Text>
-          <TouchableOpacity
-            onPress={() => router.push('/modal')}
-            style={styles.settingsButton}
-          >
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + spacing.lg }]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* 1. Identity Header */}
+        <View style={styles.header}>
+          <View style={styles.avatarContainer}>
+            <Text variant="h2" color={colors.primary[600]}>YOU</Text>
+          </View>
+          <View style={styles.headerText}>
+            <Text variant="h2">Your Atelier</Text>
+            <Text variant="bodySmall" color={colors.text.tertiary}>Member since January 2025</Text>
+          </View>
+          <TouchableOpacity onPress={() => router.push('/modal')} style={styles.settingsButton}>
             <Ionicons name="settings-outline" size={24} color={colors.text.secondary} />
           </TouchableOpacity>
         </View>
-        {goal && (
-          <Text variant="bodySmall" color={colors.text.secondary}>
-            Goal: {goalLabels[goal]}
-          </Text>
-        )}
-      </View>
 
-      <View style={styles.content}>
-        {/* Stats Overview */}
-        <Card variant="elevated" padding="lg" style={styles.statsCard}>
-          <View style={styles.statsRow}>
-            <StatItem
-              value={exploredCount}
-              label="Explored"
-              total={totalCount}
-              color={colors.secondary[500]}
-            />
-            <View style={styles.statsDivider} />
-            <StatItem
-              value={resonatesCount}
-              label="Resonates"
-              color={colors.primary[500]}
-            />
-            <View style={styles.statsDivider} />
-            <StatItem
-              value={curiousConcepts.length}
-              label="Curious"
-              color={colors.warning}
-            />
-          </View>
-          <View style={styles.progressSection}>
-            <ProgressBar progress={progress} />
-            <Text variant="caption" style={styles.progressLabel}>
-              {Math.round(progress * 100)}% of vocabulary explored
-            </Text>
-          </View>
-        </Card>
-
-        {/* Pattern Insights */}
-        {patternInsights && (
-          <Card variant="filled" padding="md" style={styles.insightsCard}>
-            <View style={styles.insightsHeader}>
-              <Ionicons name="sparkles" size={20} color={colors.primary[500]} />
-              <Text variant="h4" style={styles.insightsTitle}>
-                Pattern Insights
+        {/* 2. Core Vitals (Bento Box) */}
+        <View style={styles.bentoContainer}>
+          {/* Left Column: Big Progress */}
+          <Card variant="filled" style={styles.bentoBig}>
+            <View style={styles.bentoIcon}>
+              <Ionicons name="compass" size={24} color={colors.secondary[600]} />
+            </View>
+            <View>
+              <Text variant="h1" color={colors.secondary[800]} style={{ fontSize: 42 }}>{exploredCount}</Text>
+              <Text variant="bodyBold" color={colors.secondary[600]}>Explored</Text>
+              <Text variant="caption" color={colors.text.tertiary} style={{ marginTop: 4 }}>
+                {Math.round(progress * 100)}% of library
               </Text>
             </View>
-            <Text variant="body" style={styles.insightsText}>
-              You're drawn to <Text style={styles.bold}>{categoryLabels[patternInsights.topCategory]}</Text> -{' '}
-              {patternInsights.topCategoryCount} of {patternInsights.totalInCategory} concepts resonate with you.
-            </Text>
-            <Text variant="bodySmall" color={colors.text.secondary} style={styles.insightsDescription}>
-              {categoryDescriptions[patternInsights.topCategory]}
-            </Text>
+          </Card>
 
-            {patternInsights.allCategories.length > 1 && (
-              <View style={styles.categoryBreakdown}>
-                {patternInsights.allCategories.map(([category, count]) => (
-                  <View key={category} style={styles.categoryRow}>
-                    <Text variant="bodySmall">{categoryLabels[category]}</Text>
-                    <View style={styles.categoryCount}>
-                      <Text variant="label" color={colors.primary[500]}>
-                        {count}
-                      </Text>
-                    </View>
-                  </View>
-                ))}
+          {/* Right Column: Stack */}
+          <View style={styles.bentoStack}>
+            {/* Resonates */}
+            <Card variant="elevated" style={styles.bentoSmall}>
+              <View style={styles.rowCentered}>
+                <View style={[styles.bentoIconSmall, { backgroundColor: colors.primary[50] }]}>
+                  <Ionicons name="heart" size={18} color={colors.primary[600]} />
+                </View>
+                <View>
+                  <Text variant="h3" color={colors.primary[700]}>{resonatesCount}</Text>
+                  <Text variant="caption">Resonates</Text>
+                </View>
               </View>
-            )}
-          </Card>
-        )}
+            </Card>
 
-        {/* Tools Section */}
-        <View style={styles.section}>
-          <Text variant="h4" style={styles.sectionTitle}>
-            Tools
-          </Text>
-
-          <Card
-            variant="outlined"
-            padding="md"
-            style={styles.toolCard}
-            onPress={() => router.push('/communicate')}
-          >
-            <View style={styles.toolIcon}>
-              <Ionicons name="chatbubbles" size={24} color={colors.secondary[500]} />
-            </View>
-            <View style={styles.toolContent}>
-              <Text variant="h4">Communication Toolkit</Text>
-              <Text variant="bodySmall" color={colors.text.secondary}>
-                Phrases and scripts for talking about pleasure
+            {/* Goal */}
+            <Card variant="outlined" style={styles.bentoSmall}>
+              <Text variant="labelSmall" color={colors.text.tertiary}>CURRENT GOAL</Text>
+              <Text variant="bodyBold" style={{ marginTop: 4 }} numberOfLines={2}>
+                {goalLabels[goal || 'self_discovery']}
               </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
-          </Card>
-
-          <Card
-            variant="outlined"
-            padding="md"
-            style={styles.toolCard}
-            onPress={() => router.push('/share')}
-          >
-            <View style={[styles.toolIcon, { backgroundColor: colors.primary[50] }]}>
-              <Ionicons name="share-social" size={24} color={colors.primary[500]} />
-            </View>
-            <View style={styles.toolContent}>
-              <Text variant="h4">Share with Partner</Text>
-              <Text variant="bodySmall" color={colors.text.secondary}>
-                Create a summary of what resonates with you
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
-          </Card>
+            </Card>
+          </View>
         </View>
 
-        {/* What Resonates */}
+        {/* 3. Insight Spotlight */}
+        {patternInsights && (
+          <TouchableOpacity style={styles.insightWrapper} activeOpacity={0.9} onPress={() => router.push('/(tabs)/library')}>
+            <LinearGradient
+              colors={[colors.primary[600], colors.primary[800]]}
+              style={styles.insightBanner}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <View style={styles.insightContent}>
+                <View style={styles.insightHeader}>
+                  <Ionicons name="sparkles" size={16} color={colors.primary[200]} />
+                  <Text variant="labelSmall" color={colors.primary[200]}>PATTERN FOUND</Text>
+                </View>
+                <Text variant="h3" color={colors.text.inverse}>
+                  You have a strong connection to <Text style={{ fontStyle: 'italic' }}>{categoryLabels[patternInsights.topCategory]}</Text>.
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color={colors.primary[200]} />
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+
+        {/* 4. Action List (Tools) */}
         <View style={styles.section}>
-          <Text variant="h4" style={styles.sectionTitle}>
-            What Resonates With You
-          </Text>
+          <Text variant="h4" style={styles.sectionTitle}>Practice & Share</Text>
+
+          <TouchableOpacity style={styles.actionRow} onPress={() => router.push('/communicate')}>
+            <View style={[styles.actionIcon, { backgroundColor: colors.secondary[50] }]}>
+              <Ionicons name="chatbubbles-outline" size={24} color={colors.secondary[700]} />
+            </View>
+            <View style={styles.actionContent}>
+              <Text variant="bodyBold">Communication Toolkit</Text>
+              <Text variant="caption" color={colors.text.tertiary}>Scripts for better conversations</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.neutral[300]} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionRow} onPress={() => router.push('/share')}>
+            <View style={[styles.actionIcon, { backgroundColor: colors.primary[50] }]}>
+              <Ionicons name="share-social-outline" size={24} color={colors.primary[600]} />
+            </View>
+            <View style={styles.actionContent}>
+              <Text variant="bodyBold">Export Profile</Text>
+              <Text variant="caption" color={colors.text.tertiary}>Share your summary</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.neutral[300]} />
+          </TouchableOpacity>
+        </View>
+
+        {/* 5. The Collection (Shelf) */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeaderRow}>
+            <Text variant="h4">Your Collection</Text>
+            <Text variant="caption" color={colors.text.tertiary}>{resonatesConcepts.length} items</Text>
+          </View>
+
           {resonatesConcepts.length > 0 ? (
-            <View style={styles.conceptList}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.shelfScroll}>
               {resonatesConcepts.map((uc) => {
                 const concept = getConceptById(uc.concept_id);
                 if (!concept) return null;
                 return (
-                  <ConceptChip
+                  <TouchableOpacity
                     key={uc.concept_id}
-                    name={concept.name}
-                    status="resonates"
+                    style={styles.miniCard}
                     onPress={() => router.push(`/concept/${uc.concept_id}`)}
-                  />
+                  >
+                    <View style={[styles.miniCardBadge, { backgroundColor: colors.primary[100] }]}>
+                      <Text variant="labelSmall" color={colors.primary[800]}>{concept.category.slice(0, 1).toUpperCase()}</Text>
+                    </View>
+                    <Text variant="bodyBold" numberOfLines={1}>{concept.name}</Text>
+                    <Text variant="caption" color={colors.text.tertiary} numberOfLines={1}>{concept.category}</Text>
+                  </TouchableOpacity>
                 );
               })}
-            </View>
+            </ScrollView>
           ) : (
-            <Text variant="bodySmall" color={colors.text.tertiary}>
-              Explore concepts in the Library and mark what resonates with you.
-            </Text>
+            <Card variant="outlined" padding="md" style={styles.emptyShelf}>
+              <Text variant="bodySmall" style={{ fontStyle: 'italic', textAlign: 'center' }} color={colors.text.tertiary}>
+                Your collection is empty. Explore concepts to start building your profile.
+              </Text>
+            </Card>
           )}
         </View>
 
-        {/* Curious to Explore */}
-        {curiousConcepts.length > 0 && (
-          <View style={styles.section}>
-            <Text variant="h4" style={styles.sectionTitle}>
-              Curious to Explore
-            </Text>
-            <View style={styles.conceptList}>
-              {curiousConcepts.map((uc) => {
-                const concept = getConceptById(uc.concept_id);
-                if (!concept) return null;
-                return (
-                  <ConceptChip
-                    key={uc.concept_id}
-                    name={concept.name}
-                    status="curious"
-                    onPress={() => router.push(`/concept/${uc.concept_id}`)}
-                  />
-                );
-              })}
-            </View>
-          </View>
-        )}
-
-        {/* Explored but not categorized */}
-        {exploredConcepts.length > 0 && (
-          <View style={styles.section}>
-            <Text variant="h4" style={styles.sectionTitle}>
-              Explored
-            </Text>
-            <View style={styles.conceptList}>
-              {exploredConcepts.map((uc) => {
-                const concept = getConceptById(uc.concept_id);
-                if (!concept) return null;
-                return (
-                  <ConceptChip
-                    key={uc.concept_id}
-                    name={concept.name}
-                    status="explored"
-                    onPress={() => router.push(`/concept/${uc.concept_id}`)}
-                  />
-                );
-              })}
-            </View>
-          </View>
-        )}
-
-        {/* Empty state */}
-        {exploredCount === 0 && (
-          <Card variant="filled" padding="lg" style={styles.emptyCard}>
-            <Ionicons
-              name="compass-outline"
-              size={48}
-              color={colors.neutral[400]}
-              style={styles.emptyIcon}
-            />
-            <Text variant="body" align="center" color={colors.text.secondary}>
-              Start exploring concepts in the Library to build your preference
-              profile.
-            </Text>
-            <TouchableOpacity
-              style={styles.exploreButton}
-              onPress={() => router.push('/(tabs)/library')}
-            >
-              <Text variant="label" color={colors.primary[500]}>
-                Go to Library
-              </Text>
-              <Ionicons name="arrow-forward" size={16} color={colors.primary[500]} />
-            </TouchableOpacity>
-          </Card>
-        )}
-      </View>
-    </ScrollView>
-  );
-}
-
-function StatItem({
-  value,
-  label,
-  total,
-  color,
-}: {
-  value: number;
-  label: string;
-  total?: number;
-  color: string;
-}) {
-  return (
-    <View style={styles.statItem}>
-      <Text variant="h2" color={color}>
-        {value}
-        {total !== undefined && (
-          <Text variant="body" color={colors.text.tertiary}>
-            /{total}
-          </Text>
-        )}
-      </Text>
-      <Text variant="caption">{label}</Text>
+        <View style={{ height: 100 }} />
+      </ScrollView>
     </View>
-  );
-}
-
-function ConceptChip({
-  name,
-  status,
-  onPress,
-}: {
-  name: string;
-  status: ConceptStatus;
-  onPress: () => void;
-}) {
-  const statusColors: Record<string, string> = {
-    resonates: colors.primary[100],
-    curious: colors.warning + '30',
-    explored: colors.secondary[100],
-  };
-
-  return (
-    <TouchableOpacity
-      style={[styles.conceptChip, { backgroundColor: statusColors[status] || colors.neutral[100] }]}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <Text variant="label" color={colors.text.primary}>
-        {name}
-      </Text>
-      <Ionicons name="chevron-forward" size={16} color={colors.text.secondary} />
-    </TouchableOpacity>
   );
 }
 
@@ -371,135 +219,163 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.secondary,
   },
   scrollContent: {
+    paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xl,
   },
+
+  // 1. Header
   header: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-    backgroundColor: colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
-  },
-  headerRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: spacing['2xl'],
+  },
+  avatarContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.primary[100],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+    borderWidth: 2,
+    borderColor: colors.background.primary,
+    ...shadows.sm,
+  },
+  headerText: {
+    flex: 1,
   },
   settingsButton: {
     padding: spacing.xs,
+    backgroundColor: colors.background.primary,
+    borderRadius: borderRadius.full,
+    ...shadows.sm,
   },
-  content: {
-    padding: spacing.md,
-  },
-  statsCard: {
-    marginBottom: spacing.md,
-  },
-  statsRow: {
+
+  // 2. Bento Grid
+  bentoContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: spacing.lg,
+    gap: spacing.md,
+    height: 200, // Fixed total height for the Bento block
+    marginBottom: spacing['2xl'],
   },
-  statItem: {
+  bentoBig: { // Left Column
+    flex: 1.2,
+    backgroundColor: colors.background.primary,
+    justifyContent: 'space-between',
+    padding: spacing.lg,
+  },
+  bentoStack: { // Right Column
+    flex: 1,
+    gap: spacing.md,
+  },
+  bentoSmall: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.background.primary,
+  },
+  bentoIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.secondary[100],
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bentoIconSmall: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.sm,
+  },
+  rowCentered: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
-  statsDivider: {
-    width: 1,
-    backgroundColor: colors.neutral[200],
+
+  // 3. Insight
+  insightWrapper: {
+    marginBottom: spacing['2xl'],
+    ...shadows.md,
   },
-  progressSection: {
-    marginTop: spacing.sm,
-  },
-  progressLabel: {
-    marginTop: spacing.xs,
-    textAlign: 'center',
-  },
-  insightsCard: {
-    marginBottom: spacing.lg,
-    backgroundColor: colors.primary[50],
-  },
-  insightsHeader: {
+  insightBanner: {
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.sm,
+    justifyContent: 'space-between',
   },
-  insightsTitle: {
-    marginLeft: spacing.xs,
+  insightContent: {
+    flex: 1,
+    paddingRight: spacing.md,
   },
-  insightsText: {
+  insightHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
     marginBottom: spacing.xs,
   },
-  insightsDescription: {
-    fontStyle: 'italic',
-  },
-  bold: {
-    fontWeight: '600',
-  },
-  categoryBreakdown: {
-    marginTop: spacing.md,
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.primary[100],
-  },
-  categoryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: spacing.xs,
-  },
-  categoryCount: {
-    backgroundColor: colors.background.primary,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-    borderRadius: borderRadius.sm,
-  },
+
+  // 4. Action List
   section: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing['2xl'],
   },
   sectionTitle: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
-  toolCard: {
+  actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: colors.background.primary,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
     marginBottom: spacing.sm,
+    ...shadows.sm,
   },
-  toolIcon: {
+  actionIcon: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.secondary[50],
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.md,
   },
-  toolContent: {
+  actionContent: {
     flex: 1,
   },
-  conceptList: {
+
+  // 5. Shelf
+  sectionHeaderRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-  },
-  conceptChip: {
-    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.full,
-    gap: spacing.xs,
-  },
-  emptyCard: {
-    alignItems: 'center',
-    marginTop: spacing.xl,
-  },
-  emptyIcon: {
     marginBottom: spacing.md,
   },
-  exploreButton: {
-    flexDirection: 'row',
+  shelfScroll: {
+    gap: spacing.md,
+    paddingRight: spacing.lg,
+  },
+  miniCard: {
+    width: 140,
+    height: 140,
+    backgroundColor: colors.background.primary,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    justifyContent: 'space-between',
+    ...shadows.sm,
+  },
+  miniCardBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
-    marginTop: spacing.md,
-    gap: spacing.xs,
+    justifyContent: 'center',
+  },
+  emptyShelf: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 100,
   },
 });

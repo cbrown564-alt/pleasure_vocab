@@ -1,23 +1,24 @@
-import React, { useState, useMemo } from 'react';
+import { ConceptCard } from '@/components/ConceptCard';
+import { ExplainerCard } from '@/components/ExplainerCard'; // Assuming this exists or will be updated
+import { Card, ProgressBar, Text } from '@/components/ui';
+import { borderRadius, colors, spacing } from '@/constants/theme';
+import { getAllExplainers } from '@/data/explainers';
+import { pathways } from '@/data/pathways';
+import { concepts, getConceptsByCategory } from '@/data/vocabulary';
+import { useUserConcepts } from '@/hooks/useDatabase';
+import { ConceptCategory, Pathway } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React, { useMemo, useState } from 'react';
 import {
-  View,
+  Dimensions,
   FlatList,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
+  View,
 } from 'react-native';
-import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { Text, Card, ProgressBar } from '@/components/ui';
-import { ConceptCard } from '@/components/ConceptCard';
-import { ExplainerCard } from '@/components/ExplainerCard';
-import { colors, spacing, borderRadius } from '@/constants/theme';
-import { useUserConcepts } from '@/hooks/useDatabase';
-import { concepts, getConceptsByCategory } from '@/data/vocabulary';
-import { pathways } from '@/data/pathways';
-import { getAllExplainers } from '@/data/explainers';
-import { ConceptCategory, Pathway } from '@/types';
 
 type ViewMode = 'all' | 'pathways' | 'research';
 type CategoryFilter = 'all' | ConceptCategory;
@@ -26,17 +27,12 @@ const categoryLabels: Record<ConceptCategory, string> = {
   technique: 'Techniques',
   sensation: 'Sensations',
   timing: 'Timing',
-  psychological: 'Psychological',
+  psychological: 'Mindset',
   anatomy: 'Anatomy',
 };
 
-const categoryIcons: Record<ConceptCategory, keyof typeof Ionicons.glyphMap> = {
-  technique: 'hand-left',
-  sensation: 'pulse',
-  timing: 'time',
-  psychological: 'bulb',
-  anatomy: 'body',
-};
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const CARD_WIDTH = (SCREEN_WIDTH - spacing.md * 3) / 2; // 2 columns with padding
 
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
@@ -67,22 +63,11 @@ export default function LibraryScreen() {
     'anatomy',
   ];
 
-  const getCategoryCount = (category: ConceptCategory) => {
-    return getConceptsByCategory(category).length;
-  };
-
-  const getPathwayProgress = (pathway: Pathway) => {
+  const renderPathwayCard = (pathway: Pathway) => {
     const completedInPathway = pathway.conceptIds.filter(
       (id) => getStatus(id) !== 'unexplored'
     ).length;
-    return completedInPathway / pathway.conceptIds.length;
-  };
-
-  const renderPathwayCard = (pathway: Pathway) => {
-    const pathwayProgress = getPathwayProgress(pathway);
-    const completedCount = pathway.conceptIds.filter(
-      (id) => getStatus(id) !== 'unexplored'
-    ).length;
+    const pathwayProgress = completedInPathway / pathway.conceptIds.length;
 
     return (
       <Card
@@ -92,220 +77,148 @@ export default function LibraryScreen() {
         style={styles.pathwayCard}
         onPress={() => router.push(`/pathway/${pathway.id}`)}
       >
-        <View style={styles.pathwayHeader}>
-          <View style={styles.pathwayIcon}>
-            <Ionicons
-              name={pathway.icon as keyof typeof Ionicons.glyphMap}
-              size={24}
-              color={colors.primary[500]}
-            />
-          </View>
-          <View style={styles.pathwayInfo}>
-            <Text variant="h4">{pathway.name}</Text>
-            <Text variant="bodySmall" color={colors.text.secondary}>
-              {pathway.estimatedTime} · {pathway.conceptIds.length} concepts
-            </Text>
-          </View>
+        <View style={styles.pathwayIcon}>
           <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={colors.neutral[400]}
+            name={pathway.icon as keyof typeof Ionicons.glyphMap}
+            size={28}
+            color={colors.primary[500]}
           />
         </View>
-        <Text
-          variant="bodySmall"
-          style={styles.pathwayDescription}
-          numberOfLines={2}
-        >
-          {pathway.description}
-        </Text>
-        <View style={styles.pathwayProgress}>
-          <ProgressBar progress={pathwayProgress} height={4} />
-          <Text
-            variant="caption"
-            color={colors.text.tertiary}
-            style={styles.pathwayProgressText}
-          >
-            {completedCount} of {pathway.conceptIds.length} explored
+        <View style={styles.pathwayContent}>
+          <Text variant="h3" style={{ marginBottom: spacing.xs }}>{pathway.name}</Text>
+          <Text variant="body" numberOfLines={2} style={{ marginBottom: spacing.sm }}>
+            {pathway.description}
           </Text>
+
+          <View style={styles.pathwayMeta}>
+            <Text variant="caption">{pathway.estimatedTime}</Text>
+            <Text variant="caption">•</Text>
+            <Text variant="caption">{pathway.conceptIds.length} concepts</Text>
+          </View>
+
+          <View style={styles.pathwayProgressBar}>
+            <ProgressBar progress={pathwayProgress} height={4} />
+          </View>
         </View>
       </Card>
     );
   };
 
+  const ListHeader = () => (
+    <View>
+      {/* Category Filter - only show in 'all' mode */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoryFilters}
+      >
+        <TouchableOpacity
+          style={[
+            styles.categoryChip,
+            categoryFilter === 'all' && styles.categoryChipActive,
+          ]}
+          onPress={() => setCategoryFilter('all')}
+        >
+          <Text
+            variant="label"
+            color={
+              categoryFilter === 'all'
+                ? colors.primary[600]
+                : colors.text.secondary
+            }
+          >
+            All
+          </Text>
+        </TouchableOpacity>
+        {categories.map((category) => (
+          <TouchableOpacity
+            key={category}
+            style={[
+              styles.categoryChip,
+              categoryFilter === category && styles.categoryChipActive,
+            ]}
+            onPress={() => setCategoryFilter(category)}
+          >
+            <Text
+              variant="label"
+              color={
+                categoryFilter === category
+                  ? colors.primary[600]
+                  : colors.text.secondary
+              }
+            >
+              {categoryLabels[category]}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      <View style={styles.divider} />
+    </View>
+  );
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Text variant="h2">Vocabulary Library</Text>
-        <Text variant="bodySmall" style={styles.subtitle}>
-          {totalCount} concepts across {categories.length} categories
-        </Text>
+        <Text variant="h1" style={styles.pageTitle}>Library</Text>
 
-        <View style={styles.progressSection}>
-          <View style={styles.progressHeader}>
-            <Text variant="label">Overall Progress</Text>
-            <Text variant="label" color={colors.primary[500]}>
-              {exploredCount} of {totalCount} explored
-            </Text>
-          </View>
-          <ProgressBar progress={progress} />
-        </View>
-
-        {/* View Mode Toggle */}
+        {/* Toggle Segmented Control */}
         <View style={styles.viewToggle}>
-          <TouchableOpacity
-            style={[
-              styles.viewToggleButton,
-              viewMode === 'all' && styles.viewToggleActive,
-            ]}
-            onPress={() => setViewMode('all')}
-          >
-            <Text
-              variant="label"
-              color={
-                viewMode === 'all' ? colors.primary[600] : colors.text.secondary
-              }
+          {(['all', 'pathways', 'research'] as ViewMode[]).map((mode) => (
+            <TouchableOpacity
+              key={mode}
+              style={[
+                styles.viewToggleButton,
+                viewMode === mode && styles.viewToggleActive,
+              ]}
+              onPress={() => setViewMode(mode)}
             >
-              Concepts
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.viewToggleButton,
-              viewMode === 'pathways' && styles.viewToggleActive,
-            ]}
-            onPress={() => setViewMode('pathways')}
-          >
-            <Text
-              variant="label"
-              color={
-                viewMode === 'pathways'
-                  ? colors.primary[600]
-                  : colors.text.secondary
-              }
-            >
-              Pathways
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.viewToggleButton,
-              viewMode === 'research' && styles.viewToggleActive,
-            ]}
-            onPress={() => setViewMode('research')}
-          >
-            <Text
-              variant="label"
-              color={
-                viewMode === 'research'
-                  ? colors.primary[600]
-                  : colors.text.secondary
-              }
-            >
-              Research
-            </Text>
-          </TouchableOpacity>
+              <Text
+                variant="label"
+                color={viewMode === mode ? colors.text.primary : colors.text.tertiary}
+                style={{ fontWeight: viewMode === mode ? '600' : '400' }}
+              >
+                {mode.charAt(0).toUpperCase() + mode.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
 
+      {viewMode === 'all' && (
+        <FlatList
+          data={filteredConcepts}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={{ width: CARD_WIDTH }}>
+              <ConceptCard concept={item} status={getStatus(item.id)} />
+            </View>
+          )}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={ListHeader}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+
       {viewMode === 'pathways' && (
         <ScrollView
-          contentContainerStyle={styles.pathwaysList}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <Text variant="bodySmall" color={colors.text.secondary} style={styles.pathwaysIntro}>
-            Structured progressions through related concepts. Start with
-            Foundations if you're new.
-          </Text>
           {pathways.map(renderPathwayCard)}
         </ScrollView>
       )}
 
       {viewMode === 'research' && (
         <ScrollView
-          contentContainerStyle={styles.researchList}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <Text variant="bodySmall" color={colors.text.secondary} style={styles.researchIntro}>
-            Evidence-based articles that explain the science behind pleasure and intimacy.
-          </Text>
           {explainers.map((explainer) => (
             <ExplainerCard key={explainer.id} explainer={explainer} />
           ))}
         </ScrollView>
-      )}
-
-      {viewMode === 'all' && (
-        <>
-          {/* Category Filter */}
-          <View style={styles.categoryFilterContainer}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.categoryFilters}
-            >
-              <TouchableOpacity
-                style={[
-                  styles.categoryChip,
-                  categoryFilter === 'all' && styles.categoryChipActive,
-                ]}
-                onPress={() => setCategoryFilter('all')}
-              >
-                <Text
-                  variant="label"
-                  color={
-                    categoryFilter === 'all'
-                      ? colors.primary[600]
-                      : colors.text.secondary
-                  }
-                >
-                  All ({totalCount})
-                </Text>
-              </TouchableOpacity>
-              {categories.map((category) => (
-                <TouchableOpacity
-                  key={category}
-                  style={[
-                    styles.categoryChip,
-                    categoryFilter === category && styles.categoryChipActive,
-                  ]}
-                  onPress={() => setCategoryFilter(category)}
-                >
-                  <Ionicons
-                    name={categoryIcons[category]}
-                    size={14}
-                    color={
-                      categoryFilter === category
-                        ? colors.primary[600]
-                        : colors.text.secondary
-                    }
-                    style={styles.categoryChipIcon}
-                  />
-                  <Text
-                    variant="label"
-                    color={
-                      categoryFilter === category
-                        ? colors.primary[600]
-                        : colors.text.secondary
-                    }
-                  >
-                    {categoryLabels[category]} ({getCategoryCount(category)})
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-
-          <FlatList
-            data={filteredConcepts}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <ConceptCard concept={item} status={getStatus(item.id)} />
-            )}
-            contentContainerStyle={styles.list}
-            showsVerticalScrollIndicator={false}
-          />
-        </>
       )}
     </View>
   );
@@ -314,108 +227,94 @@ export default function LibraryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
   },
   header: {
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
     paddingBottom: spacing.md,
     backgroundColor: colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
   },
-  subtitle: {
+  pageTitle: {
+    marginBottom: spacing.md,
     marginTop: spacing.xs,
-  },
-  progressSection: {
-    marginTop: spacing.md,
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
   },
   viewToggle: {
     flexDirection: 'row',
-    marginTop: spacing.md,
     backgroundColor: colors.neutral[100],
     borderRadius: borderRadius.md,
-    padding: spacing.xs / 2,
+    padding: 4,
   },
   viewToggleButton: {
     flex: 1,
-    paddingVertical: spacing.sm,
+    paddingVertical: 8,
     alignItems: 'center',
     borderRadius: borderRadius.sm,
   },
   viewToggleActive: {
-    backgroundColor: colors.background.primary,
-  },
-  categoryFilterContainer: {
-    backgroundColor: colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
+    backgroundColor: colors.background.surface,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   categoryFilters: {
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.md,
     gap: spacing.sm,
   },
   categoryChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.neutral[100],
+    paddingVertical: 6,
+    backgroundColor: colors.background.tertiary,
     borderRadius: borderRadius.full,
   },
   categoryChipActive: {
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.primary[100],
   },
-  categoryChipIcon: {
-    marginRight: spacing.xs,
+  listContent: {
+    paddingBottom: spacing.xl,
   },
-  list: {
+  columnWrapper: {
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+  },
+  scrollContent: {
     padding: spacing.md,
+    paddingBottom: spacing.xl,
   },
-  pathwaysList: {
-    padding: spacing.md,
-  },
-  pathwaysIntro: {
+  divider: {
+    height: 1,
+    backgroundColor: colors.neutral[100],
     marginBottom: spacing.md,
+    marginHorizontal: spacing.md,
   },
-  researchList: {
-    padding: spacing.md,
-  },
-  researchIntro: {
-    marginBottom: spacing.md,
-  },
+  // Pathway Card Styles
   pathwayCard: {
     marginBottom: spacing.md,
-  },
-  pathwayHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    backgroundColor: colors.background.surface,
   },
   pathwayIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    marginRight: spacing.md,
+    marginTop: spacing.xs,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: colors.primary[50],
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.md,
   },
-  pathwayInfo: {
+  pathwayContent: {
     flex: 1,
   },
-  pathwayDescription: {
-    marginTop: spacing.sm,
+  pathwayMeta: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
   },
-  pathwayProgress: {
-    marginTop: spacing.md,
-  },
-  pathwayProgressText: {
+  pathwayProgressBar: {
     marginTop: spacing.xs,
-  },
+  }
 });

@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { Text, Card, Badge } from '@/components/ui';
-import { colors, spacing, borderRadius } from '@/constants/theme';
+import { Text } from '@/components/ui';
+import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
 import { getExplainerById } from '@/data/explainers';
 import { getConceptById } from '@/data/vocabulary';
+import { Ionicons } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useRef, useState } from 'react';
+import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ExplainerDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const [expandedMisconception, setExpandedMisconception] = useState<number | null>(null);
 
+  const scrollY = useRef(new Animated.Value(0)).current;
   const explainer = getExplainerById(id);
 
   if (!explainer) {
@@ -29,153 +30,126 @@ export default function ExplainerDetailScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
+    <View style={styles.container}>
+      {/* Sticky Header */}
+      <View style={[styles.stickyHeader, { paddingTop: insets.top }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <View style={styles.headerRow}>
-            <View style={styles.headerIcon}>
-              <Ionicons
-                name={explainer.icon as keyof typeof Ionicons.glyphMap}
-                size={24}
-                color={colors.primary[500]}
-              />
-            </View>
-            <Badge label={explainer.readTime} />
-          </View>
-          <Text variant="h2" style={styles.title}>{explainer.title}</Text>
-        </View>
+        <Text variant="labelSmall" style={styles.headerLabel}>SCIENCE & INSIGHT</Text>
+        <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.content}
+      <Animated.ScrollView
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 60 }]}
         showsVerticalScrollIndicator={false}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
+        scrollEventThrottle={16}
       >
-        {/* Subtitle */}
-        <Text variant="h4" color={colors.text.secondary} style={styles.subtitle}>
-          {explainer.subtitle}
-        </Text>
+        {/* Editorial Header */}
+        <View style={styles.articleHeader}>
+          <View style={styles.metaRow}>
+            <View style={styles.iconBadge}>
+              <Ionicons
+                name={explainer.icon as keyof typeof Ionicons.glyphMap}
+                size={20}
+                color={colors.primary[600]}
+              />
+            </View>
+            <Text variant="label" color={colors.text.tertiary}>{explainer.readTime.toUpperCase()} READ</Text>
+          </View>
 
-        {/* Overview */}
-        <Text variant="body" style={styles.overview}>
+          <Text variant="h1" style={styles.title}>{explainer.title}</Text>
+          <Text variant="h3" style={styles.subtitle}>{explainer.subtitle}</Text>
+        </View>
+
+        <View style={styles.separator} />
+
+        {/* Overview (Lead Paragraph) */}
+        <Text variant="body" style={styles.leadParagraph}>
           {explainer.overview}
         </Text>
 
-        {/* Key Takeaways */}
-        <Card variant="elevated" padding="md" style={styles.takeawaysCard}>
+        {/* Key Takeaways - Styled as "In Brief" box */}
+        <View style={styles.takeawaysBox}>
           <View style={styles.takeawaysHeader}>
-            <Ionicons name="bulb" size={20} color={colors.secondary[500]} />
-            <Text variant="h4" style={styles.takeawaysTitle}>Key Takeaways</Text>
+            <Text variant="h4" style={styles.takeawaysTitle}>In Brief</Text>
           </View>
           {explainer.keyTakeaways.map((takeaway, index) => (
             <View key={index} style={styles.takeawayRow}>
-              <View style={styles.takeawayBullet}>
-                <Ionicons name="checkmark" size={14} color={colors.secondary[500]} />
-              </View>
-              <Text variant="bodySmall" style={styles.takeawayText}>
+              <Text variant="h4" color={colors.secondary[600]} style={{ marginRight: spacing.sm, marginTop: -4 }}>•</Text>
+              <Text variant="body" style={styles.takeawayText} color={colors.secondary[900]}>
                 {takeaway}
               </Text>
             </View>
           ))}
-        </Card>
+        </View>
 
         {/* Content Sections */}
         {explainer.sections.map((section, index) => (
           <View key={index} style={styles.section}>
-            <Text variant="h3" style={styles.sectionTitle}>
+            <Text variant="h2" style={styles.sectionTitle}>
               {section.title}
             </Text>
             <Text variant="body" style={styles.sectionContent}>
               {section.content}
             </Text>
+
             {section.statistic && (
-              <Card variant="filled" padding="md" style={styles.statisticCard}>
-                <Text variant="h2" color={colors.primary[500]} align="center">
+              <View style={styles.pullQuoteContainer}>
+                <Text variant="h1" color={colors.primary[500]} align="center" style={styles.statValue}>
                   {section.statistic.value}
                 </Text>
-                <Text variant="bodySmall" align="center" style={styles.statisticLabel}>
+                <Text variant="bodyBold" align="center" style={styles.statLabel}>
                   {section.statistic.label}
                 </Text>
-                <Text variant="caption" color={colors.text.tertiary} align="center">
+                <Text variant="caption" align="center" color={colors.text.tertiary} style={{ marginTop: spacing.xs }}>
                   — {section.statistic.source}
                 </Text>
-              </Card>
+              </View>
             )}
           </View>
         ))}
 
-        {/* Misconceptions */}
-        <View style={styles.misconceptionsSection}>
-          <Text variant="h3" style={styles.sectionTitle}>
-            Common Misconceptions
-          </Text>
+        {/* Myth Busting Section */}
+        <View style={styles.section}>
+          <Text variant="h2" style={styles.sectionTitle}>Common Misconceptions</Text>
+
           {explainer.misconceptions.map((misconception, index) => {
             const isExpanded = expandedMisconception === index;
             return (
-              <Card
+              <TouchableOpacity
                 key={index}
-                variant="outlined"
-                padding="md"
-                style={styles.misconceptionCard}
+                activeOpacity={0.9}
                 onPress={() => setExpandedMisconception(isExpanded ? null : index)}
+                style={styles.mythCard}
               >
-                <View style={styles.misconceptionHeader}>
-                  <View style={styles.mythRow}>
-                    <View style={styles.mythIcon}>
-                      <Ionicons name="close" size={14} color={colors.error} />
-                    </View>
-                    <Text variant="body" style={styles.mythText}>
-                      "{misconception.myth}"
-                    </Text>
+                <View style={styles.mythHeader}>
+                  <View style={styles.mythBadge}>
+                    <Text variant="labelSmall" color={colors.error}>MYTH</Text>
                   </View>
-                  <Ionicons
-                    name={isExpanded ? 'chevron-up' : 'chevron-down'}
-                    size={20}
-                    color={colors.neutral[400]}
-                  />
+                  <Text variant="bodyBold" style={styles.mythText}>"{misconception.myth}"</Text>
+                  <Ionicons name={isExpanded ? "chevron-up" : "chevron-down"} size={20} color={colors.neutral[400]} />
                 </View>
+
                 {isExpanded && (
-                  <View style={styles.factContainer}>
-                    <View style={styles.factRow}>
-                      <View style={styles.factIcon}>
-                        <Ionicons name="checkmark" size={14} color={colors.secondary[500]} />
-                      </View>
-                      <Text variant="bodySmall" style={styles.factText}>
-                        {misconception.fact}
-                      </Text>
+                  <View style={styles.factBody}>
+                    <View style={styles.factBadge}>
+                      <Text variant="labelSmall" color={colors.secondary[700]}>FACT</Text>
                     </View>
+                    <Text variant="body" style={styles.factText}>{misconception.fact}</Text>
                   </View>
                 )}
-              </Card>
+              </TouchableOpacity>
             );
           })}
-        </View>
-
-        {/* Key Sources */}
-        <View style={styles.sourcesSection}>
-          <Text variant="h3" style={styles.sectionTitle}>
-            Research Sources
-          </Text>
-          {explainer.keySources.map((source, index) => (
-            <Card key={index} variant="filled" padding="sm" style={styles.sourceCard}>
-              <Text variant="caption" color={colors.text.tertiary} style={styles.sourceCitation}>
-                {source.citation}
-              </Text>
-              <Text variant="bodySmall">
-                {source.finding}
-              </Text>
-            </Card>
-          ))}
         </View>
 
         {/* Related Concepts */}
         {explainer.relatedConceptIds.length > 0 && (
           <View style={styles.relatedSection}>
-            <Text variant="h4" style={styles.sectionTitle}>
-              Related Concepts
-            </Text>
+            <View style={styles.divider} />
+            <Text variant="label" style={styles.relatedLabel}>RELATED CONCEPTS</Text>
             <View style={styles.chipContainer}>
               {explainer.relatedConceptIds.map((conceptId) => {
                 const concept = getConceptById(conceptId);
@@ -186,10 +160,10 @@ export default function ExplainerDetailScreen() {
                     style={styles.chip}
                     onPress={() => router.push(`/concept/${conceptId}`)}
                   >
-                    <Text variant="label" color={colors.primary[600]}>
+                    <Text variant="bodyBold" color={colors.primary[700]}>
                       {concept.name}
                     </Text>
-                    <Ionicons name="chevron-forward" size={16} color={colors.primary[600]} />
+                    <Ionicons name="arrow-forward" size={16} color={colors.primary[700]} />
                   </TouchableOpacity>
                 );
               })}
@@ -197,38 +171,8 @@ export default function ExplainerDetailScreen() {
           </View>
         )}
 
-        {/* Related Explainers */}
-        {explainer.relatedExplainerIds.length > 0 && (
-          <View style={styles.relatedSection}>
-            <Text variant="h4" style={styles.sectionTitle}>
-              Related Research
-            </Text>
-            <View style={styles.chipContainer}>
-              {explainer.relatedExplainerIds.map((explainerId) => {
-                const related = getExplainerById(explainerId);
-                if (!related) return null;
-                return (
-                  <TouchableOpacity
-                    key={explainerId}
-                    style={[styles.chip, styles.chipSecondary]}
-                    onPress={() => router.push(`/explainer/${explainerId}`)}
-                  >
-                    <Ionicons
-                      name={related.icon as keyof typeof Ionicons.glyphMap}
-                      size={16}
-                      color={colors.secondary[600]}
-                    />
-                    <Text variant="label" color={colors.secondary[600]}>
-                      {related.title}
-                    </Text>
-                    <Ionicons name="chevron-forward" size={16} color={colors.secondary[600]} />
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-        )}
-      </ScrollView>
+        <View style={{ height: 60 }} />
+      </Animated.ScrollView>
     </View>
   );
 }
@@ -236,185 +180,219 @@ export default function ExplainerDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary, // Cream paper background
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+  stickyHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
     backgroundColor: colors.background.primary,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
+    borderBottomColor: colors.neutral[100],
   },
   backButton: {
     padding: spacing.xs,
-    marginRight: spacing.sm,
-    marginTop: spacing.xs,
   },
-  headerContent: {
-    flex: 1,
+  headerLabel: {
+    letterSpacing: 1,
+    color: colors.text.tertiary,
   },
-  headerRow: {
+  content: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+  },
+
+  // Editorial Header
+  articleHeader: {
+    marginBottom: spacing.lg,
+  },
+  metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
   },
-  headerIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  iconBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: colors.primary[50],
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    marginTop: spacing.xs,
-  },
-  content: {
-    padding: spacing.md,
-    paddingBottom: spacing.xl * 2,
+    fontSize: 32,
+    lineHeight: 40,
+    marginBottom: spacing.sm,
+    color: colors.text.primary,
   },
   subtitle: {
-    fontStyle: 'italic',
-    marginBottom: spacing.md,
+    fontSize: 20,
+    lineHeight: 30,
+    color: colors.text.secondary,
+    fontFamily: 'PlayfairDisplay_700Bold_Italic', // Italic for subtitle
   },
-  overview: {
+  separator: {
+    height: 1,
+    backgroundColor: colors.neutral[200],
+    width: '40%',
     marginBottom: spacing.lg,
-    lineHeight: 26,
   },
-  takeawaysCard: {
-    marginBottom: spacing.lg,
+
+  // Content
+  leadParagraph: {
+    fontSize: 18,
+    lineHeight: 30,
+    marginBottom: spacing.xl,
+    color: colors.text.primary,
+  },
+
+  // Takeaways Box
+  takeawaysBox: {
     backgroundColor: colors.secondary[50],
+    padding: spacing.xl,
+    borderRadius: borderRadius.none, // Editorial style box
+    borderTopWidth: 4,
+    borderTopColor: colors.secondary[500],
+    marginBottom: spacing.xl,
   },
   takeawaysHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: spacing.md,
   },
   takeawaysTitle: {
-    marginLeft: spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontSize: 14,
+    color: colors.secondary[700],
   },
   takeawayRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginBottom: spacing.sm,
   },
-  takeawayBullet: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: colors.secondary[100],
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-    marginTop: 2,
-  },
   takeawayText: {
     flex: 1,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 24,
   },
+
+  // Sections
   section: {
     marginBottom: spacing.xl,
   },
   sectionTitle: {
+    fontSize: 24,
     marginBottom: spacing.md,
   },
   sectionContent: {
-    lineHeight: 26,
+    fontSize: 17,
+    lineHeight: 28,
+    color: colors.text.secondary,
   },
-  statisticCard: {
-    marginTop: spacing.md,
-    backgroundColor: colors.primary[50],
+
+  // Pull Quote / Stat
+  pullQuoteContainer: {
+    marginVertical: spacing.lg,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: colors.neutral[200],
+    alignItems: 'center',
   },
-  statisticLabel: {
-    marginTop: spacing.xs,
+  statValue: {
+    fontSize: 48,
+    lineHeight: 56,
     marginBottom: spacing.xs,
   },
-  misconceptionsSection: {
-    marginBottom: spacing.xl,
+  statLabel: {
+    fontSize: 18,
+    textAlign: 'center',
   },
-  misconceptionCard: {
-    marginBottom: spacing.sm,
+
+  // Myth Busting
+  mythCard: {
+    backgroundColor: colors.background.surface,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    ...shadows.sm,
   },
-  misconceptionHeader: {
+  mythHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  mythRow: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginRight: spacing.sm,
-  },
-  mythIcon: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: colors.error + '20',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-    marginTop: 2,
+    justifyContent: 'space-between',
+  },
+  mythBadge: {
+    backgroundColor: colors.error + '15', // very light red
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: borderRadius.sm,
+    marginRight: spacing.md,
   },
   mythText: {
     flex: 1,
     fontStyle: 'italic',
+    marginRight: spacing.sm,
   },
-  factContainer: {
+  factBody: {
     marginTop: spacing.md,
     paddingTop: spacing.md,
     borderTopWidth: 1,
-    borderTopColor: colors.neutral[200],
+    borderTopColor: colors.neutral[100],
   },
-  factRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  factIcon: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+  factBadge: {
+    alignSelf: 'flex-start',
     backgroundColor: colors.secondary[100],
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-    marginTop: 2,
-  },
-  factText: {
-    flex: 1,
-    lineHeight: 22,
-  },
-  sourcesSection: {
-    marginBottom: spacing.xl,
-  },
-  sourceCard: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: borderRadius.sm,
     marginBottom: spacing.sm,
   },
-  sourceCitation: {
-    marginBottom: spacing.xs,
-    fontStyle: 'italic',
+  factText: {
+    lineHeight: 24,
   },
+
+  // Related
   relatedSection: {
+    marginTop: spacing.xl,
+    alignItems: 'center',
+  },
+  divider: {
+    width: 40,
+    height: 2,
+    backgroundColor: colors.neutral[300],
     marginBottom: spacing.lg,
+  },
+  relatedLabel: {
+    marginBottom: spacing.md,
+    color: colors.text.tertiary,
+    letterSpacing: 2,
   },
   chipContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: spacing.sm,
   },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
     backgroundColor: colors.primary[50],
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderRadius: borderRadius.full,
-    gap: spacing.xs,
-  },
-  chipSecondary: {
-    backgroundColor: colors.secondary[50],
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.primary[100],
   },
 });

@@ -1,17 +1,8 @@
+import { textStyles } from '@/constants/theme';
 import React from 'react';
-import { Text as RNText, TextStyle, StyleSheet } from 'react-native';
-import { colors, typography } from '@/constants/theme';
+import { Text as RNText, TextStyle } from 'react-native';
 
-type TextVariant =
-  | 'h1'
-  | 'h2'
-  | 'h3'
-  | 'h4'
-  | 'body'
-  | 'bodySmall'
-  | 'label'
-  | 'labelSmall'
-  | 'caption';
+type TextVariant = keyof typeof textStyles | 'bodySmall' | 'labelSmall';
 
 interface TextProps {
   children: React.ReactNode;
@@ -30,10 +21,22 @@ export function Text({
   style,
   numberOfLines,
 }: TextProps) {
+
+  // Cast textStyles to any to allow dynamic access with fallback handling
+  let variantStyle: TextStyle = (textStyles as any)[variant];
+
+  // Fallback mappings if strict key missing
+  if (variant === 'bodySmall') {
+    variantStyle = textStyles.caption;
+  }
+  if (variant === 'labelSmall') {
+    variantStyle = { ...textStyles.label, fontSize: 10, letterSpacing: 1 };
+  }
+
   return (
     <RNText
       style={[
-        styles[variant],
+        variantStyle,
         color && { color },
         align && { textAlign: align },
         style,
@@ -44,62 +47,3 @@ export function Text({
     </RNText>
   );
 }
-
-const styles = StyleSheet.create({
-  h1: {
-    fontSize: typography.fontSize['3xl'],
-    fontWeight: typography.fontWeight.bold,
-    lineHeight: typography.fontSize['3xl'] * typography.lineHeight.tight,
-    color: colors.text.primary,
-  },
-  h2: {
-    fontSize: typography.fontSize['2xl'],
-    fontWeight: typography.fontWeight.semibold,
-    lineHeight: typography.fontSize['2xl'] * typography.lineHeight.tight,
-    color: colors.text.primary,
-  },
-  h3: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.semibold,
-    lineHeight: typography.fontSize.xl * typography.lineHeight.tight,
-    color: colors.text.primary,
-  },
-  h4: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.medium,
-    lineHeight: typography.fontSize.lg * typography.lineHeight.tight,
-    color: colors.text.primary,
-  },
-  body: {
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.regular,
-    lineHeight: typography.fontSize.base * typography.lineHeight.normal,
-    color: colors.text.primary,
-  },
-  bodySmall: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.regular,
-    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
-    color: colors.text.secondary,
-  },
-  label: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
-    color: colors.text.secondary,
-  },
-  labelSmall: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.medium,
-    lineHeight: typography.fontSize.xs * typography.lineHeight.normal,
-    color: colors.text.tertiary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  caption: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.regular,
-    lineHeight: typography.fontSize.xs * typography.lineHeight.normal,
-    color: colors.text.tertiary,
-  },
-});

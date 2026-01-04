@@ -1,115 +1,131 @@
 // Design system for Pleasure Vocabulary Builder
-// Warm, approachable palette - not clinical, not explicit
+// Premium, warm, and approachable aesthetics.
 
 export const colors = {
-  // Primary - warm rose/coral tones
+  // Primary - Rich Coral / Terracotta (Warmth, Human, skin-like tones)
   primary: {
-    50: '#FDF8F5',
-    100: '#FCEEE8',
-    200: '#F9DCD1',
-    300: '#F4C4B0',
-    400: '#EDA68A',
-    500: '#E58B6D', // Main primary
-    600: '#D4715A',
-    700: '#B85A47',
-    800: '#96483A',
-    900: '#7A3B31',
+    50: '#FFF5F2',
+    100: '#FFE6DF',
+    200: '#FFC5B5',
+    300: '#FF9E85',
+    400: '#FF7D5C',
+    500: '#E8603C', // Main Brand Color
+    600: '#C94524',
+    700: '#A63318',
+    800: '#872C18',
+    900: '#702819',
   },
 
-  // Secondary - soft sage/green for calm balance
+  // Secondary - Muted Sage / Olive (Calm, grounding, growth)
   secondary: {
-    50: '#F6F9F7',
-    100: '#E8F0EB',
-    200: '#D1E1D7',
-    300: '#B3CCB9',
-    400: '#8FB396',
-    500: '#6B9A73', // Main secondary
-    600: '#567D5E',
-    700: '#46654C',
-    800: '#3A513F',
-    900: '#314435',
+    50: '#F4F7F4',
+    100: '#E3EBE4',
+    200: '#C5D8C8',
+    300: '#A1BFa7',
+    400: '#7FA388',
+    500: '#60846A', // Main Semantic Color
+    600: '#4A6953',
+    700: '#3D5443',
+    800: '#344539',
+    900: '#2C3931',
   },
 
-  // Neutral - warm grays
+  // Accent - Deep Velvet / Night (Contrast, depth, premium feel)
+  accent: {
+    50: '#F0F0FF',
+    100: '#E0E0FF',
+    200: '#C2C2FF',
+    300: '#9E9EFF',
+    400: '#7A7AFF',
+    500: '#5C5CFF',
+    600: '#4242DB',
+    700: '#3030A3', // Deep Blue/Purple for text contrast
+    800: '#2A2A78',
+    900: '#25255C',
+    950: '#0F0F29', // Almost black
+  },
+
+  // Neutral - Sand / Paper (Organic background bases)
   neutral: {
-    50: '#FAFAF9',
-    100: '#F5F4F2',
-    200: '#E8E6E3',
-    300: '#D6D3CF',
-    400: '#B8B4AE',
-    500: '#9A958D',
-    600: '#7D7871',
-    700: '#66625C',
-    800: '#524F4A',
-    900: '#3D3B38',
-    950: '#262523',
+    50: '#FCFAF9', // Main App Background (Paper)
+    100: '#F5F2EF', // Secondary Background
+    200: '#EBE8E3',
+    300: '#DCD8D3',
+    400: '#BDB9B4',
+    500: '#9E9A95',
+    600: '#75726E',
+    700: '#5C5955',
+    800: '#454340',
+    900: '#2E2D2B',
+    950: '#1C1B1A',
   },
 
-  // Semantic colors
-  success: '#6B9A73',
-  warning: '#E5A96D',
-  error: '#D4715A',
-  info: '#6D9DE5',
+  // Semantic
+  success: '#60846A',
+  warning: '#D99A41',
+  error: '#C94524',
+  info: '#5C5CFF',
 
-  // Background colors
+  // Background aliases
   background: {
-    primary: '#FFFFFF',
-    secondary: '#FDF8F5',
-    tertiary: '#F5F4F2',
+    primary: '#FCFAF9', // Cream/Paper
+    secondary: '#F5F2EF', // Slightly darker cream
+    tertiary: '#EBE8E3', // Borders/Separators
+    surface: '#FFFFFF', // Card backgrounds (Pure white for pop)
+    dark: '#1C1B1A',
   },
 
-  // Text colors
+  // Text aliases
   text: {
-    primary: '#3D3B38',
-    secondary: '#66625C',
-    tertiary: '#9A958D',
-    inverse: '#FFFFFF',
+    primary: '#1C1B1A', // Soft Black
+    secondary: '#5C5955', // Dark Grey
+    tertiary: '#9E9A95', // Light Grey
+    inverse: '#FCFAF9',
+    accent: '#A63318',
   },
 
-  // Status colors for concept tracking
+  // Gradient definitions (for LinearGradient usage)
+  gradients: {
+    primary: ['#FFC5B5', '#E8603C'],
+    secondary: ['#C5D8C8', '#60846A'],
+    surface: ['#FFFFFF', '#FCFAF9'],
+    dark: ['#2E2D2B', '#1C1B1A'],
+  },
+
   status: {
-    unexplored: '#E8E6E3',
-    explored: '#D1E1D7',
-    resonates: '#E58B6D',
-    notForMe: '#B8B4AE',
-    curious: '#E5A96D',
+    unexplored: '#EBE8E3',
+    explored: '#C5D8C8',
+    resonates: '#FFC5B5', // Light coral
+    notForMe: '#DCD8D3',
+    curious: '#FFE6DF',
   },
 };
 
 export const typography = {
-  // Font families (using system fonts for now)
   fontFamily: {
-    regular: 'System',
-    medium: 'System',
-    semibold: 'System',
-    bold: 'System',
+    heading: 'PlayfairDisplay_700Bold',
+    headingItalic: 'PlayfairDisplay_700Bold_Italic',
+    body: 'Inter_400Regular',
+    bodyMedium: 'Inter_500Medium',
+    bodyBold: 'Inter_600SemiBold',
   },
 
-  // Font sizes
+  // Modular scale: 1.25 (Major Third)
   fontSize: {
     xs: 12,
-    sm: 14,
-    base: 16,
-    lg: 18,
-    xl: 20,
-    '2xl': 24,
-    '3xl': 30,
-    '4xl': 36,
+    sm: 15, // Bumped up slightly for readability
+    base: 17, // Standard body
+    lg: 21,
+    xl: 26,
+    '2xl': 33, // H2
+    '3xl': 41, // H1
+    '4xl': 51, // Hero
   },
 
-  // Line heights
   lineHeight: {
-    tight: 1.25,
+    tight: 1.1,
     normal: 1.5,
-    relaxed: 1.75,
-  },
-
-  // Font weights
-  fontWeight: {
-    regular: '400' as const,
-    medium: '500' as const,
-    semibold: '600' as const,
-    bold: '700' as const,
+    relaxed: 1.8,
   },
 };
 
@@ -121,104 +137,92 @@ export const spacing = {
   xl: 32,
   '2xl': 48,
   '3xl': 64,
+  '4xl': 96,
 };
 
 export const borderRadius = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
-  '2xl': 24,
+  sm: 6,
+  md: 12, // More rounded standard
+  lg: 20, // Card standard
+  xl: 32,
   full: 9999,
 };
 
 export const shadows = {
+  // Soft, diffused shadows
   sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  md: {
-    shadowColor: '#000',
+    shadowColor: '#454340',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
-  lg: {
-    shadowColor: '#000',
+  md: {
+    shadowColor: '#454340',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
     elevation: 4,
+  },
+  lg: {
+    shadowColor: '#454340',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 8,
   },
 };
 
-// Preset text styles
+// Text style presets
 export const textStyles = {
-  // Headings
   h1: {
+    fontFamily: typography.fontFamily.heading,
     fontSize: typography.fontSize['3xl'],
-    fontWeight: typography.fontWeight.bold,
     lineHeight: typography.fontSize['3xl'] * typography.lineHeight.tight,
     color: colors.text.primary,
   },
   h2: {
+    fontFamily: typography.fontFamily.heading,
     fontSize: typography.fontSize['2xl'],
-    fontWeight: typography.fontWeight.semibold,
     lineHeight: typography.fontSize['2xl'] * typography.lineHeight.tight,
     color: colors.text.primary,
   },
   h3: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.semibold,
-    lineHeight: typography.fontSize.xl * typography.lineHeight.tight,
-    color: colors.text.primary,
-  },
-  h4: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.medium,
+    fontFamily: typography.fontFamily.heading,
+    fontSize: typography.fontSize.lg, // Intentional: H3 is often smaller but bold
     lineHeight: typography.fontSize.lg * typography.lineHeight.tight,
     color: colors.text.primary,
   },
-
-  // Body text
-  body: {
+  h4: {
+    fontFamily: typography.fontFamily.bodyBold, // H4 often transitions to Sans
     fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.regular,
+    lineHeight: typography.fontSize.base * typography.lineHeight.normal,
+    color: colors.text.primary,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase' as const,
+  },
+  body: {
+    fontFamily: typography.fontFamily.body,
+    fontSize: typography.fontSize.base,
+    lineHeight: typography.fontSize.base * typography.lineHeight.normal,
+    color: colors.text.secondary,
+  },
+  bodyBold: {
+    fontFamily: typography.fontFamily.bodyBold,
+    fontSize: typography.fontSize.base,
     lineHeight: typography.fontSize.base * typography.lineHeight.normal,
     color: colors.text.primary,
   },
-  bodySmall: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.regular,
-    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
-    color: colors.text.secondary,
-  },
-
-  // Labels
-  label: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
-    color: colors.text.secondary,
-  },
-  labelSmall: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.medium,
-    lineHeight: typography.fontSize.xs * typography.lineHeight.normal,
-    color: colors.text.tertiary,
-    textTransform: 'uppercase' as const,
-    letterSpacing: 0.5,
-  },
-
-  // Caption
   caption: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.regular,
-    lineHeight: typography.fontSize.xs * typography.lineHeight.normal,
+    fontFamily: typography.fontFamily.body,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
     color: colors.text.tertiary,
+  },
+  label: {
+    fontFamily: typography.fontFamily.bodyMedium,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.tight,
+    color: colors.text.secondary,
   },
 };

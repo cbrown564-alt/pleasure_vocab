@@ -1,13 +1,13 @@
+import { borderRadius, colors, spacing, typography } from '@/constants/theme';
 import React from 'react';
 import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
   ActivityIndicator,
-  ViewStyle,
+  StyleSheet,
+  Text,
   TextStyle,
+  TouchableOpacity,
+  ViewStyle,
 } from 'react-native';
-import { colors, typography, spacing, borderRadius } from '@/constants/theme';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
 
   // Text styles
   text: {
-    fontWeight: typography.fontWeight.semibold,
+    fontFamily: typography.fontFamily.bodyBold,
   },
   text_primary: {
     color: colors.text.inverse,

@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { View, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { Text, Button, Card } from '@/components/ui';
 import { ResonanceSelector } from '@/components/ResonanceSelector';
+import { Button, Card, Text } from '@/components/ui';
 import { StatusBadge } from '@/components/ui/Badge';
-import { colors, spacing, borderRadius } from '@/constants/theme';
-import { useUserConcept, useJournal } from '@/hooks/useDatabase';
-import { getConceptById } from '@/data/vocabulary';
+import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
 import { getExplainersForConcept } from '@/data/explainers';
+import { getConceptById } from '@/data/vocabulary';
+import { useJournal, useUserConcept } from '@/hooks/useDatabase';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const { width } = Dimensions.get('window');
 
 export default function ConceptDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -20,6 +23,9 @@ export default function ConceptDetailScreen() {
   const { entries, create } = useJournal(id);
   const [showJournalInput, setShowJournalInput] = useState(false);
   const [journalText, setJournalText] = useState('');
+
+  // Animation value for scroll
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (concept) {
@@ -44,206 +50,188 @@ export default function ConceptDetailScreen() {
     }
   };
 
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 200],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  const heroScale = scrollY.interpolate({
+    inputRange: [-200, 0],
+    outputRange: [1.5, 1],
+    extrapolate: 'clamp',
+  });
+
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+    <View style={styles.container}>
+      {/* Fixed Sticky Header (appears on scroll) */}
+      <Animated.View style={[styles.stickyHeader, { paddingTop: insets.top, opacity: headerOpacity }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButtonFixed}>
           <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
-        <View style={styles.headerTitle}>
-          <Text variant="h3" numberOfLines={1}>
-            {concept.name}
-          </Text>
-        </View>
-        <StatusBadge status={status} />
-      </View>
+        <Text variant="h4" style={styles.stickyTitle} numberOfLines={1}>{concept.name}</Text>
+        <View style={{ width: 40 }} />
+      </Animated.View>
 
-      <ScrollView
+      {/* Floating Back Button (visible initially) */}
+      <Animated.View style={[styles.floatingBack, { top: insets.top + spacing.sm, opacity: scrollY.interpolate({ inputRange: [0, 100], outputRange: [1, 0] }) }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.roundBackBtn}>
+          <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
+        </TouchableOpacity>
+      </Animated.View>
+
+      <Animated.ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+        scrollEventThrottle={16}
       >
-        {/* Definition */}
-        <Text variant="body" color={colors.text.secondary} style={styles.definition}>
-          {concept.definition}
-        </Text>
+        {/* Immersive Hero */}
+        <View style={styles.heroContainer}>
+          <Animated.View style={[styles.heroBackground, { transform: [{ scale: heroScale }] }]}>
+            <LinearGradient
+              colors={[colors.primary[50], colors.background.primary]}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={styles.decorationCircle} />
+          </Animated.View>
 
-        {/* Description */}
-        <Card variant="elevated" padding="lg" style={styles.section}>
-          <Text variant="body" style={styles.description}>
-            {concept.description}
-          </Text>
-        </Card>
-
-        {/* Recognition Prompts */}
-        <View style={styles.section}>
-          <Text variant="labelSmall" style={styles.sectionTitle}>
-            Reflection Prompts
-          </Text>
-          {concept.recognitionPrompts.map((prompt, index) => (
-            <View key={index} style={styles.prompt}>
-              <View style={styles.promptDot} />
-              <Text variant="body" style={styles.promptText}>
-                {prompt}
-              </Text>
+          <View style={[styles.heroContent, { paddingTop: insets.top + spacing.xl * 2 }]}>
+            <View style={styles.categoryBadge}>
+              <Text variant="labelSmall" color={colors.text.secondary} style={{ letterSpacing: 2 }}>{concept.category.toUpperCase()}</Text>
             </View>
-          ))}
+            <Text variant="h1" style={styles.heroTitle}>{concept.name}</Text>
+            <Text variant="h3" style={styles.heroDefinition} color={colors.text.secondary}>
+              {concept.definition}
+            </Text>
+            <View style={styles.heroStatus}>
+              <StatusBadge status={status} />
+            </View>
+          </View>
         </View>
 
-        {/* Resonance Selector */}
-        <View style={styles.section}>
-          <ResonanceSelector currentStatus={status} onSelect={setStatus} />
-        </View>
+        <View style={styles.contentBody}>
+          {/* Action Bar / Resonance */}
+          <Card variant="elevated" padding="lg" style={styles.resonanceCard}>
+            <Text variant="bodyBold" align="center" style={{ marginBottom: spacing.md }}>How does this feel to you?</Text>
+            <ResonanceSelector currentStatus={status} onSelect={setStatus} />
+          </Card>
 
-        {/* Research Basis */}
-        <Card variant="filled" padding="md" style={styles.section}>
-          <Text variant="labelSmall" style={styles.sectionTitle}>
-            Research Basis
-          </Text>
-          <Text variant="bodySmall">{concept.researchBasis}</Text>
-          <Text variant="caption" style={styles.source}>
-            Source: {concept.source}
-          </Text>
-        </Card>
-
-        {/* Related Research */}
-        {relatedExplainers.length > 0 && (
+          {/* Insight Sections */}
           <View style={styles.section}>
-            <Text variant="labelSmall" style={styles.sectionTitle}>
-              Learn the Science
+            <Text variant="h2" style={styles.sectionHeader}>The Insight</Text>
+            <Text variant="body" style={styles.longText}>
+              {concept.description}
             </Text>
-            {relatedExplainers.map((explainer) => (
-              <TouchableOpacity
-                key={explainer.id}
-                style={styles.explainerCard}
-                onPress={() => router.push(`/explainer/${explainer.id}`)}
-              >
-                <View style={styles.explainerIcon}>
-                  <Ionicons
-                    name={explainer.icon as keyof typeof Ionicons.glyphMap}
-                    size={20}
-                    color={colors.secondary[500]}
-                  />
-                </View>
-                <View style={styles.explainerContent}>
-                  <Text variant="label">{explainer.title}</Text>
-                  <Text variant="caption" color={colors.text.secondary} numberOfLines={1}>
-                    {explainer.subtitle}
-                  </Text>
-                </View>
-                <View style={styles.explainerBadge}>
-                  <Text variant="caption" color={colors.text.tertiary}>
-                    {explainer.readTime}
-                  </Text>
-                </View>
-                <Ionicons
-                  name="chevron-forward"
-                  size={16}
-                  color={colors.neutral[400]}
-                />
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {/* Journal Section */}
-        <View style={styles.section}>
-          <View style={styles.journalHeader}>
-            <Text variant="labelSmall" style={styles.sectionTitle}>
-              Your Notes
-            </Text>
-            {!showJournalInput && (
-              <TouchableOpacity
-                onPress={() => setShowJournalInput(true)}
-                style={styles.addButton}
-              >
-                <Ionicons name="add" size={20} color={colors.primary[500]} />
-                <Text variant="label" color={colors.primary[500]}>
-                  Add
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
 
-          {showJournalInput && (
-            <Card variant="outlined" padding="md" style={styles.journalInputCard}>
-              <TextInput
-                style={styles.journalInput}
-                placeholder="Write your thoughts..."
-                placeholderTextColor={colors.text.tertiary}
-                multiline
-                value={journalText}
-                onChangeText={setJournalText}
-                autoFocus
-              />
-              <View style={styles.journalActions}>
-                <Button
-                  title="Cancel"
-                  variant="ghost"
-                  size="sm"
-                  onPress={() => {
-                    setShowJournalInput(false);
-                    setJournalText('');
-                  }}
-                />
-                <Button
-                  title="Save"
-                  size="sm"
-                  onPress={handleSaveJournal}
-                  disabled={!journalText.trim()}
-                />
+          {/* Reflection Prompts - Styled as "Pause" cards */}
+          <View style={styles.section}>
+            <Text variant="label" style={styles.labelDivider}>Pause & Reflect</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.promptsScroll}>
+              {concept.recognitionPrompts.map((prompt, index) => (
+                <View key={index} style={styles.promptCard}>
+                  <Ionicons name="help-buoy-outline" size={24} color={colors.primary[400]} style={{ marginBottom: spacing.md }} />
+                  <Text variant="body" style={{ fontStyle: 'italic', lineHeight: 24 }}>"{prompt}"</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* Research Basis - Accordion style look */}
+          <View style={styles.section}>
+            <View style={styles.researchBox}>
+              <View style={styles.researchHeader}>
+                <Ionicons name="library-outline" size={20} color={colors.secondary[600]} />
+                <Text variant="h4" color={colors.secondary[700]}>Research Basis</Text>
               </View>
-            </Card>
+              <Text variant="bodySmall" style={{ marginBottom: spacing.sm }}>{concept.researchBasis}</Text>
+              <Text variant="caption" color={colors.text.tertiary}>Source: {concept.source}</Text>
+            </View>
+          </View>
+
+          {/* Related Research */}
+          {relatedExplainers.length > 0 && (
+            <View style={styles.section}>
+              <Text variant="h4" style={{ marginBottom: spacing.md }}>Science & Insight</Text>
+              {relatedExplainers.map((explainer) => (
+                <TouchableOpacity
+                  key={explainer.id}
+                  style={styles.explainerRow}
+                  onPress={() => router.push(`/explainer/${explainer.id}`)}
+                >
+                  <View style={styles.explainerIcon}>
+                    <Ionicons
+                      name={explainer.icon as keyof typeof Ionicons.glyphMap}
+                      size={20}
+                      color={colors.text.inverse}
+                    />
+                  </View>
+                  <View style={styles.explainerContent}>
+                    <Text variant="bodyBold">{explainer.title}</Text>
+                    <Text variant="caption" color={colors.text.tertiary}>
+                      {explainer.readTime} • {explainer.subtitle}
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={colors.neutral[300]} />
+                </TouchableOpacity>
+              ))}
+            </View>
           )}
 
-          {entries.length > 0 ? (
-            entries.map((entry) => (
-              <Card key={entry.id} variant="outlined" padding="md" style={styles.journalEntry}>
-                <Text variant="body">{entry.content}</Text>
-                <Text variant="caption" style={styles.journalDate}>
-                  {new Date(entry.created_at).toLocaleDateString()}
-                </Text>
-              </Card>
-            ))
-          ) : !showJournalInput ? (
-            <Text variant="bodySmall" color={colors.text.tertiary}>
-              No notes yet. Tap Add to record your thoughts.
-            </Text>
-          ) : null}
+          {/* Journal Section */}
+          <View style={styles.section}>
+            <View style={styles.journalHeader}>
+              <Text variant="h2">Your Notes</Text>
+              {!showJournalInput && (
+                <Button title="Add Note" onPress={() => setShowJournalInput(true)} size="sm" variant="outline" />
+              )}
+            </View>
+
+            {showJournalInput && (
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.journalInput}
+                  placeholder="What's coming up for you?"
+                  placeholderTextColor={colors.text.tertiary}
+                  multiline
+                  value={journalText}
+                  onChangeText={setJournalText}
+                  autoFocus
+                />
+                <View style={styles.inputActions}>
+                  <Button title="Cancel" variant="ghost" size="sm" onPress={() => setShowJournalInput(false)} />
+                  <Button title="Save" size="sm" onPress={handleSaveJournal} disabled={!journalText.trim()} />
+                </View>
+              </View>
+            )}
+
+            {entries.map((entry) => (
+              <View key={entry.id} style={styles.journalEntry}>
+                <View style={styles.entryTimeline}>
+                  <View style={styles.timelineDot} />
+                  <View style={styles.timelineLine} />
+                </View>
+                <View style={styles.entryContent}>
+                  <Text variant="caption" color={colors.text.tertiary} style={{ marginBottom: 4 }}>
+                    {new Date(entry.created_at).toLocaleDateString()}
+                  </Text>
+                  <Text variant="body">{entry.content}</Text>
+                </View>
+              </View>
+            ))}
+
+            {entries.length === 0 && !showJournalInput && (
+              <Text variant="bodySmall" color={colors.text.tertiary} style={{ fontStyle: 'italic', marginTop: spacing.sm }}>
+                No notes yet. Capture your thoughts to deepen your understanding.
+              </Text>
+            )}
+          </View>
         </View>
 
-        {/* Related Concepts */}
-        {concept.relatedConcepts.length > 0 && (
-          <View style={styles.section}>
-            <Text variant="labelSmall" style={styles.sectionTitle}>
-              Related Concepts
-            </Text>
-            <View style={styles.relatedList}>
-              {concept.relatedConcepts.map((relatedId) => {
-                const related = getConceptById(relatedId);
-                if (!related) return null;
-                return (
-                  <TouchableOpacity
-                    key={relatedId}
-                    style={styles.relatedChip}
-                    onPress={() => router.push(`/concept/${relatedId}`)}
-                  >
-                    <Text variant="label" color={colors.primary[600]}>
-                      {related.name}
-                    </Text>
-                    <Ionicons
-                      name="chevron-forward"
-                      size={16}
-                      color={colors.primary[600]}
-                    />
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-        )}
-      </ScrollView>
+        <View style={{ height: 100 }} />
+      </Animated.ScrollView>
     </View>
   );
 }
@@ -251,137 +239,227 @@ export default function ConceptDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.primary,
   },
   center: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
+  stickyHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255,255,255,0.95)', // Glass effect
+    zIndex: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.background.primary,
+    paddingBottom: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
+    borderBottomColor: colors.neutral[100],
   },
-  backButton: {
+  backButtonFixed: {
     padding: spacing.xs,
-    marginRight: spacing.sm,
   },
-  headerTitle: {
+  stickyTitle: {
     flex: 1,
+    textAlign: 'center',
+  },
+  floatingBack: {
+    position: 'absolute',
+    left: spacing.md,
+    zIndex: 10,
+  },
+  roundBackBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.sm,
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    padding: spacing.md,
     paddingBottom: spacing.xl,
   },
-  definition: {
-    marginBottom: spacing.lg,
+
+  // Hero
+  heroContainer: {
+    minHeight: 400,
+    position: 'relative',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
-  section: {
-    marginBottom: spacing.lg,
+  heroBackground: {
+    ...StyleSheet.absoluteFillObject,
   },
-  sectionTitle: {
-    marginBottom: spacing.sm,
-    color: colors.text.tertiary,
+  decorationCircle: {
+    position: 'absolute',
+    top: -100,
+    right: -50,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: colors.primary[100],
+    opacity: 0.5,
   },
-  description: {
-    lineHeight: 26,
+  heroContent: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
   },
-  prompt: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: spacing.sm,
-  },
-  promptDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.primary[400],
-    marginTop: 8,
-    marginRight: spacing.sm,
-  },
-  promptText: {
-    flex: 1,
-  },
-  source: {
-    marginTop: spacing.sm,
-    fontStyle: 'italic',
-  },
-  journalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  journalInputCard: {
+  categoryBadge: {
     marginBottom: spacing.md,
   },
-  journalInput: {
-    minHeight: 100,
-    fontSize: 16,
+  heroTitle: {
+    fontSize: 42,
+    lineHeight: 48,
+    marginBottom: spacing.md,
     color: colors.text.primary,
-    textAlignVertical: 'top',
   },
-  journalActions: {
+  heroDefinition: {
+    fontSize: 22,
+    lineHeight: 32,
+    fontStyle: 'italic',
+    marginBottom: spacing.lg,
+  },
+  heroStatus: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: spacing.sm,
-    marginTop: spacing.sm,
   },
-  journalEntry: {
-    marginBottom: spacing.sm,
+
+  contentBody: {
+    paddingHorizontal: spacing.lg,
+    marginTop: -spacing.xl, // Overlap effect
   },
-  journalDate: {
-    marginTop: spacing.sm,
+
+  resonanceCard: {
+    marginBottom: spacing.xl,
+    backgroundColor: colors.background.surface,
   },
-  relatedList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
+
+  section: {
+    marginBottom: spacing['2xl'],
   },
-  relatedChip: {
+  sectionHeader: {
+    marginBottom: spacing.md,
+  },
+  longText: {
+    fontSize: 18,
+    lineHeight: 30,
+    color: colors.text.secondary,
+  },
+
+  // Prompts
+  labelDivider: {
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    color: colors.text.tertiary,
+    marginBottom: spacing.md,
+  },
+  promptsScroll: {
+    gap: spacing.md,
+    paddingRight: spacing.lg,
+  },
+  promptCard: {
+    width: 260,
+    padding: spacing.lg,
+    backgroundColor: colors.background.secondary,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.neutral[100],
+  },
+
+  // Research
+  researchBox: {
+    backgroundColor: colors.secondary[50], // Sage wash
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.secondary[500],
+  },
+  researchHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primary[50],
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.full,
-    gap: spacing.xs,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
-  explainerCard: {
+
+  // Explainers
+  explainerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.background.surface,
     padding: spacing.md,
     borderRadius: borderRadius.md,
     marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.neutral[200],
+    ...shadows.sm,
   },
   explainerIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.secondary[50],
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.primary[500],
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.sm,
+    marginRight: spacing.md,
   },
   explainerContent: {
     flex: 1,
   },
-  explainerBadge: {
-    marginRight: spacing.sm,
+
+  // Journal
+  journalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  inputContainer: {
+    backgroundColor: colors.background.surface,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    ...shadows.sm,
+  },
+  journalInput: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: colors.text.primary,
+    minHeight: 80,
+    marginBottom: spacing.md,
+  },
+  inputActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
+  },
+  journalEntry: {
+    flexDirection: 'row',
+    marginBottom: spacing.lg,
+  },
+  entryTimeline: {
+    alignItems: 'center',
+    marginRight: spacing.md,
+    width: 20,
+  },
+  timelineDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.primary[300],
+    marginBottom: 4,
+  },
+  timelineLine: {
+    width: 1,
+    flex: 1,
+    backgroundColor: colors.neutral[200],
+  },
+  entryContent: {
+    flex: 1,
+    paddingBottom: spacing.sm,
   },
 });
