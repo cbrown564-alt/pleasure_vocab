@@ -1,6 +1,7 @@
 import { Text } from '@/components/ui';
 import { borderRadius, colors, spacing } from '@/constants/theme';
 import { getAllExplainers } from '@/data/explainers';
+
 import { concepts } from '@/data/vocabulary';
 import { useOnboarding, useStats, useUserConcepts } from '@/hooks/useDatabase';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,7 +28,7 @@ const GREETINGS = {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { concepts: userConcepts } = useUserConcepts();
-  const { isOnboarded } = useOnboarding();
+  const { isCompleted: isOnboarded } = useOnboarding();
   const { exploredCount } = useStats();
 
   const totalCount = concepts.length;
@@ -112,6 +113,8 @@ export default function HomeScreen() {
           </LinearGradient>
         </TouchableOpacity>
       </View>
+
+
 
       {/* 3. Stats Row (Polished) */}
       <View style={styles.statsRow}>

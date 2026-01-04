@@ -9,11 +9,16 @@ import { Text } from './ui/Typography';
 interface ConceptCardProps {
   concept: Concept;
   status: ConceptStatus;
+  onPress?: () => void;
 }
 
-export function ConceptCard({ concept, status }: ConceptCardProps) {
+export function ConceptCard({ concept, status, onPress }: ConceptCardProps) {
   const handlePress = () => {
-    router.push(`/concept/${concept.id}`);
+    if (onPress) {
+      onPress();
+    } else {
+      router.push(`/concept/${concept.id}`);
+    }
   };
 
   const getStatusColor = (s: ConceptStatus) => {

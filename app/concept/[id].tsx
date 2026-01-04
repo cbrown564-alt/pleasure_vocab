@@ -3,7 +3,7 @@ import { Button, Card, Text } from '@/components/ui';
 import { StatusBadge } from '@/components/ui/Badge';
 import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
 import { getExplainersForConcept } from '@/data/explainers';
-import { getConceptById } from '@/data/vocabulary';
+import { getConceptById, getNextConcept } from '@/data/vocabulary';
 import { useJournal, useUserConcept } from '@/hooks/useDatabase';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,9 +15,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const { width } = Dimensions.get('window');
 
 export default function ConceptDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, pathway } = useLocalSearchParams<{ id: string; pathway?: string }>();
   const insets = useSafeAreaInsets();
   const concept = getConceptById(id);
+  const nextConcept = getNextConcept(id, pathway);
   const relatedExplainers = getExplainersForConcept(id);
   const { status, setStatus, markExplored } = useUserConcept(id);
   const { entries, create } = useJournal(id);
@@ -232,6 +233,33 @@ export default function ConceptDetailScreen() {
 
         <View style={{ height: 100 }} />
       </Animated.ScrollView>
+
+      {/* Navigation Footer */}
+      {nextConcept && (
+        <View style={[styles.navFooter, { paddingBottom: insets.bottom + spacing.md }]}>
+          <TouchableOpacity
+            style={styles.nextButton}
+            onPress={() =>
+              router.push({
+                pathname: '/concept/[id]',
+                params: { id: nextConcept.id, pathway },
+              })
+            }
+          >
+            <View>
+              <Text variant="labelSmall" color={colors.primary[200]} style={{ marginBottom: 4 }}>
+                UP NEXT
+              </Text>
+              <Text variant="h3" color={colors.text.inverse}>
+                {nextConcept.name}
+              </Text>
+            </View>
+            <View style={styles.nextIcon}>
+              <Ionicons name="arrow-forward" size={24} color={colors.primary[600]} />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
@@ -461,5 +489,29 @@ const styles = StyleSheet.create({
   entryContent: {
     flex: 1,
     paddingBottom: spacing.sm,
+  },
+  // Navigation Footer
+  navFooter: {
+    marginTop: spacing['2xl'],
+    paddingTop: spacing.xl,
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral[200],
+  },
+  nextButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.primary[600],
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    ...shadows.md,
+  },
+  nextIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.text.inverse,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

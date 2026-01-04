@@ -190,7 +190,16 @@ export default function LibraryScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <View style={{ width: CARD_WIDTH }}>
-              <ConceptCard concept={item} status={getStatus(item.id)} />
+              <ConceptCard
+                concept={item}
+                status={getStatus(item.id)}
+                onPress={() =>
+                  router.push({
+                    pathname: `/concept/${item.id}`,
+                    params: { pathway: categoryFilter === 'all' ? 'default' : categoryFilter },
+                  })
+                }
+              />
             </View>
           )}
           numColumns={2}

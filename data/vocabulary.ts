@@ -2,6 +2,7 @@
 // Based on research from Hensel et al., 2021 (PLOS ONE)
 
 import { Concept } from '@/types';
+import { getPathwayById } from './pathways';
 
 export const concepts: Concept[] = [
   {
@@ -516,4 +517,36 @@ export function getConceptsByTier(tier: Concept['tier']): Concept[] {
 // Get all free concepts (for Phase 1)
 export function getFreeConcepts(): Concept[] {
   return concepts.filter((c) => c.tier === 'free');
+}
+// Helper to get next concept for linear navigation
+export function getNextConcept(currentId: string, pathwayId?: string): Concept | null {
+  // 1. If a specific pathway is provided, follow that order
+  if (pathwayId && pathwayId !== 'default') {
+    const pathway = getPathwayById(pathwayId);
+
+    if (pathway) {
+      const currentIndex = pathway.conceptIds.indexOf(currentId);
+
+      // If found and not the last item
+      if (currentIndex !== -1 && currentIndex < pathway.conceptIds.length - 1) {
+        const nextId = pathway.conceptIds[currentIndex + 1];
+        return getConceptById(nextId) || null;
+      }
+
+      // If it's the last item in pathway, return null (end of pathway)
+      if (currentIndex === pathway.conceptIds.length - 1) {
+        return null;
+      }
+    }
+  }
+
+  // 2. Fallback: Default linear navigation or category-based
+  const currentIndex = concepts.findIndex((c) => c.id === currentId);
+
+  // If not found or last item, return null
+  if (currentIndex === -1 || currentIndex === concepts.length - 1) {
+    return null;
+  }
+
+  return concepts[currentIndex + 1];
 }
