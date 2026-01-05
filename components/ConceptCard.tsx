@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.surface,
     borderRadius: borderRadius.lg,
     marginBottom: spacing.md,
-    ...shadows.sm,
+    ...shadows.md,
     borderWidth: 1,
     borderColor: colors.neutral[100],
     overflow: 'hidden',

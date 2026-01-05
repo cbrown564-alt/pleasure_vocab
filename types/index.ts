@@ -19,7 +19,7 @@ export type ConceptCategory =
 // Tier for future paywall
 export type ConceptTier = 'free' | 'premium';
 
-export type ConceptSlideType = 'recognize' | 'name' | 'illustrate' | 'understand' | 'explore';
+export type ConceptSlideType = 'recognize' | 'name' | 'illustrate' | 'understand' | 'explore' | 'reflect';
 
 export interface ConceptSlide {
   type: ConceptSlideType;

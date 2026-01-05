@@ -1,4 +1,4 @@
-import { Text } from '@/components/ui';
+import { Text, ThemedView } from '@/components/ui';
 import { borderRadius, colors, spacing } from '@/constants/theme';
 import { getAllExplainers } from '@/data/explainers';
 
@@ -229,7 +229,7 @@ export default function HomeScreen() {
 
 
       {/* 3. Stats Row (Polished) */}
-      <View style={styles.statsRow}>
+      <ThemedView colorKey="surface" style={styles.statsRow}>
         <View style={styles.statItem}>
           <Text variant="h2" color={colors.secondary[700]} style={styles.statNumber}>{exploredCount}</Text>
           <Text variant="caption" color={colors.text.tertiary}>Concepts Explored</Text>
@@ -241,7 +241,7 @@ export default function HomeScreen() {
           </Text>
           <Text variant="caption" color={colors.text.tertiary}>Journey Complete</Text>
         </View>
-      </View>
+      </ThemedView>
 
       {/* 4. Journey Section (Bento Layout) */}
       <View style={styles.section}>
@@ -253,12 +253,12 @@ export default function HomeScreen() {
           onPress={() =>
             resumeTarget
               ? router.push({
-                  pathname: '/concept/[id]',
-                  params: {
-                    id: resumeTarget.concept.id,
-                    ...(resumeTarget.type === 'pathway' ? { pathway: resumeTarget.pathwayId } : {}),
-                  },
-                })
+                pathname: '/concept/[id]',
+                params: {
+                  id: resumeTarget.concept.id,
+                  ...(resumeTarget.type === 'pathway' ? { pathway: resumeTarget.pathwayId } : {}),
+                },
+              })
               : router.push('/(tabs)/library')
           }
         >
@@ -423,7 +423,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: spacing.lg,
     marginBottom: spacing.lg,
-    backgroundColor: colors.background.surface,
     borderRadius: borderRadius.lg,
     borderWidth: 1,
     borderColor: colors.neutral[100],

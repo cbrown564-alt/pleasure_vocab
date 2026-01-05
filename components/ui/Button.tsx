@@ -1,4 +1,4 @@
-import { borderRadius, colors, spacing, typography } from '@/constants/theme';
+import { borderRadius, colors, shadows, spacing, typography } from '@/constants/theme';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
   // Variants
   primary: {
     backgroundColor: colors.primary[500],
+    ...shadows.sm,
   },
   secondary: {
     backgroundColor: colors.secondary[500],

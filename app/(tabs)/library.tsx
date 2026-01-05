@@ -1,6 +1,6 @@
 import { ConceptCard } from '@/components/ConceptCard';
 import { ExplainerCard } from '@/components/ExplainerCard';
-import { Card, ProgressBar, Text } from '@/components/ui';
+import { Card, ProgressBar, Text, ThemedView } from '@/components/ui';
 import { borderRadius, colors, spacing } from '@/constants/theme';
 import { getAllExplainers } from '@/data/explainers';
 import { pathways } from '@/data/pathways';
@@ -164,8 +164,8 @@ export default function LibraryScreen() {
   );
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
+    <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
+      <ThemedView style={styles.header}>
         <Text variant="h1" style={styles.pageTitle}>Library</Text>
 
         {/* Toggle Segmented Control */}
@@ -189,7 +189,7 @@ export default function LibraryScreen() {
             </TouchableOpacity>
           ))}
         </View>
-      </View>
+      </ThemedView>
 
       {viewMode === 'all' && (
         <FlatList
@@ -236,19 +236,17 @@ export default function LibraryScreen() {
           ))}
         </ScrollView>
       )}
-    </View>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
   },
   header: {
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
-    backgroundColor: colors.background.primary,
   },
   pageTitle: {
     marginBottom: spacing.md,

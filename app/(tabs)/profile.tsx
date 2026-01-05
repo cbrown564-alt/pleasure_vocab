@@ -1,4 +1,4 @@
-import { Card, Text } from '@/components/ui';
+import { Card, Text, ThemedView } from '@/components/ui';
 import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
 import { concepts, getConceptById } from '@/data/vocabulary';
 import { useOnboarding, useStats, useUserConcepts } from '@/hooks/useDatabase';
@@ -61,7 +61,7 @@ export default function ProfileScreen() {
   }, [resonatesConcepts]);
 
   return (
-    <View style={styles.container}>
+    <ThemedView colorKey="secondary" style={styles.container}>
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + spacing.lg }]}
         showsVerticalScrollIndicator={false}
@@ -214,14 +214,13 @@ export default function ProfileScreen() {
 
         <View style={{ height: 100 }} />
       </ScrollView>
-    </View>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.secondary,
   },
   scrollContent: {
     paddingHorizontal: spacing.lg,

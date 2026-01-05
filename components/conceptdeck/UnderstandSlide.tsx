@@ -40,7 +40,7 @@ export const UnderstandSlide = ({ item }: UnderstandSlideProps) => {
                 {/* Clean, Readable Card */}
                 <Animated.View entering={FadeInUp.delay(500).springify()} style={styles.card}>
                     {/* Subtle quote mark for "Evidence" feel */}
-                    <Ionicons name="quote" size={24} color={colors.primary[200]} style={styles.quoteMark} />
+                    <Ionicons name="book-outline" size={24} color={colors.primary[200]} style={styles.quoteMark} />
 
                     <Text style={styles.text}>
                         {item.content}

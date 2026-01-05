@@ -1,4 +1,3 @@
-import { Text as ThemedText } from '@/components/ui/Typography';
 import { borderRadius, colors, shadows, spacing, typography } from '@/constants/theme';
 import { useUserConcepts } from '@/hooks/useDatabase';
 import { Concept, ConceptSlide, ConceptStatus } from '@/types';
@@ -13,6 +12,7 @@ import { ExploreSlide } from './conceptdeck/ExploreSlide';
 import { IllustrateSlide } from './conceptdeck/IllustrateSlide';
 import { NameSlide } from './conceptdeck/NameSlide';
 import { RecognizeSlide } from './conceptdeck/RecognizeSlide';
+import { ReflectSlide } from './conceptdeck/ReflectSlide';
 import { UnderstandSlide } from './conceptdeck/UnderstandSlide';
 
 const Slide = ({
@@ -44,25 +44,23 @@ const Slide = ({
         case 'understand':
             return <UnderstandSlide item={item} />;
         case 'explore':
+        case 'explore':
             return (
                 <ExploreSlide
                     item={item}
+                />
+            );
+        case 'reflect':
+            return (
+                <ReflectSlide
+                    item={item}
                     onFinish={onFinish}
-                    isLast={isLast}
                     onSetStatus={onSetStatus}
                     currentStatus={currentStatus}
                     savingStatus={savingStatus}
-                    feedbackMessage={feedbackMessage}
                 />
             );
         default:
-            // Fallback for unknown types
-            return (
-                <View style={[styles.slide, { justifyContent: 'center', alignItems: 'center' }]}>
-                    <ThemedText variant="h2">{item.title}</ThemedText>
-                    <ThemedText>{item.content}</ThemedText>
-                </View>
-            );
     }
 };
 
@@ -73,6 +71,7 @@ export const ConceptDeck = ({ concept }: { concept: Concept }) => {
     const [savingStatus, setSavingStatus] = useState<ConceptStatus | null>(null);
     const [selectedStatus, setSelectedStatus] = useState<ConceptStatus>('unexplored');
     const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+    const flatListRef = React.useRef<FlatList>(null);
 
     useEffect(() => {
         setSelectedStatus(getStatus(concept.id));
@@ -121,12 +120,19 @@ export const ConceptDeck = ({ concept }: { concept: Concept }) => {
     };
 
     // Construct slides if not present (legacy fallback)
-    const slides: ConceptSlide[] = concept.slides || [
+    let slides: ConceptSlide[] = concept.slides || [
         { type: 'recognize', content: concept.recognitionPrompts[0] || 'Have you experienced this?' },
         { type: 'name', content: concept.definition },
         { type: 'understand', content: concept.researchBasis },
         { type: 'explore', content: concept.recognitionPrompts[1] || 'Try noticing this next time.' }
     ];
+
+    // Ensure Reflect slide exists at the end
+    if (slides[slides.length - 1].type !== 'reflect') {
+        slides = [...slides, { type: 'reflect', content: 'Reflection', title: 'Reflection' }];
+    }
+
+
 
     const handleScroll = (event: any) => {
         const slideSize = event.nativeEvent.layoutMeasurement.width;
@@ -177,6 +183,7 @@ export const ConceptDeck = ({ concept }: { concept: Concept }) => {
                 )}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
+                ref={flatListRef}
             />
         </View>
     );

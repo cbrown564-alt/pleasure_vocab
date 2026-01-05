@@ -1,4 +1,4 @@
-import { Button, Text } from '@/components/ui';
+import { Button, Text, ThemedInput } from '@/components/ui';
 import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
 import { getConceptById } from '@/data/vocabulary';
 import { useJournal } from '@/hooks/useDatabase';
@@ -11,7 +11,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
@@ -64,8 +63,9 @@ export default function JournalScreen() {
 
       {showNewEntry && (
         <View style={styles.composeContainer}>
-          <TextInput
+          <ThemedInput
             style={styles.input}
+            containerStyle={styles.inputContainer}
             placeholder="What's been on your mind regarding your journey?"
             placeholderTextColor={colors.text.tertiary}
             multiline
@@ -222,6 +222,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.primary,
     borderRadius: borderRadius.md,
     ...shadows.md,
+  },
+  inputContainer: {
+    marginBottom: spacing.md,
   },
   input: {
     minHeight: 120,
