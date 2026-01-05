@@ -2,12 +2,14 @@ import { Text } from '@/components/ui';
 import { borderRadius, colors, spacing } from '@/constants/theme';
 import { getAllExplainers } from '@/data/explainers';
 
+import { getPathwayById, pathways } from '@/data/pathways';
 import { concepts } from '@/data/vocabulary';
 import { useOnboarding, useStats, useUserConcepts } from '@/hooks/useDatabase';
+import { Concept, ConceptCategory, ConceptStatus, UserGoal } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -28,7 +30,7 @@ const GREETINGS = {
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { concepts: userConcepts } = useUserConcepts();
-  const { isCompleted: isOnboarded } = useOnboarding();
+  const { goal } = useOnboarding();
   const { exploredCount } = useStats();
 
   const totalCount = concepts.length;
@@ -42,21 +44,119 @@ export default function HomeScreen() {
         ? GREETINGS.afternoon
         : GREETINGS.evening;
 
-  // Daily suggestion (Mock logic: First non-explored or specific ID)
-  // In a real app, this would be computed daily
-  // For now, let's pick a random "Curious" one or fallback to the first one
-  const suggestionId = 'plateauing'; // Hardcoded for demo stability as requested before
-  const suggestion = concepts.find((c) => c.id === suggestionId) || concepts[0];
+  const statusByConcept = useMemo(() => {
+    const map = new Map<string, ConceptStatus>();
+    userConcepts.forEach((uc) => {
+      map.set(uc.concept_id, (uc.status as ConceptStatus) ?? 'unexplored');
+    });
+    return map;
+  }, [userConcepts]);
+
+  const getStatus = useCallback(
+    (conceptId: string) => statusByConcept.get(conceptId) ?? 'unexplored',
+    [statusByConcept]
+  );
+
+  const goalCategoryPreferences: Partial<Record<UserGoal, ConceptCategory[]>> = {
+    self_discovery: ['sensation', 'psychological'],
+    partner_communication: ['psychological', 'timing'],
+    expanding_knowledge: ['anatomy', 'technique'],
+  };
+
+  const goalPathwayMap: Partial<Record<UserGoal, string>> = {
+    self_discovery: 'solo-exploration',
+    partner_communication: 'partner-communication',
+    expanding_knowledge: 'foundations',
+  };
+
+  const preferredConcepts = useMemo(() => {
+    if (!goal) return [] as Concept[];
+
+    const pathwayId = goalPathwayMap[goal];
+    const pathway = pathwayId ? getPathwayById(pathwayId) : undefined;
+    const pathwayConcepts =
+      pathway?.conceptIds
+        .map((id) => concepts.find((c) => c.id === id))
+        .filter((c): c is Concept => Boolean(c)) ?? [];
+
+    if (pathwayConcepts.length > 0) return pathwayConcepts;
+
+    const categories = goalCategoryPreferences[goal] ?? [];
+    return categories.length > 0
+      ? concepts.filter((c) => categories.includes(c.category))
+      : [];
+  }, [goal]);
+
+  const pickDailySuggestion = (pool: Concept[]) => {
+    if (pool.length === 0) {
+      return concepts[0];
+    }
+
+    const unexploredPool = pool.filter((c) => getStatus(c.id) === 'unexplored');
+    const finalPool = unexploredPool.length > 0 ? unexploredPool : pool;
+
+    const daySeed = Math.floor(new Date().getTime() / (1000 * 60 * 60 * 24));
+    return finalPool[daySeed % finalPool.length] ?? finalPool[0];
+  };
+
+  const suggestion = pickDailySuggestion(
+    preferredConcepts.length > 0 ? preferredConcepts : concepts
+  );
 
   // Science articles
   const articles = getAllExplainers().slice(0, 3);
 
-  // Resume Concept (Most recently modified or just the last one in list)
-  // Logic: Find the last concept the user interacted with.
-  // For now, we'll maintain the mock behavior or pick one.
-  const resumeConcept = userConcepts.length > 0
-    ? concepts.find(c => c.id === userConcepts[0].concept_id)
-    : null;
+  const orderedUserConcepts = useMemo(
+    () =>
+      [...userConcepts].sort(
+        (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      ),
+    [userConcepts]
+  );
+
+  const inProgressPathway = useMemo(() => {
+    for (const uc of orderedUserConcepts) {
+      const candidatePathways = pathways.filter((p) => p.conceptIds.includes(uc.concept_id));
+      for (const pathway of candidatePathways) {
+        const hasEngagement = pathway.conceptIds.some(
+          (cid) => getStatus(cid) !== 'unexplored'
+        );
+        const nextConceptId = pathway.conceptIds.find(
+          (cid) => getStatus(cid) === 'unexplored'
+        );
+
+        if (hasEngagement && nextConceptId) {
+          return { pathway, nextConceptId };
+        }
+      }
+    }
+    return null;
+  }, [getStatus, orderedUserConcepts]);
+
+  const recentConcept = useMemo(() => {
+    const latest = orderedUserConcepts.find((uc) => uc.status !== 'unexplored');
+    return latest ? concepts.find((c) => c.id === latest.concept_id) ?? null : null;
+  }, [orderedUserConcepts]);
+
+  const resumeTarget = useMemo(() => {
+    if (inProgressPathway) {
+      const concept = concepts.find((c) => c.id === inProgressPathway.nextConceptId);
+      if (concept) {
+        return {
+          type: 'pathway' as const,
+          concept,
+          pathwayId: inProgressPathway.pathway.id,
+          pathwayName: inProgressPathway.pathway.name,
+        };
+      }
+    }
+
+    if (recentConcept) {
+      return { type: 'concept' as const, concept: recentConcept };
+    }
+
+    return null;
+  }, [inProgressPathway, recentConcept]);
 
   return (
     <ScrollView
@@ -150,23 +250,65 @@ export default function HomeScreen() {
         {/* Primary Action: Resume */}
         <TouchableOpacity
           style={styles.resumeCard}
-          onPress={() => resumeConcept ? router.push(`/concept/${resumeConcept.id}`) : router.push('/(tabs)/library')}
+          onPress={() =>
+            resumeTarget
+              ? router.push({
+                  pathname: '/concept/[id]',
+                  params: {
+                    id: resumeTarget.concept.id,
+                    ...(resumeTarget.type === 'pathway' ? { pathway: resumeTarget.pathwayId } : {}),
+                  },
+                })
+              : router.push('/(tabs)/library')
+          }
         >
           <View style={styles.resumeIcon}>
-            <Ionicons name={resumeConcept ? "time" : "play"} size={24} color={colors.secondary[700]} />
+            <Ionicons
+              name={resumeTarget ? (resumeTarget.type === 'pathway' ? 'walk' : 'time') : 'play'}
+              size={24}
+              color={colors.secondary[700]}
+            />
           </View>
           <View style={styles.resumeContent}>
             <Text variant="labelSmall" color={colors.secondary[600]}>
-              {resumeConcept ? 'PICK UP WHERE YOU LEFT OFF' : 'START FRESH'}
+              {resumeTarget
+                ? resumeTarget.type === 'pathway'
+                  ? 'CURRENT PATHWAY'
+                  : 'PICKED BACK UP'
+                : 'START FRESH'}
             </Text>
             <Text variant="h3" color={colors.text.primary}>
-              {resumeConcept ? resumeConcept.name : 'Start a new path'}
+              {resumeTarget ? resumeTarget.concept.name : 'Start a new path'}
             </Text>
+            {resumeTarget?.type === 'pathway' && (
+              <Text variant="caption" color={colors.text.tertiary} style={{ marginTop: 4 }}>
+                Next in {resumeTarget.pathwayName}
+              </Text>
+            )}
           </View>
           <View style={styles.resumeArrow}>
             <Ionicons name="chevron-forward" size={24} color={colors.neutral[300]} />
           </View>
         </TouchableOpacity>
+
+        {resumeTarget?.type === 'pathway' && (
+          <TouchableOpacity
+            style={styles.pathwayQuickAction}
+            onPress={() => router.push(`/pathway/${resumeTarget.pathwayId}`)}
+            activeOpacity={0.9}
+          >
+            <View style={styles.pathwayQuickActionIcon}>
+              <Ionicons name="map" size={20} color={colors.primary[600]} />
+            </View>
+            <View style={styles.pathwayQuickActionContent}>
+              <Text variant="labelSmall" color={colors.primary[600]}>
+                Jump back into your path
+              </Text>
+              <Text variant="bodyBold">{resumeTarget.pathwayName}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.neutral[300]} />
+          </TouchableOpacity>
+        )}
 
         {/* Secondary Actions: Grid */}
         <View style={styles.featuresGrid}>
@@ -330,6 +472,28 @@ const styles = StyleSheet.create({
   },
   resumeArrow: {
     marginLeft: spacing.md,
+  },
+  pathwayQuickAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.background.surface,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+    marginBottom: spacing.md,
+  },
+  pathwayQuickActionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.primary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+  },
+  pathwayQuickActionContent: {
+    flex: 1,
   },
 
   featuresGrid: {
