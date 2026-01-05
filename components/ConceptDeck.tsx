@@ -1,21 +1,40 @@
 import { Text as ThemedText } from '@/components/ui/Typography';
 import { borderRadius, colors, shadows, spacing, typography } from '@/constants/theme';
 import { useUserProgress } from '@/lib/user-store';
-import { Concept, ConceptSlide } from '@/types';
+import { Concept, ConceptSlide, ConceptStatus } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Dimensions, FlatList, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Dimensions, FlatList, Platform, StyleSheet, ToastAndroid, View } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 import { ExploreSlide } from './conceptdeck/ExploreSlide';
 import { IllustrateSlide } from './conceptdeck/IllustrateSlide';
 import { NameSlide } from './conceptdeck/NameSlide';
 import { RecognizeSlide } from './conceptdeck/RecognizeSlide';
 import { UnderstandSlide } from './conceptdeck/UnderstandSlide';
+import { useUserConcepts } from '@/hooks/useDatabase';
 
-const Slide = ({ item, concept, onFinish, isLast }: { item: ConceptSlide, concept: Concept, onFinish: () => void, isLast: boolean }) => {
+const Slide = ({
+    item,
+    concept,
+    onFinish,
+    isLast,
+    onSetStatus,
+    currentStatus,
+    savingStatus,
+    feedbackMessage,
+}: {
+    item: ConceptSlide,
+    concept: Concept,
+    onFinish: () => void,
+    isLast: boolean,
+    onSetStatus: (status: ConceptStatus) => void,
+    currentStatus: ConceptStatus,
+    savingStatus: ConceptStatus | null,
+    feedbackMessage?: string | null
+}) => {
     switch (item.type) {
         case 'recognize':
             return <RecognizeSlide item={item} concept={concept} />;
@@ -26,7 +45,17 @@ const Slide = ({ item, concept, onFinish, isLast }: { item: ConceptSlide, concep
         case 'understand':
             return <UnderstandSlide item={item} />;
         case 'explore':
-            return <ExploreSlide item={item} onFinish={onFinish} isLast={isLast} />;
+            return (
+                <ExploreSlide
+                    item={item}
+                    onFinish={onFinish}
+                    isLast={isLast}
+                    onSetStatus={onSetStatus}
+                    currentStatus={currentStatus}
+                    savingStatus={savingStatus}
+                    feedbackMessage={feedbackMessage}
+                />
+            );
         default:
             // Fallback for unknown types
             return (
@@ -41,10 +70,55 @@ const Slide = ({ item, concept, onFinish, isLast }: { item: ConceptSlide, concep
 export const ConceptDeck = ({ concept }: { concept: Concept }) => {
     const router = useRouter();
     const { masterConcept } = useUserProgress();
+    const { setStatus, getStatus } = useUserConcepts();
     const [activeIndex, setActiveIndex] = useState(0);
+    const [savingStatus, setSavingStatus] = useState<ConceptStatus | null>(null);
+    const [selectedStatus, setSelectedStatus] = useState<ConceptStatus>('unexplored');
+    const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+
+    useEffect(() => {
+        setSelectedStatus(getStatus(concept.id));
+    }, [concept.id, getStatus]);
+
+    const showStatusToast = (status: ConceptStatus) => {
+        const statusCopy: Record<ConceptStatus, string> = {
+            resonates: 'Added to your collection',
+            curious: 'Saved as curious',
+            explored: 'Marked as explored',
+            not_for_me: 'Saved as not for me',
+            unexplored: 'Marked as unexplored',
+        };
+        const message = statusCopy[status] || 'Status updated';
+        setFeedbackMessage(`${message}. Library badges, profile stats, and sharing are up to date.`);
+
+        if (Platform.OS === 'android') {
+            ToastAndroid?.show?.(message, ToastAndroid.SHORT);
+        } else {
+            Alert.alert('Status updated', message);
+        }
+    };
+
+    const handleStatusSelection = async (status: ConceptStatus) => {
+        try {
+            setSavingStatus(status);
+            await setStatus(concept.id, status);
+            if (status !== 'unexplored') {
+                await masterConcept(concept.id);
+            }
+            setSelectedStatus(status);
+            showStatusToast(status);
+        } catch (error) {
+            console.error('Failed to update status', error);
+            Alert.alert('Could not save', 'Please try selecting a status again.');
+        } finally {
+            setSavingStatus(null);
+        }
+    };
 
     const onFinish = async () => {
-        await masterConcept(concept.id);
+        if (selectedStatus === 'unexplored') {
+            await handleStatusSelection('explored');
+        }
         router.back();
     };
 
@@ -91,7 +165,18 @@ export const ConceptDeck = ({ concept }: { concept: Concept }) => {
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
                 keyExtractor={(_, index) => index.toString()}
-                renderItem={({ item, index }) => <Slide item={item} concept={concept} onFinish={onFinish} isLast={index === slides.length - 1} />}
+                renderItem={({ item, index }) => (
+                    <Slide
+                        item={item}
+                        concept={concept}
+                        onFinish={onFinish}
+                        isLast={index === slides.length - 1}
+                        onSetStatus={handleStatusSelection}
+                        currentStatus={selectedStatus}
+                        savingStatus={savingStatus}
+                        feedbackMessage={feedbackMessage}
+                    />
+                )}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
             />
