@@ -4,6 +4,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ConceptStatus, UserGoal } from '@/types';
 import { generateId } from './utils/id';
+import { logger } from './logger';
 import {
   DEFAULT_ONBOARDING,
   JournalEntryRowSchema,
@@ -13,6 +14,8 @@ import {
   validateArray,
   validateWithFallback,
 } from './validation';
+
+const log = logger.scope('Database:Web');
 
 // Default concepts that are unlocked from the start
 const DEFAULT_UNLOCKED_CONCEPTS = ['angling', 'rocking', 'shallowing'];
@@ -51,7 +54,7 @@ export async function getOnboardingState(): Promise<OnboardingRow> {
       'getOnboardingState'
     );
   } catch (error) {
-    console.warn('[getOnboardingState] Error reading data:', error);
+    log.error('getOnboardingState failed', error);
     return DEFAULT_ONBOARDING;
   }
 }
@@ -94,12 +97,12 @@ async function getUserConceptsMap(): Promise<Record<string, UserConceptRow>> {
       if (result.success) {
         validated[key] = result.data;
       } else {
-        console.warn(`[getUserConceptsMap] Invalid entry for ${key}:`, result.error.issues);
+        log.warn('getUserConceptsMap: Invalid entry', { key, issues: result.error.issues });
       }
     }
     return validated;
   } catch (error) {
-    console.warn('[getUserConceptsMap] Error reading data:', error);
+    log.error('getUserConceptsMap failed', error);
     return {};
   }
 }
@@ -240,12 +243,12 @@ async function getJournalEntriesMap(): Promise<Record<string, JournalEntryRow>> 
       if (result.success) {
         validated[key] = result.data;
       } else {
-        console.warn(`[getJournalEntriesMap] Invalid entry for ${key}:`, result.error.issues);
+        log.warn('getJournalEntriesMap: Invalid entry', { key, issues: result.error.issues });
       }
     }
     return validated;
   } catch (error) {
-    console.warn('[getJournalEntriesMap] Error reading data:', error);
+    log.error('getJournalEntriesMap failed', error);
     return {};
   }
 }
@@ -340,12 +343,12 @@ async function getPathwayProgressMap(): Promise<Record<string, PathwayProgressRo
       if (result.success) {
         validated[key] = result.data;
       } else {
-        console.warn(`[getPathwayProgressMap] Invalid entry for ${key}:`, result.error.issues);
+        log.warn('getPathwayProgressMap: Invalid entry', { key, issues: result.error.issues });
       }
     }
     return validated;
   } catch (error) {
-    console.warn('[getPathwayProgressMap] Error reading data:', error);
+    log.error('getPathwayProgressMap failed', error);
     return {};
   }
 }
@@ -423,7 +426,7 @@ export async function getSetting(key: string): Promise<string | null> {
     const settings = data ? JSON.parse(data) : {};
     return settings[key] ?? null;
   } catch (error) {
-    console.warn('[getSetting] Error reading data:', error);
+    log.error('getSetting failed', error, { key });
     return null;
   }
 }
@@ -435,7 +438,7 @@ export async function setSetting(key: string, value: string): Promise<void> {
     settings[key] = value;
     await AsyncStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
   } catch (error) {
-    console.warn('[setSetting] Error writing data:', error);
+    log.error('setSetting failed', error, { key });
   }
 }
 

@@ -24,8 +24,12 @@ import {
   updateOnboarding,
   UserConceptRow,
 } from '@/lib/database';
+import { getErrorMessage } from '@/lib/errors';
+import { logger } from '@/lib/logger';
 import { ConceptStatus, UserGoal } from '@/types';
 import { useCallback, useEffect, useState } from 'react';
+
+const log = logger.scope('Hooks');
 
 // ============ Database Initialization ============
 
@@ -68,12 +72,21 @@ import { events, EVENTS } from '@/lib/events';
 export function useOnboarding() {
   const [state, setState] = useState<OnboardingRow | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setIsLoading(true);
-    const result = await getOnboardingState();
-    setState(result);
-    setIsLoading(false);
+    setError(null);
+    try {
+      const result = await getOnboardingState();
+      setState(result);
+    } catch (err) {
+      const message = getErrorMessage(err);
+      log.error('useOnboarding load failed', err);
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -108,6 +121,7 @@ export function useOnboarding() {
   return {
     state,
     isLoading,
+    error,
     isCompleted: state?.completed === 1,
     goal: state?.goal as UserGoal | null,
     update,
@@ -123,18 +137,27 @@ export function useUserConcepts() {
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [masteredIds, setMasteredIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setIsLoading(true);
-    const [conceptsResult, unlocked, mastered] = await Promise.all([
-      getAllUserConcepts(),
-      getUnlockedConceptIds(),
-      getMasteredConceptIds(),
-    ]);
-    setConcepts(conceptsResult);
-    setUnlockedIds(unlocked);
-    setMasteredIds(mastered);
-    setIsLoading(false);
+    setError(null);
+    try {
+      const [conceptsResult, unlocked, mastered] = await Promise.all([
+        getAllUserConcepts(),
+        getUnlockedConceptIds(),
+        getMasteredConceptIds(),
+      ]);
+      setConcepts(conceptsResult);
+      setUnlockedIds(unlocked);
+      setMasteredIds(mastered);
+    } catch (err) {
+      const message = getErrorMessage(err);
+      log.error('useUserConcepts load failed', err);
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -211,6 +234,7 @@ export function useUserConcepts() {
   return {
     concepts,
     isLoading,
+    error,
     setStatus,
     markExplored,
     getStatus,

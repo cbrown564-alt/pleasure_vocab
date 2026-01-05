@@ -4,6 +4,7 @@
 import * as SQLite from 'expo-sqlite';
 import { ConceptStatus, UserGoal } from '@/types';
 import { generateId } from './utils/id';
+import { logger } from './logger';
 import {
   DEFAULT_ONBOARDING,
   DEFAULT_USER_CONCEPT,
@@ -14,6 +15,8 @@ import {
   validateArray,
   validateWithFallback,
 } from './validation';
+
+const log = logger.scope('Database:Native');
 
 const DATABASE_NAME = 'vocab.db';
 
@@ -232,7 +235,7 @@ export async function getUserConcept(conceptId: string): Promise<UserConceptRow 
 
   const validated = UserConceptRowSchema.safeParse(result);
   if (!validated.success) {
-    console.warn('[Validation: getUserConcept] Invalid data:', validated.error.issues);
+    log.warn('getUserConcept: Invalid data', { conceptId, issues: validated.error.issues });
     return null;
   }
   return validated.data;
@@ -453,7 +456,7 @@ export async function getPathwayProgress(pathwayId: string): Promise<PathwayProg
 
   const validated = PathwayProgressRowSchema.safeParse(result);
   if (!validated.success) {
-    console.warn('[Validation: getPathwayProgress] Invalid data:', validated.error.issues);
+    log.warn('getPathwayProgress: Invalid data', { pathwayId, issues: validated.error.issues });
     return null;
   }
   return validated.data;

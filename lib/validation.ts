@@ -2,6 +2,7 @@
 // Ensures data integrity when reading from storage
 
 import { z } from 'zod';
+import { logValidationWarning } from './logger';
 
 // ============ Concept Status ============
 
@@ -110,10 +111,11 @@ export function validateWithFallback<T>(
   if (result.success) {
     return result.data;
   }
-  console.warn(
-    `[Validation${context ? `: ${context}` : ''}] Invalid data, using fallback:`,
-    result.error.issues
-  );
+  const issues = result.error.issues.map(i => ({
+    path: i.path.join('.'),
+    message: i.message,
+  }));
+  logValidationWarning(context ?? 'unknown', issues);
   return fallback;
 }
 
@@ -133,10 +135,11 @@ export function validateArray<T>(
     if (result.success) {
       validItems.push(result.data);
     } else {
-      console.warn(
-        `[Validation${context ? `: ${context}` : ''}] Invalid item at index ${i}:`,
-        result.error.issues
-      );
+      const issues = result.error.issues.map(issue => ({
+        path: `[${i}].${issue.path.join('.')}`,
+        message: issue.message,
+      }));
+      logValidationWarning(context ?? 'unknown', issues);
     }
   }
 
