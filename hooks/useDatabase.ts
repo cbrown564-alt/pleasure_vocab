@@ -20,7 +20,7 @@ import {
   updateOnboarding,
   UserConceptRow,
 } from '@/lib/database';
-import { ComfortLevel, ConceptStatus, UserGoal } from '@/types';
+import { ConceptStatus, UserGoal } from '@/types';
 import { useCallback, useEffect, useState } from 'react';
 
 // ============ Database Initialization ============
@@ -88,7 +88,6 @@ export function useOnboarding() {
     async (updates: {
       completed?: boolean;
       goal?: UserGoal;
-      comfortLevel?: ComfortLevel;
       firstConceptViewed?: boolean;
     }) => {
       await updateOnboarding(updates);
@@ -107,7 +106,6 @@ export function useOnboarding() {
     isLoading,
     isCompleted: state?.completed === 1,
     goal: state?.goal as UserGoal | null,
-    comfortLevel: (state?.comfort_level ?? 'direct') as ComfortLevel,
     update,
     completeOnboarding,
     reload: load,
