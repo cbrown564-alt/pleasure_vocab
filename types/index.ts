@@ -194,7 +194,6 @@ export type RootStackParamList = {
   'onboarding/privacy': undefined;
   'onboarding/goals': undefined;
   'onboarding/comfort': undefined;
-  'onboarding/first-concept': undefined;
   'concept/[id]': { id: string };
   modal: undefined;
 };

@@ -42,7 +42,7 @@ export default function ComfortScreen() {
 
   const handleContinue = async () => {
     await update({ comfortLevel: selected });
-    router.push('/onboarding/first-concept');
+    router.replace('/(tabs)');
   };
 
   return (
