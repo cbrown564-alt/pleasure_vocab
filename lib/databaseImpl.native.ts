@@ -2,7 +2,7 @@
 // Uses expo-sqlite for local-only storage (native platforms)
 
 import * as SQLite from 'expo-sqlite';
-import { ConceptStatus, UserGoal, ComfortLevel } from '@/types';
+import { ConceptStatus, UserGoal } from '@/types';
 
 const DATABASE_NAME = 'vocab.db';
 
@@ -95,19 +95,17 @@ export async function setSetting(key: string, value: string): Promise<void> {
 export interface OnboardingRow {
   completed: number;
   goal: string | null;
-  comfort_level: string;
   first_concept_viewed: number;
 }
 
 export async function getOnboardingState(): Promise<OnboardingRow> {
   const db = await getDatabase();
   const result = await db.getFirstAsync<OnboardingRow>(
-    'SELECT completed, goal, comfort_level, first_concept_viewed FROM onboarding WHERE id = 1'
+    'SELECT completed, goal, first_concept_viewed FROM onboarding WHERE id = 1'
   );
   return result ?? {
     completed: 0,
     goal: null,
-    comfort_level: 'direct',
     first_concept_viewed: 0,
   };
 }
@@ -115,7 +113,6 @@ export async function getOnboardingState(): Promise<OnboardingRow> {
 export async function updateOnboarding(updates: {
   completed?: boolean;
   goal?: UserGoal;
-  comfortLevel?: ComfortLevel;
   firstConceptViewed?: boolean;
 }): Promise<void> {
   const db = await getDatabase();
@@ -129,10 +126,6 @@ export async function updateOnboarding(updates: {
   if (updates.goal !== undefined) {
     sets.push('goal = ?');
     values.push(updates.goal);
-  }
-  if (updates.comfortLevel !== undefined) {
-    sets.push('comfort_level = ?');
-    values.push(updates.comfortLevel);
   }
   if (updates.firstConceptViewed !== undefined) {
     sets.push('first_concept_viewed = ?');
@@ -375,7 +368,7 @@ export async function clearAllData(): Promise<void> {
     DELETE FROM user_concepts;
     DELETE FROM journal_entries;
     DELETE FROM pathway_progress;
-    UPDATE onboarding SET completed = 0, goal = NULL, comfort_level = 'direct', first_concept_viewed = 0 WHERE id = 1;
+    UPDATE onboarding SET completed = 0, goal = NULL, first_concept_viewed = 0 WHERE id = 1;
     DELETE FROM settings;
   `);
 }

@@ -7,14 +7,8 @@ export const conversationStarters: ConversationStarter[] = [
   {
     id: 'introduce-preference',
     situation: 'Introducing a new preference',
-    comfortLevels: {
-      clinical:
-        'I\'ve been learning about different types of stimulation, and I\'d like to explore incorporating more [specific type] into our intimate experiences.',
-      balanced:
-        'I\'ve been thinking about something I\'d like to try. Would you be open to exploring [specific thing] together?',
-      direct:
-        'There\'s something that really turns me on that I want to share with you. I\'d love to try [specific thing].',
-    },
+    phrase:
+      'I\'ve been thinking about something I\'d like to try. Would you be open to exploring [specific thing] together?',
     tips: [
       'Choose a relaxed, non-sexual moment to bring this up',
       'Frame it as something to explore together, not a criticism',
@@ -24,14 +18,8 @@ export const conversationStarters: ConversationStarter[] = [
   {
     id: 'ask-for-more',
     situation: 'Asking for more of something',
-    comfortLevels: {
-      clinical:
-        'The type of touch you were doing earlier was very pleasurable for me. I would appreciate more of that.',
-      balanced:
-        'That thing you were doing earlier felt really good. Can we do more of that?',
-      direct:
-        'I love when you do that. More of that, please.',
-    },
+    phrase:
+      'That thing you were doing earlier felt really good. Can we do more of that?',
     tips: [
       'Positive feedback encourages repetition',
       'Be specific about what felt good',
@@ -41,14 +29,8 @@ export const conversationStarters: ConversationStarter[] = [
   {
     id: 'positive-feedback',
     situation: 'Giving positive feedback',
-    comfortLevels: {
-      clinical:
-        'That technique is highly effective for my arousal. The pressure and rhythm are exactly right.',
-      balanced:
-        'That feels amazing. The way you\'re doing that is perfect.',
-      direct:
-        'Oh god, yes. Right there. That\'s exactly it.',
-    },
+    phrase:
+      'That feels amazing. The way you\'re doing that is perfect.',
     tips: [
       'Positive reinforcement makes good things happen more often',
       'Sound and words both communicate pleasure',
@@ -58,14 +40,8 @@ export const conversationStarters: ConversationStarter[] = [
   {
     id: 'request-change-mid',
     situation: 'Requesting a change mid-encounter',
-    comfortLevels: {
-      clinical:
-        'Could we adjust the stimulation? I think I need something different at this point.',
-      balanced:
-        'Can we try something a little different? I think I need more/less [speed, pressure, etc.].',
-      direct:
-        'Let\'s switch it up. I want you to [specific request].',
-    },
+    phrase:
+      'Can we try something a little different? I think I need more/less [speed, pressure, etc.].',
     tips: [
       'Changes aren\'t criticism - bodies need variety',
       'Guide rather than criticize: "like this" vs "not that"',
@@ -75,14 +51,8 @@ export const conversationStarters: ConversationStarter[] = [
   {
     id: 'discuss-timing',
     situation: 'Discussing timing and pacing',
-    comfortLevels: {
-      clinical:
-        'Research suggests that arousal takes time to build fully. I\'d like us to spend more time on the initial phases before moving to penetration.',
-      balanced:
-        'I find I really enjoy things more when we take our time at the beginning. Can we slow down and build up more gradually?',
-      direct:
-        'I want more foreplay. Let\'s not rush - I love when we take our time getting there.',
-    },
+    phrase:
+      'I find I really enjoy things more when we take our time at the beginning. Can we slow down and build up more gradually?',
     tips: [
       'Framing around pleasure (not obligation) helps',
       'Share what you\'ve learned about your body',

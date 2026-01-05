@@ -7,7 +7,6 @@
 export interface OnboardingRow {
   completed: number;
   goal: string | null;
-  comfort_level: string;
   first_concept_viewed: number;
 }
 

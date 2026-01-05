@@ -5,31 +5,22 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Text, Card } from '@/components/ui';
 import { colors, spacing, borderRadius } from '@/constants/theme';
-import { useOnboarding } from '@/hooks/useDatabase';
 import {
   conversationStarters,
   scriptExamples,
   communicationBarriers,
   getScriptCategories,
 } from '@/data/communication';
-import { ComfortLevel } from '@/types';
+import { ConversationStarter } from '@/types';
 
 type TabType = 'starters' | 'scripts' | 'barriers';
 
-const comfortLevelLabels: Record<ComfortLevel, string> = {
-  clinical: 'Clinical',
-  balanced: 'Balanced',
-  direct: 'Direct',
-};
-
 export default function CommunicateScreen() {
   const insets = useSafeAreaInsets();
-  const { comfortLevel: userComfortLevel } = useOnboarding();
   const [activeTab, setActiveTab] = useState<TabType>('starters');
   const [expandedStarter, setExpandedStarter] = useState<string | null>(null);
   const [expandedBarrier, setExpandedBarrier] = useState<string | null>(null);
 
-  const currentComfortLevel = userComfortLevel || 'balanced';
   const scriptCategories = getScriptCategories();
 
   const renderTab = (tab: TabType, label: string, icon: string) => (
@@ -54,12 +45,11 @@ export default function CommunicateScreen() {
   const renderStarters = () => (
     <View>
       <Text variant="bodySmall" color={colors.text.secondary} style={styles.sectionIntro}>
-        Phrases for common situations, adapted to your comfort level ({comfortLevelLabels[currentComfortLevel]}).
+        Phrases for common situations. Use these as-is or tweak to sound like you.
       </Text>
 
-      {conversationStarters.map((starter) => {
+      {conversationStarters.map((starter: ConversationStarter) => {
         const isExpanded = expandedStarter === starter.id;
-        const phrase = starter.comfortLevels[currentComfortLevel];
 
         return (
           <Card
@@ -80,7 +70,7 @@ export default function CommunicateScreen() {
 
             <View style={styles.phraseContainer}>
               <Text variant="body" style={styles.phrase}>
-                "{phrase}"
+                "{starter.phrase}"
               </Text>
             </View>
 
@@ -97,20 +87,6 @@ export default function CommunicateScreen() {
                     </Text>
                   </View>
                 ))}
-
-                <Text variant="label" style={styles.otherLevelsHeader}>
-                  Other phrasing options:
-                </Text>
-                {Object.entries(starter.comfortLevels)
-                  .filter(([level]) => level !== currentComfortLevel)
-                  .map(([level, text]) => (
-                    <View key={level} style={styles.altPhrase}>
-                      <Text variant="caption" color={colors.text.tertiary}>
-                        {comfortLevelLabels[level as ComfortLevel]}:
-                      </Text>
-                      <Text variant="bodySmall">"{text}"</Text>
-                    </View>
-                  ))}
               </View>
             )}
           </Card>
@@ -341,16 +317,6 @@ const styles = StyleSheet.create({
   },
   tipText: {
     flex: 1,
-  },
-  otherLevelsHeader: {
-    marginTop: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  altPhrase: {
-    backgroundColor: colors.neutral[100],
-    padding: spacing.sm,
-    borderRadius: borderRadius.sm,
-    marginBottom: spacing.xs,
   },
   scriptCategory: {
     marginBottom: spacing.lg,

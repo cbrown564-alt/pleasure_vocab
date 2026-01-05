@@ -2,7 +2,7 @@
 // This is used as a fallback when SQLite is not available (web platform)
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ConceptStatus, UserGoal, ComfortLevel } from '@/types';
+import { ConceptStatus, UserGoal } from '@/types';
 
 const STORAGE_KEYS = {
   ONBOARDING: '@vocab:onboarding',
@@ -17,14 +17,12 @@ const STORAGE_KEYS = {
 export interface OnboardingRow {
   completed: number;
   goal: string | null;
-  comfort_level: string;
   first_concept_viewed: number;
 }
 
 const defaultOnboarding: OnboardingRow = {
   completed: 0,
   goal: null,
-  comfort_level: 'direct',
   first_concept_viewed: 0,
 };
 
@@ -40,7 +38,6 @@ export async function getOnboardingState(): Promise<OnboardingRow> {
 export async function updateOnboarding(updates: {
   completed?: boolean;
   goal?: UserGoal;
-  comfortLevel?: ComfortLevel;
   firstConceptViewed?: boolean;
 }): Promise<void> {
   const current = await getOnboardingState();
@@ -48,7 +45,6 @@ export async function updateOnboarding(updates: {
     ...current,
     ...(updates.completed !== undefined && { completed: updates.completed ? 1 : 0 }),
     ...(updates.goal !== undefined && { goal: updates.goal }),
-    ...(updates.comfortLevel !== undefined && { comfort_level: updates.comfortLevel }),
     ...(updates.firstConceptViewed !== undefined && { first_concept_viewed: updates.firstConceptViewed ? 1 : 0 }),
   };
   await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING, JSON.stringify(updated));

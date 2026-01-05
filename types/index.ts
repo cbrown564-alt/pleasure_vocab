@@ -74,17 +74,10 @@ export type UserGoal =
   | 'partner_communication'   // Better communication with partners
   | 'expanding_knowledge';    // General learning
 
-// Content comfort level
-export type ComfortLevel =
-  | 'clinical'    // More medical/clinical language
-  | 'balanced'    // Mix of clinical and casual
-  | 'direct';     // Warm and direct language
-
 // Onboarding state
 export interface OnboardingState {
   completed: boolean;
   goal: UserGoal | null;
-  comfortLevel: ComfortLevel | null;
   firstConceptViewed: boolean;
 }
 
@@ -93,7 +86,6 @@ export interface UserSettings {
   appLockEnabled: boolean;
   onboardingCompleted: boolean;
   goal: UserGoal | null;
-  comfortLevel: ComfortLevel;
 }
 
 // Learning pathway
@@ -119,11 +111,7 @@ export interface PathwayProgress {
 export interface ConversationStarter {
   id: string;
   situation: string;         // e.g., "Introducing a new preference"
-  comfortLevels: {
-    clinical: string;
-    balanced: string;
-    direct: string;
-  };
+  phrase: string;
   tips: string[];
 }
 
@@ -193,8 +181,6 @@ export type RootStackParamList = {
   'onboarding/welcome': undefined;
   'onboarding/privacy': undefined;
   'onboarding/goals': undefined;
-  'onboarding/comfort': undefined;
-  'onboarding/first-concept': undefined;
   'concept/[id]': { id: string };
   modal: undefined;
 };

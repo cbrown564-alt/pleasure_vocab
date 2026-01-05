@@ -7,12 +7,6 @@ import React, { useState } from 'react';
 import { Alert, Platform, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const comfortLabels: Record<string, string> = {
-  clinical: 'Clinical',
-  balanced: 'Balanced',
-  direct: 'Warm & Direct',
-};
-
 const goalLabels: Record<string, string> = {
   self_discovery: 'Self-discovery',
   partner_communication: 'Partner communication',
@@ -22,7 +16,7 @@ const goalLabels: Record<string, string> = {
 export default function SettingsModal() {
   const insets = useSafeAreaInsets();
   const { clear, isClearing } = useClearData();
-  const { goal, comfortLevel, update } = useOnboarding();
+  const { goal, update } = useOnboarding();
   const [appLockEnabled, setAppLockEnabled] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
@@ -72,13 +66,6 @@ export default function SettingsModal() {
               label="Your Goal"
               value={goal ? goalLabels[goal] : 'Not set'}
               onPress={() => router.push('/onboarding/goals')}
-            />
-            <View style={styles.divider} />
-            <SettingRow
-              icon="text-outline"
-              label="Content Tone"
-              value={comfortLabels[comfortLevel]}
-              onPress={() => router.push('/onboarding/comfort')}
             />
           </Card>
         </View>
