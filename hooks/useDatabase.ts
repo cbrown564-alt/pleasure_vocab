@@ -127,11 +127,20 @@ export function useUserConcepts() {
 
   useEffect(() => {
     load();
+    const handleUpdate = () => load();
+    events.on(EVENTS.CONCEPTS_UPDATED, handleUpdate);
+    events.on(EVENTS.DATA_CLEARED, handleUpdate);
+
+    return () => {
+      events.off(EVENTS.CONCEPTS_UPDATED, handleUpdate);
+      events.off(EVENTS.DATA_CLEARED, handleUpdate);
+    };
   }, [load]);
 
   const setStatus = useCallback(
     async (conceptId: string, status: ConceptStatus) => {
       await updateConceptStatus(conceptId, status);
+      events.emit(EVENTS.CONCEPTS_UPDATED);
       await load();
     },
     [load]
@@ -140,6 +149,7 @@ export function useUserConcepts() {
   const markExplored = useCallback(
     async (conceptId: string) => {
       await markConceptExplored(conceptId);
+      events.emit(EVENTS.CONCEPTS_UPDATED);
       await load();
     },
     [load]
@@ -276,6 +286,14 @@ export function useStats() {
 
   useEffect(() => {
     load();
+    const handleUpdate = () => load();
+    events.on(EVENTS.CONCEPTS_UPDATED, handleUpdate);
+    events.on(EVENTS.DATA_CLEARED, handleUpdate);
+
+    return () => {
+      events.off(EVENTS.CONCEPTS_UPDATED, handleUpdate);
+      events.off(EVENTS.DATA_CLEARED, handleUpdate);
+    };
   }, [load]);
 
   return {
