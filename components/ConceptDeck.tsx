@@ -1,6 +1,6 @@
 import { Text as ThemedText } from '@/components/ui/Typography';
 import { borderRadius, colors, shadows, spacing, typography } from '@/constants/theme';
-import { useUserProgress } from '@/lib/user-store';
+import { useUserConcepts } from '@/hooks/useDatabase';
 import { Concept, ConceptSlide, ConceptStatus } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -14,7 +14,6 @@ import { IllustrateSlide } from './conceptdeck/IllustrateSlide';
 import { NameSlide } from './conceptdeck/NameSlide';
 import { RecognizeSlide } from './conceptdeck/RecognizeSlide';
 import { UnderstandSlide } from './conceptdeck/UnderstandSlide';
-import { useUserConcepts } from '@/hooks/useDatabase';
 
 const Slide = ({
     item,
@@ -69,8 +68,7 @@ const Slide = ({
 
 export const ConceptDeck = ({ concept }: { concept: Concept }) => {
     const router = useRouter();
-    const { masterConcept } = useUserProgress();
-    const { setStatus, getStatus } = useUserConcepts();
+    const { setStatus, getStatus, masterConcept } = useUserConcepts();
     const [activeIndex, setActiveIndex] = useState(0);
     const [savingStatus, setSavingStatus] = useState<ConceptStatus | null>(null);
     const [selectedStatus, setSelectedStatus] = useState<ConceptStatus>('unexplored');

@@ -9,12 +9,16 @@ import {
   getExploredCount,
   getJournalEntries,
   getJournalEntriesForConcept,
+  getMasteredConceptIds,
   getOnboardingState,
   getResonatesCount,
+  getUnlockedConceptIds,
   getUserConcept,
   JournalEntryRow,
   markConceptExplored,
+  masterConcept as dbMasterConcept,
   OnboardingRow,
+  unlockConcept as dbUnlockConcept,
   updateConceptStatus,
   updateJournalEntry,
   updateOnboarding,
@@ -116,12 +120,20 @@ export function useOnboarding() {
 
 export function useUserConcepts() {
   const [concepts, setConcepts] = useState<UserConceptRow[]>([]);
+  const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
+  const [masteredIds, setMasteredIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
     setIsLoading(true);
-    const result = await getAllUserConcepts();
-    setConcepts(result);
+    const [conceptsResult, unlocked, mastered] = await Promise.all([
+      getAllUserConcepts(),
+      getUnlockedConceptIds(),
+      getMasteredConceptIds(),
+    ]);
+    setConcepts(conceptsResult);
+    setUnlockedIds(unlocked);
+    setMasteredIds(mastered);
     setIsLoading(false);
   }, []);
 
@@ -163,12 +175,52 @@ export function useUserConcepts() {
     [concepts]
   );
 
+  // New unlock/master methods
+  const unlockConcept = useCallback(
+    async (conceptId: string) => {
+      await dbUnlockConcept(conceptId);
+      events.emit(EVENTS.CONCEPTS_UPDATED);
+      await load();
+    },
+    [load]
+  );
+
+  const masterConcept = useCallback(
+    async (conceptId: string) => {
+      await dbMasterConcept(conceptId);
+      events.emit(EVENTS.CONCEPTS_UPDATED);
+      await load();
+    },
+    [load]
+  );
+
+  const isUnlocked = useCallback(
+    (conceptId: string): boolean => {
+      return unlockedIds.includes(conceptId);
+    },
+    [unlockedIds]
+  );
+
+  const isMastered = useCallback(
+    (conceptId: string): boolean => {
+      return masteredIds.includes(conceptId);
+    },
+    [masteredIds]
+  );
+
   return {
     concepts,
     isLoading,
     setStatus,
     markExplored,
     getStatus,
+    // New unlock/master exports
+    unlockConcept,
+    masterConcept,
+    isUnlocked,
+    isMastered,
+    unlockedConcepts: unlockedIds,
+    masteredConcepts: masteredIds,
     reload: load,
   };
 }

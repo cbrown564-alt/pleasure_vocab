@@ -6,7 +6,6 @@ import { getAllExplainers } from '@/data/explainers';
 import { pathways } from '@/data/pathways';
 import { concepts, getConceptsByCategory } from '@/data/vocabulary';
 import { useUserConcepts } from '@/hooks/useDatabase';
-import { useUserProgress } from '@/lib/user-store';
 import { ConceptCategory, Pathway } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -38,8 +37,7 @@ const CARD_WIDTH = (SCREEN_WIDTH - spacing.md * 3) / 2; // 2 columns with paddin
 
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
-  const { concepts: userConcepts, getStatus: getDatabaseStatus } = useUserConcepts();
-  const { isMastered, masteredConcepts } = useUserProgress();
+  const { concepts: userConcepts, getStatus: getDatabaseStatus, isMastered, masteredConcepts } = useUserConcepts();
   const [viewMode, setViewMode] = useState<ViewMode>('all');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
 

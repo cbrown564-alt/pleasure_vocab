@@ -6,6 +6,9 @@ import { ConceptStatus, UserGoal } from '@/types';
 
 const DATABASE_NAME = 'vocab.db';
 
+// Default concepts that are unlocked from the start
+const DEFAULT_UNLOCKED_CONCEPTS = ['angling', 'rocking', 'shallowing'];
+
 // Initialize database with schema
 export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
   const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
@@ -24,6 +27,8 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
     CREATE TABLE IF NOT EXISTS user_concepts (
       concept_id TEXT PRIMARY KEY,
       status TEXT DEFAULT 'unexplored',
+      is_unlocked INTEGER DEFAULT 0,
+      is_mastered INTEGER DEFAULT 0,
       explored_at TEXT,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     );
@@ -58,7 +63,61 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
     INSERT OR IGNORE INTO onboarding (id) VALUES (1);
   `);
 
+  // Run migrations for existing databases
+  await runMigrations(db);
+
+  // Seed default unlocked concepts
+  await seedDefaultUnlockedConcepts(db);
+
   return db;
+}
+
+// Run migrations for schema changes
+async function runMigrations(db: SQLite.SQLiteDatabase): Promise<void> {
+  // Check if is_unlocked column exists
+  const tableInfo = await db.getAllAsync<{ name: string }>(
+    `PRAGMA table_info(user_concepts)`
+  );
+  const columnNames = tableInfo.map(col => col.name);
+
+  // Migration 1: Add is_unlocked and is_mastered columns if they don't exist
+  if (!columnNames.includes('is_unlocked')) {
+    await db.execAsync(`
+      ALTER TABLE user_concepts ADD COLUMN is_unlocked INTEGER DEFAULT 0;
+    `);
+  }
+  if (!columnNames.includes('is_mastered')) {
+    await db.execAsync(`
+      ALTER TABLE user_concepts ADD COLUMN is_mastered INTEGER DEFAULT 0;
+    `);
+  }
+}
+
+// Seed default unlocked concepts if not already present
+async function seedDefaultUnlockedConcepts(db: SQLite.SQLiteDatabase): Promise<void> {
+  const now = new Date().toISOString();
+
+  for (const conceptId of DEFAULT_UNLOCKED_CONCEPTS) {
+    // Check if concept exists
+    const existing = await db.getFirstAsync<{ concept_id: string }>(
+      'SELECT concept_id FROM user_concepts WHERE concept_id = ?',
+      [conceptId]
+    );
+
+    if (!existing) {
+      // Insert with is_unlocked = 1
+      await db.runAsync(
+        `INSERT INTO user_concepts (concept_id, status, is_unlocked, is_mastered, updated_at) VALUES (?, 'unexplored', 1, 0, ?)`,
+        [conceptId, now]
+      );
+    } else {
+      // Ensure it's unlocked
+      await db.runAsync(
+        `UPDATE user_concepts SET is_unlocked = 1 WHERE concept_id = ? AND is_unlocked = 0`,
+        [conceptId]
+      );
+    }
+  }
 }
 
 // Get database instance (singleton pattern)
@@ -145,6 +204,8 @@ export async function updateOnboarding(updates: {
 export interface UserConceptRow {
   concept_id: string;
   status: string;
+  is_unlocked: number;
+  is_mastered: number;
   explored_at: string | null;
   updated_at: string;
 }
@@ -209,6 +270,70 @@ export async function markConceptExplored(conceptId: string): Promise<void> {
       [conceptId, now, now]
     );
   }
+}
+
+// ============ Unlock/Master Operations ============
+
+export async function unlockConcept(conceptId: string): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  const existing = await getUserConcept(conceptId);
+
+  if (existing) {
+    await db.runAsync(
+      `UPDATE user_concepts SET is_unlocked = 1, updated_at = ? WHERE concept_id = ?`,
+      [now, conceptId]
+    );
+  } else {
+    await db.runAsync(
+      `INSERT INTO user_concepts (concept_id, status, is_unlocked, is_mastered, updated_at) VALUES (?, 'unexplored', 1, 0, ?)`,
+      [conceptId, now]
+    );
+  }
+}
+
+export async function masterConcept(conceptId: string): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  const existing = await getUserConcept(conceptId);
+
+  if (existing) {
+    await db.runAsync(
+      `UPDATE user_concepts SET is_mastered = 1, is_unlocked = 1, updated_at = ? WHERE concept_id = ?`,
+      [now, conceptId]
+    );
+  } else {
+    await db.runAsync(
+      `INSERT INTO user_concepts (concept_id, status, is_unlocked, is_mastered, updated_at) VALUES (?, 'unexplored', 1, 1, ?)`,
+      [conceptId, now]
+    );
+  }
+}
+
+export async function isConceptUnlocked(conceptId: string): Promise<boolean> {
+  const concept = await getUserConcept(conceptId);
+  return concept?.is_unlocked === 1;
+}
+
+export async function isConceptMastered(conceptId: string): Promise<boolean> {
+  const concept = await getUserConcept(conceptId);
+  return concept?.is_mastered === 1;
+}
+
+export async function getUnlockedConceptIds(): Promise<string[]> {
+  const db = await getDatabase();
+  const results = await db.getAllAsync<{ concept_id: string }>(
+    'SELECT concept_id FROM user_concepts WHERE is_unlocked = 1'
+  );
+  return results.map(r => r.concept_id);
+}
+
+export async function getMasteredConceptIds(): Promise<string[]> {
+  const db = await getDatabase();
+  const results = await db.getAllAsync<{ concept_id: string }>(
+    'SELECT concept_id FROM user_concepts WHERE is_mastered = 1'
+  );
+  return results.map(r => r.concept_id);
 }
 
 // ============ Journal Operations ============

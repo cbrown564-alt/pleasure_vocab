@@ -13,6 +13,8 @@ export interface OnboardingRow {
 export interface UserConceptRow {
   concept_id: string;
   status: string;
+  is_unlocked: number;
+  is_mastered: number;
   explored_at: string | null;
   updated_at: string;
 }
@@ -28,8 +30,34 @@ export interface JournalEntryRow {
 // Re-export from platform-specific implementation
 // Note: Metro bundler will resolve the actual implementation at build time
 export {
-  clearAllData, createJournalEntry, deleteJournalEntry, getAllPathwayProgress, getAllUserConcepts, getDatabase, getExploredCount, getJournalEntries,
-  getJournalEntriesForConcept, getOnboardingState, getPathwayProgress, getResonatesCount, getSetting, getUserConcept, initDatabase, markConceptExplored, setSetting, startPathway, updateConceptStatus, updateJournalEntry, updateOnboarding, updatePathwayProgress
+  clearAllData,
+  createJournalEntry,
+  deleteJournalEntry,
+  getAllPathwayProgress,
+  getAllUserConcepts,
+  getDatabase,
+  getExploredCount,
+  getJournalEntries,
+  getJournalEntriesForConcept,
+  getMasteredConceptIds,
+  getOnboardingState,
+  getPathwayProgress,
+  getResonatesCount,
+  getSetting,
+  getUnlockedConceptIds,
+  getUserConcept,
+  initDatabase,
+  isConceptMastered,
+  isConceptUnlocked,
+  markConceptExplored,
+  masterConcept,
+  setSetting,
+  startPathway,
+  unlockConcept,
+  updateConceptStatus,
+  updateJournalEntry,
+  updateOnboarding,
+  updatePathwayProgress,
 } from './databaseImpl';
 
 export type { PathwayProgressRow } from './databaseImpl';

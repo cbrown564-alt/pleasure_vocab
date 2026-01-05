@@ -4,6 +4,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ConceptStatus, UserGoal } from '@/types';
 
+// Default concepts that are unlocked from the start
+const DEFAULT_UNLOCKED_CONCEPTS = ['angling', 'rocking', 'shallowing'];
+
 const STORAGE_KEYS = {
   ONBOARDING: '@vocab:onboarding',
   USER_CONCEPTS: '@vocab:user_concepts',
@@ -55,6 +58,8 @@ export async function updateOnboarding(updates: {
 export interface UserConceptRow {
   concept_id: string;
   status: string;
+  is_unlocked: number;
+  is_mastered: number;
   explored_at: string | null;
   updated_at: string;
 }
@@ -95,6 +100,8 @@ export async function updateConceptStatus(
   map[conceptId] = {
     concept_id: conceptId,
     status,
+    is_unlocked: existing?.is_unlocked ?? 0,
+    is_mastered: existing?.is_mastered ?? 0,
     explored_at: existing?.explored_at ?? now,
     updated_at: now,
   };
@@ -111,11 +118,73 @@ export async function markConceptExplored(conceptId: string): Promise<void> {
     map[conceptId] = {
       concept_id: conceptId,
       status: 'explored',
+      is_unlocked: existing?.is_unlocked ?? 0,
+      is_mastered: existing?.is_mastered ?? 0,
       explored_at: existing?.explored_at ?? now,
       updated_at: now,
     };
     await saveUserConceptsMap(map);
   }
+}
+
+// ============ Unlock/Master Operations ============
+
+export async function unlockConcept(conceptId: string): Promise<void> {
+  const map = await getUserConceptsMap();
+  const now = new Date().toISOString();
+  const existing = map[conceptId];
+
+  map[conceptId] = {
+    concept_id: conceptId,
+    status: existing?.status ?? 'unexplored',
+    is_unlocked: 1,
+    is_mastered: existing?.is_mastered ?? 0,
+    explored_at: existing?.explored_at ?? null,
+    updated_at: now,
+  };
+
+  await saveUserConceptsMap(map);
+}
+
+export async function masterConcept(conceptId: string): Promise<void> {
+  const map = await getUserConceptsMap();
+  const now = new Date().toISOString();
+  const existing = map[conceptId];
+
+  map[conceptId] = {
+    concept_id: conceptId,
+    status: existing?.status ?? 'unexplored',
+    is_unlocked: 1, // Mastering also unlocks
+    is_mastered: 1,
+    explored_at: existing?.explored_at ?? null,
+    updated_at: now,
+  };
+
+  await saveUserConceptsMap(map);
+}
+
+export async function isConceptUnlocked(conceptId: string): Promise<boolean> {
+  const map = await getUserConceptsMap();
+  return map[conceptId]?.is_unlocked === 1;
+}
+
+export async function isConceptMastered(conceptId: string): Promise<boolean> {
+  const map = await getUserConceptsMap();
+  return map[conceptId]?.is_mastered === 1;
+}
+
+export async function getUnlockedConceptIds(): Promise<string[]> {
+  const map = await getUserConceptsMap();
+  return Object.values(map)
+    .filter(c => c.is_unlocked === 1)
+    .map(c => c.concept_id);
+}
+
+export async function getMasteredConceptIds(): Promise<string[]> {
+  const map = await getUserConceptsMap();
+  return Object.values(map)
+    .filter(c => c.is_mastered === 1)
+    .map(c => c.concept_id);
 }
 
 // ============ Journal Operations ============
@@ -324,14 +393,47 @@ export async function clearAllData(): Promise<void> {
   ]);
 }
 
-// ============ Database Init (no-op for web) ============
+// ============ Database Init ============
 
 export async function initDatabase(): Promise<void> {
-  // No-op for web - AsyncStorage doesn't need initialization
+  // Seed default unlocked concepts for web
+  await seedDefaultUnlockedConcepts();
 }
 
 export async function getDatabase(): Promise<void> {
-  // No-op for web
+  // No-op for web - but ensure seeding runs
+  await initDatabase();
+}
+
+// Seed default unlocked concepts if not already present
+async function seedDefaultUnlockedConcepts(): Promise<void> {
+  const map = await getUserConceptsMap();
+  const now = new Date().toISOString();
+  let updated = false;
+
+  for (const conceptId of DEFAULT_UNLOCKED_CONCEPTS) {
+    if (!map[conceptId]) {
+      // Create new entry with is_unlocked = 1
+      map[conceptId] = {
+        concept_id: conceptId,
+        status: 'unexplored',
+        is_unlocked: 1,
+        is_mastered: 0,
+        explored_at: null,
+        updated_at: now,
+      };
+      updated = true;
+    } else if (map[conceptId].is_unlocked !== 1) {
+      // Ensure existing entry is unlocked
+      map[conceptId].is_unlocked = 1;
+      map[conceptId].updated_at = now;
+      updated = true;
+    }
+  }
+
+  if (updated) {
+    await saveUserConceptsMap(map);
+  }
 }
 
 // ============ Utilities ============
