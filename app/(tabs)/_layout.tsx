@@ -16,10 +16,9 @@ function TabBarIcon({
     <Image
       source={source}
       style={{
-        width: 24,
-        height: 24,
-        tintColor: color,
-        opacity: focused ? 1 : 0.7,
+        width: 40,
+        height: 40,
+        opacity: focused ? 1 : 0.6,
         resizeMode: 'contain'
       }}
     />
@@ -35,13 +34,13 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.background.primary,
           borderTopColor: colors.neutral[200],
-          height: 88, // Taller editorial tab bar
-          paddingTop: 8,
+          height: 100, // Taller for larger icons
+          paddingTop: 14,
         },
         tabBarLabelStyle: {
           fontFamily: 'Inter_500Medium',
           fontSize: 12,
-          marginTop: -4,
+          marginTop: 4, // Spacing between icon and text
         },
         headerShown: false,
       }}

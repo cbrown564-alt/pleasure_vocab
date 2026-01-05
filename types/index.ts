@@ -19,13 +19,15 @@ export type ConceptCategory =
 // Tier for future paywall
 export type ConceptTier = 'free' | 'premium';
 
-export type ConceptSlideType = 'recognize' | 'name' | 'understand' | 'explore';
+export type ConceptSlideType = 'recognize' | 'name' | 'illustrate' | 'understand' | 'explore';
 
 export interface ConceptSlide {
   type: ConceptSlideType;
   title?: string; // Overrides default title if needed
   content: string;
   image?: any;
+  illustrationAsset?: any; // require() path for illustration image
+  illustrationCaption?: string; // Optional caption below illustration
 }
 
 export type DiagramType = 'angling' | 'rocking' | 'shallowing' | 'pairing' | 'iceberg' | 'nerve-density' | 'cuv-complex' | 'warmup-window' | 'none';

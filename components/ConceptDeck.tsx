@@ -1,153 +1,41 @@
-import { Button } from '@/components/ui/Button';
 import { Text as ThemedText } from '@/components/ui/Typography';
 import { borderRadius, colors, shadows, spacing, typography } from '@/constants/theme';
 import { useUserProgress } from '@/lib/user-store';
-import { Concept, ConceptSlide, DiagramType } from '@/types';
+import { Concept, ConceptSlide } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Dimensions, FlatList, Image, StyleSheet, View } from 'react-native';
+import { Dimensions, FlatList, StyleSheet, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-// Helper to get icons for slide types
-const getSlideIcon = (type: string) => {
-    switch (type) {
-        case 'context': return 'bulb-outline';
-        case 'deep_dive': return 'library-outline';
-        case 'reflection': return 'sparkles-outline';
-        default: return 'book-outline';
-    }
-};
-
-// Placeholder for Interactive Diagrams
-const DiagramPlaceholder = ({ type }: { type: DiagramType }) => {
-    return (
-        <View style={styles.diagramContainer}>
-            <View style={styles.diagramPlaceholder}>
-                <Ionicons name="images-outline" size={48} color={colors.neutral[300]} />
-                <ThemedText variant="body" color={colors.text.tertiary} style={{ marginTop: 12 }}>
-                    Interactive Diagram: {type}
-                </ThemedText>
-            </View>
-        </View>
-    );
-};
+import { ExploreSlide } from './conceptdeck/ExploreSlide';
+import { IllustrateSlide } from './conceptdeck/IllustrateSlide';
+import { NameSlide } from './conceptdeck/NameSlide';
+import { RecognizeSlide } from './conceptdeck/RecognizeSlide';
+import { UnderstandSlide } from './conceptdeck/UnderstandSlide';
 
 const Slide = ({ item, concept, onFinish, isLast }: { item: ConceptSlide, concept: Concept, onFinish: () => void, isLast: boolean }) => {
-    const { type, title, content } = item;
-
-    // RECOGNIZE SLIDE - Connect to user's experience
-    if (type === 'recognize') {
-        return (
-            <View style={styles.slide}>
-                <View style={[styles.centeredContent]}>
-                    <ThemedText variant="label" color={colors.text.tertiary} align="center" style={styles.categoryLabel}>
-                        {concept.category.toUpperCase()}
-                    </ThemedText>
-
-                    <ThemedText variant="h1" align="center" style={styles.heroTitle}>{concept.name}</ThemedText>
-
-                    <View style={styles.recognizeCard}>
-                        <ThemedText variant="h3" align="center" style={styles.recognizeText}>
-                            {content}
-                        </ThemedText>
-                    </View>
-
-                    <View style={styles.heroFooter}>
-                        <ThemedText variant="caption" color={colors.text.tertiary}>Swipe to learn</ThemedText>
-                        <Ionicons name="chevron-forward" size={16} color={colors.text.tertiary} />
-                    </View>
+    switch (item.type) {
+        case 'recognize':
+            return <RecognizeSlide item={item} concept={concept} />;
+        case 'name':
+            return <NameSlide item={item} concept={concept} />;
+        case 'illustrate':
+            return <IllustrateSlide item={item} />;
+        case 'understand':
+            return <UnderstandSlide item={item} />;
+        case 'explore':
+            return <ExploreSlide item={item} onFinish={onFinish} isLast={isLast} />;
+        default:
+            // Fallback for unknown types
+            return (
+                <View style={[styles.slide, { justifyContent: 'center', alignItems: 'center' }]}>
+                    <ThemedText variant="h2">{item.title}</ThemedText>
+                    <ThemedText>{item.content}</ThemedText>
                 </View>
-            </View>
-        );
+            );
     }
-
-    // NAME SLIDE - Give the vocabulary/definition
-    if (type === 'name') {
-        return (
-            <View style={[styles.slide, { backgroundColor: colors.primary[50] }]}>
-                <View style={styles.centeredContent}>
-                    <View style={styles.iconCircle}>
-                        <Ionicons name="bookmark-outline" size={28} color={colors.primary[600]} />
-                    </View>
-
-                    <ThemedText variant="h2" align="center" style={styles.nameTitle}>{title || 'The Word'}</ThemedText>
-
-                    <View style={{ maxWidth: '90%' }}>
-                        <ThemedText variant="body" align="center" style={styles.nameBody}>
-                            {content}
-                        </ThemedText>
-                    </View>
-                </View>
-            </View>
-        );
-    }
-
-    // UNDERSTAND SLIDE - Evidence + insight
-    if (type === 'understand') {
-        return (
-            <View style={styles.slide}>
-                <View style={styles.centeredContent}>
-                    <ThemedText variant="h4" align="center" color={colors.text.tertiary} style={{ marginBottom: spacing.lg }}>
-                        THE RESEARCH
-                    </ThemedText>
-
-                    <View style={styles.evidenceCard}>
-                        <Ionicons name="stats-chart-outline" size={28} color={colors.primary[400]} style={styles.quoteIcon} />
-                        <ThemedText variant="h3" style={styles.evidenceText}>
-                            {content}
-                        </ThemedText>
-                    </View>
-                </View>
-            </View>
-        );
-    }
-
-    // EXPLORE SLIDE - Category-appropriate action (final slide)
-    if (type === 'explore') {
-        return (
-            <View style={styles.slide}>
-                <View style={styles.centeredContent}>
-                    <View style={styles.sparkleContainer}>
-                        <Ionicons name="sparkles" size={40} color={colors.primary[500]} />
-                    </View>
-
-                    <ThemedText variant="h2" align="center" style={styles.slideTitle}>{title || 'Explore'}</ThemedText>
-
-                    <View style={styles.exploreCard}>
-                        <ThemedText variant="h3" align="center" style={styles.exploreText}>{content}</ThemedText>
-                    </View>
-
-                    {isLast && (
-                        <View style={styles.actionContainer}>
-                            <Button
-                                title="Collect this Word"
-                                onPress={onFinish}
-                                variant="primary"
-                                size="lg"
-                                fullWidth
-                                style={styles.collectButton}
-                            />
-                            <ThemedText variant="caption" align="center" color={colors.text.tertiary} style={{ marginTop: 12 }}>
-                                Add to your vocabulary
-                            </ThemedText>
-                        </View>
-                    )}
-                </View>
-            </View>
-        );
-    }
-
-    // Fallback (should not be reached with current types)
-    return (
-        <View style={styles.slide}>
-            <View style={styles.centeredContent}>
-                <ThemedText variant="h2" align="center" style={styles.slideTitle}>{title || String(type).toUpperCase()}</ThemedText>
-                <ThemedText variant="body" align="center" style={styles.BodyCentered}>{content}</ThemedText>
-            </View>
-        </View>
-    );
 };
 
 export const ConceptDeck = ({ concept }: { concept: Concept }) => {

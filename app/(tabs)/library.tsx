@@ -198,7 +198,7 @@ export default function LibraryScreen() {
           data={filteredConcepts}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View style={{ width: CARD_WIDTH }}>
+            <View style={{ width: '100%' }}>
               <ConceptCard
                 concept={item}
                 status={getDatabaseStatus(item.id) || 'unexplored'}
@@ -212,8 +212,7 @@ export default function LibraryScreen() {
               />
             </View>
           )}
-          numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
+          numColumns={1}
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={ListHeader}
           showsVerticalScrollIndicator={false}

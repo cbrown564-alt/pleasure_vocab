@@ -3,7 +3,7 @@ import { Concept, ConceptStatus } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Text } from './ui/Typography';
 
 interface ConceptCardProps {
@@ -34,6 +34,24 @@ export function ConceptCard({ concept, status, isCollected, onPress }: ConceptCa
   const isUnexplored = status === 'unexplored';
   const statusColor = getStatusColor(status);
 
+  // precise: Find the 'illustrate' slide to get the specific concept icon
+  const illustrateSlide = concept.slides?.find(s => s.type === 'illustrate');
+  const conceptIcon = illustrateSlide?.illustrationAsset;
+
+  // Fallback to category icon if no specific icon found
+  const getCategoryIcon = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'technique': return require('@/assets/images/ui/category-technique.png');
+      case 'sensation': return require('@/assets/images/ui/category-sensation.png');
+      case 'timing': return require('@/assets/images/ui/category-timing.png');
+      case 'psychological': return require('@/assets/images/ui/category-psychological.png');
+      case 'anatomy': return require('@/assets/images/ui/category-anatomy.png');
+      default: return null;
+    }
+  };
+
+  const displayIcon = conceptIcon || getCategoryIcon(concept.category);
+
   return (
     <TouchableOpacity
       onPress={handlePress}
@@ -44,35 +62,44 @@ export function ConceptCard({ concept, status, isCollected, onPress }: ConceptCa
         isCollected && styles.collectedCard
       ]}
     >
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text variant="label" color={colors.text.tertiary} style={styles.category}>
-            {concept.category}
-          </Text>
-          {isCollected ? (
-            <Ionicons name="checkmark-circle" size={16} color={colors.primary[500]} />
-          ) : status === 'resonates' && (
-            <Ionicons name="heart" size={16} color={colors.primary[500]} />
+      <View style={styles.container}>
+        {/* Left: Icon */}
+        <View style={styles.iconContainer}>
+          {displayIcon && (
+            <Image
+              source={displayIcon}
+              style={{ width: 72, height: 72, resizeMode: 'contain' }}
+            />
           )}
         </View>
 
-        <Text variant="h3" style={styles.name}>
-          {concept.name}
-        </Text>
-
-        <Text variant="body" numberOfLines={3} style={styles.definition}>
-          {concept.definition}
-        </Text>
-
-        <View style={styles.footer}>
-          {!isUnexplored ? (
-            <Text variant="caption" color={colors.text.secondary}>
-              {status.charAt(0).toUpperCase() + status.slice(1)}
+        {/* Right: Content */}
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text variant="label" color={colors.text.tertiary} style={styles.category}>
+              {concept.category}
             </Text>
-          ) : (
-            <Text variant="caption" color={colors.primary[500]}>
-              Explore
-            </Text>
+            {isCollected ? (
+              <Ionicons name="checkmark-circle" size={18} color={colors.primary[500]} />
+            ) : status === 'resonates' && (
+              <Ionicons name="heart" size={18} color={colors.primary[500]} />
+            )}
+          </View>
+
+          <Text variant="h3" style={styles.name}>
+            {concept.name}
+          </Text>
+
+          <Text variant="body" numberOfLines={3} style={styles.definition}>
+            {concept.definition}
+          </Text>
+
+          {!isUnexplored && (
+            <View style={styles.footer}>
+              <Text variant="caption" color={colors.text.secondary}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </Text>
+            </View>
           )}
         </View>
       </View>
@@ -85,24 +112,35 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background.surface,
     borderRadius: borderRadius.lg,
     marginBottom: spacing.md,
-    ...shadows.sm, // Soft elegant shadow
+    ...shadows.sm,
     borderWidth: 1,
-    borderColor: colors.neutral[100], // Very subtle border
+    borderColor: colors.neutral[100],
     overflow: 'hidden',
   },
   collectedCard: {
     borderColor: colors.primary[300],
     borderWidth: 2,
-    backgroundColor: colors.primary[50], // Slight tint
+    backgroundColor: colors.primary[50],
+  },
+  container: {
+    flexDirection: 'row',
+    padding: spacing.md,
+    alignItems: 'center',
+  },
+  iconContainer: {
+    marginRight: spacing.md,
+    justifyContent: 'center',
+    width: 80,
+    alignItems: 'center',
   },
   content: {
-    padding: spacing.lg,
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.xs,
+    marginBottom: 4,
   },
   category: {
     textTransform: 'uppercase',
@@ -110,13 +148,14 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   name: {
-    marginBottom: spacing.sm,
+    marginBottom: 4,
     color: colors.text.primary,
   },
   definition: {
     color: colors.text.secondary,
-    marginBottom: spacing.md,
-    lineHeight: 24, // Relaxed reading
+    marginBottom: spacing.sm,
+    lineHeight: 22,
+    fontSize: 15,
   },
   footer: {
     flexDirection: 'row',

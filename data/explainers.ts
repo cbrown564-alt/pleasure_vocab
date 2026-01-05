@@ -319,6 +319,7 @@ This has important implications. Physical response alone doesn't indicate desire
     title: 'Communication Science',
     subtitle: 'Why asking for what you want works',
     icon: 'chatbubbles',
+    image: require('../assets/images/explainers/communication-science-101.png'),
     readTime: '5 min read',
 
     overview:
