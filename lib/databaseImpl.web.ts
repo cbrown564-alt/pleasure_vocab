@@ -3,6 +3,15 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ConceptStatus, UserGoal } from '@/types';
+import {
+  DEFAULT_ONBOARDING,
+  JournalEntryRowSchema,
+  OnboardingRowSchema,
+  PathwayProgressRowSchema,
+  UserConceptRowSchema,
+  validateArray,
+  validateWithFallback,
+} from './validation';
 
 // Default concepts that are unlocked from the start
 const DEFAULT_UNLOCKED_CONCEPTS = ['angling', 'rocking', 'shallowing'];
@@ -32,9 +41,17 @@ const defaultOnboarding: OnboardingRow = {
 export async function getOnboardingState(): Promise<OnboardingRow> {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING);
-    return data ? JSON.parse(data) : defaultOnboarding;
-  } catch {
-    return defaultOnboarding;
+    if (!data) return DEFAULT_ONBOARDING;
+    const parsed = JSON.parse(data);
+    return validateWithFallback(
+      OnboardingRowSchema,
+      parsed,
+      DEFAULT_ONBOARDING,
+      'getOnboardingState'
+    );
+  } catch (error) {
+    console.warn('[getOnboardingState] Error reading data:', error);
+    return DEFAULT_ONBOARDING;
   }
 }
 
@@ -67,8 +84,21 @@ export interface UserConceptRow {
 async function getUserConceptsMap(): Promise<Record<string, UserConceptRow>> {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEYS.USER_CONCEPTS);
-    return data ? JSON.parse(data) : {};
-  } catch {
+    if (!data) return {};
+    const parsed = JSON.parse(data);
+    // Validate each entry in the map
+    const validated: Record<string, UserConceptRow> = {};
+    for (const [key, value] of Object.entries(parsed)) {
+      const result = UserConceptRowSchema.safeParse(value);
+      if (result.success) {
+        validated[key] = result.data;
+      } else {
+        console.warn(`[getUserConceptsMap] Invalid entry for ${key}:`, result.error.issues);
+      }
+    }
+    return validated;
+  } catch (error) {
+    console.warn('[getUserConceptsMap] Error reading data:', error);
     return {};
   }
 }
@@ -200,8 +230,21 @@ export interface JournalEntryRow {
 async function getJournalEntriesMap(): Promise<Record<string, JournalEntryRow>> {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEYS.JOURNAL_ENTRIES);
-    return data ? JSON.parse(data) : {};
-  } catch {
+    if (!data) return {};
+    const parsed = JSON.parse(data);
+    // Validate each entry in the map
+    const validated: Record<string, JournalEntryRow> = {};
+    for (const [key, value] of Object.entries(parsed)) {
+      const result = JournalEntryRowSchema.safeParse(value);
+      if (result.success) {
+        validated[key] = result.data;
+      } else {
+        console.warn(`[getJournalEntriesMap] Invalid entry for ${key}:`, result.error.issues);
+      }
+    }
+    return validated;
+  } catch (error) {
+    console.warn('[getJournalEntriesMap] Error reading data:', error);
     return {};
   }
 }
@@ -287,8 +330,21 @@ export interface PathwayProgressRow {
 async function getPathwayProgressMap(): Promise<Record<string, PathwayProgressRow>> {
   try {
     const data = await AsyncStorage.getItem(STORAGE_KEYS.PATHWAY_PROGRESS);
-    return data ? JSON.parse(data) : {};
-  } catch {
+    if (!data) return {};
+    const parsed = JSON.parse(data);
+    // Validate each entry in the map
+    const validated: Record<string, PathwayProgressRow> = {};
+    for (const [key, value] of Object.entries(parsed)) {
+      const result = PathwayProgressRowSchema.safeParse(value);
+      if (result.success) {
+        validated[key] = result.data;
+      } else {
+        console.warn(`[getPathwayProgressMap] Invalid entry for ${key}:`, result.error.issues);
+      }
+    }
+    return validated;
+  } catch (error) {
+    console.warn('[getPathwayProgressMap] Error reading data:', error);
     return {};
   }
 }
@@ -365,7 +421,8 @@ export async function getSetting(key: string): Promise<string | null> {
     const data = await AsyncStorage.getItem(STORAGE_KEYS.SETTINGS);
     const settings = data ? JSON.parse(data) : {};
     return settings[key] ?? null;
-  } catch {
+  } catch (error) {
+    console.warn('[getSetting] Error reading data:', error);
     return null;
   }
 }
@@ -376,8 +433,8 @@ export async function setSetting(key: string, value: string): Promise<void> {
     const settings = data ? JSON.parse(data) : {};
     settings[key] = value;
     await AsyncStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-  } catch {
-    // Ignore errors
+  } catch (error) {
+    console.warn('[setSetting] Error writing data:', error);
   }
 }
 

@@ -3,6 +3,16 @@
 
 import * as SQLite from 'expo-sqlite';
 import { ConceptStatus, UserGoal } from '@/types';
+import {
+  DEFAULT_ONBOARDING,
+  DEFAULT_USER_CONCEPT,
+  JournalEntryRowSchema,
+  OnboardingRowSchema,
+  PathwayProgressRowSchema,
+  UserConceptRowSchema,
+  validateArray,
+  validateWithFallback,
+} from './validation';
 
 const DATABASE_NAME = 'vocab.db';
 
@@ -159,14 +169,15 @@ export interface OnboardingRow {
 
 export async function getOnboardingState(): Promise<OnboardingRow> {
   const db = await getDatabase();
-  const result = await db.getFirstAsync<OnboardingRow>(
+  const result = await db.getFirstAsync<unknown>(
     'SELECT completed, goal, first_concept_viewed FROM onboarding WHERE id = 1'
   );
-  return result ?? {
-    completed: 0,
-    goal: null,
-    first_concept_viewed: 0,
-  };
+  return validateWithFallback(
+    OnboardingRowSchema,
+    result,
+    DEFAULT_ONBOARDING,
+    'getOnboardingState'
+  );
 }
 
 export async function updateOnboarding(updates: {
@@ -212,19 +223,26 @@ export interface UserConceptRow {
 
 export async function getUserConcept(conceptId: string): Promise<UserConceptRow | null> {
   const db = await getDatabase();
-  const result = await db.getFirstAsync<UserConceptRow>(
+  const result = await db.getFirstAsync<unknown>(
     'SELECT * FROM user_concepts WHERE concept_id = ?',
     [conceptId]
   );
-  return result ?? null;
+  if (!result) return null;
+
+  const validated = UserConceptRowSchema.safeParse(result);
+  if (!validated.success) {
+    console.warn('[Validation: getUserConcept] Invalid data:', validated.error.issues);
+    return null;
+  }
+  return validated.data;
 }
 
 export async function getAllUserConcepts(): Promise<UserConceptRow[]> {
   const db = await getDatabase();
-  const results = await db.getAllAsync<UserConceptRow>(
+  const results = await db.getAllAsync<unknown>(
     'SELECT * FROM user_concepts ORDER BY updated_at DESC'
   );
-  return results;
+  return validateArray(UserConceptRowSchema, results, 'getAllUserConcepts');
 }
 
 export async function updateConceptStatus(
@@ -382,19 +400,19 @@ export async function deleteJournalEntry(id: string): Promise<void> {
 
 export async function getJournalEntries(): Promise<JournalEntryRow[]> {
   const db = await getDatabase();
-  const results = await db.getAllAsync<JournalEntryRow>(
+  const results = await db.getAllAsync<unknown>(
     'SELECT * FROM journal_entries ORDER BY created_at DESC'
   );
-  return results;
+  return validateArray(JournalEntryRowSchema, results, 'getJournalEntries');
 }
 
 export async function getJournalEntriesForConcept(conceptId: string): Promise<JournalEntryRow[]> {
   const db = await getDatabase();
-  const results = await db.getAllAsync<JournalEntryRow>(
+  const results = await db.getAllAsync<unknown>(
     'SELECT * FROM journal_entries WHERE concept_id = ? ORDER BY created_at DESC',
     [conceptId]
   );
-  return results;
+  return validateArray(JournalEntryRowSchema, results, 'getJournalEntriesForConcept');
 }
 
 // ============ Stats Operations ============
@@ -426,19 +444,26 @@ export interface PathwayProgressRow {
 
 export async function getPathwayProgress(pathwayId: string): Promise<PathwayProgressRow | null> {
   const db = await getDatabase();
-  const result = await db.getFirstAsync<PathwayProgressRow>(
+  const result = await db.getFirstAsync<unknown>(
     'SELECT * FROM pathway_progress WHERE pathway_id = ?',
     [pathwayId]
   );
-  return result ?? null;
+  if (!result) return null;
+
+  const validated = PathwayProgressRowSchema.safeParse(result);
+  if (!validated.success) {
+    console.warn('[Validation: getPathwayProgress] Invalid data:', validated.error.issues);
+    return null;
+  }
+  return validated.data;
 }
 
 export async function getAllPathwayProgress(): Promise<PathwayProgressRow[]> {
   const db = await getDatabase();
-  const results = await db.getAllAsync<PathwayProgressRow>(
+  const results = await db.getAllAsync<unknown>(
     'SELECT * FROM pathway_progress ORDER BY started_at DESC'
   );
-  return results;
+  return validateArray(PathwayProgressRowSchema, results, 'getAllPathwayProgress');
 }
 
 export async function startPathway(pathwayId: string): Promise<void> {
