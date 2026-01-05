@@ -3,6 +3,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ConceptStatus, UserGoal } from '@/types';
+import { generateId } from './utils/id';
 import {
   DEFAULT_ONBOARDING,
   JournalEntryRowSchema,
@@ -493,8 +494,4 @@ async function seedDefaultUnlockedConcepts(): Promise<void> {
   }
 }
 
-// ============ Utilities ============
-
-function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-}
+// Note: generateId is now imported from './utils/id'

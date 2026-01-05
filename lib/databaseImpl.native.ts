@@ -3,6 +3,7 @@
 
 import * as SQLite from 'expo-sqlite';
 import { ConceptStatus, UserGoal } from '@/types';
+import { generateId } from './utils/id';
 import {
   DEFAULT_ONBOARDING,
   DEFAULT_USER_CONCEPT,
@@ -523,8 +524,4 @@ export async function clearAllData(): Promise<void> {
   `);
 }
 
-// ============ Utilities ============
-
-function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-}
+// Note: generateId is now imported from './utils/id'
