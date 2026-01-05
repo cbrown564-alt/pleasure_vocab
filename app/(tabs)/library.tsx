@@ -6,7 +6,6 @@ import { getAllExplainers } from '@/data/explainers';
 import { pathways } from '@/data/pathways';
 import { concepts, getConceptsByCategory } from '@/data/vocabulary';
 import { useUserConcepts } from '@/hooks/useDatabase';
-import { useUserProgress } from '@/lib/user-store';
 import { ConceptCategory, Pathway } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -39,16 +38,10 @@ const CARD_WIDTH = (SCREEN_WIDTH - spacing.md * 3) / 2; // 2 columns with paddin
 export default function LibraryScreen() {
   const insets = useSafeAreaInsets();
   const { concepts: userConcepts, getStatus: getDatabaseStatus } = useUserConcepts();
-  const { isMastered, masteredConcepts } = useUserProgress();
   const [viewMode, setViewMode] = useState<ViewMode>('all');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
 
   const explainers = getAllExplainers();
-
-  // Use "mastered" (Collected) count for progress
-  const collectedCount = masteredConcepts.length;
-  const totalCount = concepts.length;
-  const progress = totalCount > 0 ? collectedCount / totalCount : 0;
 
   const filteredConcepts = useMemo(() => {
     if (categoryFilter === 'all') {
@@ -197,21 +190,24 @@ export default function LibraryScreen() {
         <FlatList
           data={filteredConcepts}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={{ width: '100%' }}>
-              <ConceptCard
-                concept={item}
-                status={getDatabaseStatus(item.id) || 'unexplored'}
-                isCollected={isMastered(item.id)}
-                onPress={() =>
-                  router.push({
-                    pathname: `/concept/${item.id}`,
-                    params: { pathway: categoryFilter === 'all' ? 'default' : categoryFilter },
-                  })
-                }
-              />
-            </View>
-          )}
+          renderItem={({ item }) => {
+            const status = getDatabaseStatus(item.id) || 'unexplored';
+            return (
+              <View style={{ width: '100%' }}>
+                <ConceptCard
+                  concept={item}
+                  status={status}
+                  isCollected={status === 'resonates'}
+                  onPress={() =>
+                    router.push({
+                      pathname: `/concept/${item.id}`,
+                      params: { pathway: categoryFilter === 'all' ? 'default' : categoryFilter },
+                    })
+                  }
+                />
+              </View>
+            );
+          }}
           numColumns={1}
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={ListHeader}

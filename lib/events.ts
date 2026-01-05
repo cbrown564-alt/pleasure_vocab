@@ -26,4 +26,6 @@ export const events = new SimpleEventEmitter();
 export const EVENTS = {
     ONBOARDING_UPDATED: 'onboarding_updated',
     DATA_CLEARED: 'data_cleared',
+    USER_CONCEPTS_UPDATED: 'user_concepts_updated',
+    PATHWAY_PROGRESS_UPDATED: 'pathway_progress_updated',
 };

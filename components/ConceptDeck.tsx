@@ -1,13 +1,15 @@
 import { Text as ThemedText } from '@/components/ui/Typography';
 import { borderRadius, colors, shadows, spacing, typography } from '@/constants/theme';
-import { useUserProgress } from '@/lib/user-store';
+import { useUserConcept } from '@/hooks/useDatabase';
+import { updatePathwayProgress } from '@/lib/database';
+import { events, EVENTS } from '@/lib/events';
 import { Concept, ConceptSlide } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Dimensions, FlatList, StyleSheet, View } from 'react-native';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 import { ExploreSlide } from './conceptdeck/ExploreSlide';
 import { IllustrateSlide } from './conceptdeck/IllustrateSlide';
@@ -38,23 +40,37 @@ const Slide = ({ item, concept, onFinish, isLast }: { item: ConceptSlide, concep
     }
 };
 
-export const ConceptDeck = ({ concept }: { concept: Concept }) => {
+export const ConceptDeck = ({
+    concept,
+    pathwayId,
+    pathwayLength,
+}: {
+    concept: Concept;
+    pathwayId?: string;
+    pathwayLength?: number;
+}) => {
     const router = useRouter();
-    const { masterConcept } = useUserProgress();
+    const { setStatus } = useUserConcept(concept.id);
     const [activeIndex, setActiveIndex] = useState(0);
 
-    const onFinish = async () => {
-        await masterConcept(concept.id);
+    const onFinish = useCallback(async () => {
+        await setStatus('resonates');
+
+        if (pathwayId && pathwayLength) {
+            await updatePathwayProgress(pathwayId, concept.id, pathwayLength);
+            events.emit(EVENTS.PATHWAY_PROGRESS_UPDATED);
+        }
+
         router.back();
-    };
+    }, [concept.id, pathwayId, pathwayLength, router, setStatus]);
 
     // Construct slides if not present (legacy fallback)
-    const slides: ConceptSlide[] = concept.slides || [
+    const slides: ConceptSlide[] = useMemo(() => concept.slides || [
         { type: 'recognize', content: concept.recognitionPrompts[0] || 'Have you experienced this?' },
         { type: 'name', content: concept.definition },
         { type: 'understand', content: concept.researchBasis },
         { type: 'explore', content: concept.recognitionPrompts[1] || 'Try noticing this next time.' }
-    ];
+    ], [concept.definition, concept.recognitionPrompts, concept.researchBasis, concept.slides]);
 
     const handleScroll = (event: any) => {
         const slideSize = event.nativeEvent.layoutMeasurement.width;

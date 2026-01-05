@@ -21,7 +21,67 @@ import {
   UserConceptRow,
 } from '@/lib/database';
 import { ComfortLevel, ConceptStatus, UserGoal } from '@/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState } from 'react';
+
+import { events, EVENTS } from '@/lib/events';
+
+const LEGACY_PROGRESS_MIGRATION_KEY = '@vocab:legacy_progress_migrated';
+const LEGACY_PROGRESS_KEYS = {
+  UNLOCKED: 'user_unlocked_concepts',
+  MASTERED: 'user_mastered_concepts',
+};
+
+let legacyMigrationPromise: Promise<void> | null = null;
+
+function parseLegacyList(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+async function migrateLegacyProgressToDatabase() {
+  const alreadyMigrated = await AsyncStorage.getItem(LEGACY_PROGRESS_MIGRATION_KEY);
+  if (alreadyMigrated === 'done') return;
+
+  const [unlockedRaw, masteredRaw] = await Promise.all([
+    AsyncStorage.getItem(LEGACY_PROGRESS_KEYS.UNLOCKED),
+    AsyncStorage.getItem(LEGACY_PROGRESS_KEYS.MASTERED),
+  ]);
+
+  const unlockedIds = parseLegacyList(unlockedRaw);
+  const masteredIds = parseLegacyList(masteredRaw);
+
+  const masteredSet = new Set(masteredIds);
+  const migrationTasks: Promise<void>[] = [];
+
+  masteredIds.forEach((id) => {
+    migrationTasks.push(updateConceptStatus(id, 'resonates'));
+  });
+
+  unlockedIds
+    .filter((id) => !masteredSet.has(id))
+    .forEach((id) => {
+      migrationTasks.push(updateConceptStatus(id, 'explored'));
+    });
+
+  if (migrationTasks.length > 0) {
+    await Promise.all(migrationTasks);
+  }
+
+  await AsyncStorage.setItem(LEGACY_PROGRESS_MIGRATION_KEY, 'done');
+}
+
+async function ensureLegacyProgressMigration() {
+  if (!legacyMigrationPromise) {
+    legacyMigrationPromise = migrateLegacyProgressToDatabase();
+  }
+  return legacyMigrationPromise;
+}
 
 // ============ Database Initialization ============
 
@@ -54,10 +114,6 @@ export function useInitDatabase() {
 
   return { isReady, error };
 }
-
-import { events, EVENTS } from '@/lib/events';
-
-// ... (imports)
 
 // ============ Onboarding Hook ============
 
@@ -122,6 +178,7 @@ export function useUserConcepts() {
 
   const load = useCallback(async () => {
     setIsLoading(true);
+    await ensureLegacyProgressMigration();
     const result = await getAllUserConcepts();
     setConcepts(result);
     setIsLoading(false);
@@ -129,22 +186,30 @@ export function useUserConcepts() {
 
   useEffect(() => {
     load();
+    const handleUpdate = () => load();
+    events.on(EVENTS.USER_CONCEPTS_UPDATED, handleUpdate);
+    events.on(EVENTS.DATA_CLEARED, handleUpdate);
+
+    return () => {
+      events.off(EVENTS.USER_CONCEPTS_UPDATED, handleUpdate);
+      events.off(EVENTS.DATA_CLEARED, handleUpdate);
+    };
   }, [load]);
 
   const setStatus = useCallback(
     async (conceptId: string, status: ConceptStatus) => {
       await updateConceptStatus(conceptId, status);
-      await load();
+      events.emit(EVENTS.USER_CONCEPTS_UPDATED);
     },
-    [load]
+    []
   );
 
   const markExplored = useCallback(
     async (conceptId: string) => {
       await markConceptExplored(conceptId);
-      await load();
+      events.emit(EVENTS.USER_CONCEPTS_UPDATED);
     },
-    [load]
+    []
   );
 
   const getStatus = useCallback(
@@ -172,6 +237,7 @@ export function useUserConcept(conceptId: string) {
 
   const load = useCallback(async () => {
     setIsLoading(true);
+    await ensureLegacyProgressMigration();
     const result = await getUserConcept(conceptId);
     setConcept(result);
     setIsLoading(false);
@@ -179,20 +245,28 @@ export function useUserConcept(conceptId: string) {
 
   useEffect(() => {
     load();
+    const handleUpdate = () => load();
+    events.on(EVENTS.USER_CONCEPTS_UPDATED, handleUpdate);
+    events.on(EVENTS.DATA_CLEARED, handleUpdate);
+
+    return () => {
+      events.off(EVENTS.USER_CONCEPTS_UPDATED, handleUpdate);
+      events.off(EVENTS.DATA_CLEARED, handleUpdate);
+    };
   }, [load]);
 
   const setStatus = useCallback(
     async (status: ConceptStatus) => {
       await updateConceptStatus(conceptId, status);
-      await load();
+      events.emit(EVENTS.USER_CONCEPTS_UPDATED);
     },
-    [conceptId, load]
+    [conceptId]
   );
 
   const markExplored = useCallback(async () => {
     await markConceptExplored(conceptId);
-    await load();
-  }, [conceptId, load]);
+    events.emit(EVENTS.USER_CONCEPTS_UPDATED);
+  }, [conceptId]);
 
   return {
     concept,
@@ -267,6 +341,7 @@ export function useStats() {
 
   const load = useCallback(async () => {
     setIsLoading(true);
+    await ensureLegacyProgressMigration();
     const [explored, resonates] = await Promise.all([
       getExploredCount(),
       getResonatesCount(),
@@ -278,6 +353,13 @@ export function useStats() {
 
   useEffect(() => {
     load();
+    events.on(EVENTS.USER_CONCEPTS_UPDATED, load);
+    events.on(EVENTS.DATA_CLEARED, load);
+
+    return () => {
+      events.off(EVENTS.USER_CONCEPTS_UPDATED, load);
+      events.off(EVENTS.DATA_CLEARED, load);
+    };
   }, [load]);
 
   return {
