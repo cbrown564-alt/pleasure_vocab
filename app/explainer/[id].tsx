@@ -104,9 +104,49 @@ export default function ExplainerDetailScreen() {
             <Text variant="h2" style={styles.sectionTitle}>
               {section.title}
             </Text>
-            <Text variant="body" style={styles.sectionContent}>
-              {section.content}
-            </Text>
+
+            {typeof section.content === 'string' ? (
+              <Text variant="body" style={styles.sectionContent}>
+                {section.content}
+              </Text>
+            ) : (
+              <View style={{ gap: spacing.md }}>
+                {section.content.map((block, i) => {
+                  if (block.type === 'text') {
+                    return (
+                      <Text key={i} variant="body" style={styles.sectionContent}>
+                        {block.content}
+                      </Text>
+                    );
+                  }
+                  if (block.type === 'image') {
+                    return (
+                      <View key={i} style={styles.inlineImageContainer}>
+                        <Image source={block.source} style={[styles.inlineImage, { height: block.height || 200 }]} resizeMode="cover" />
+                        {block.caption && <Text variant="caption" style={styles.imageCaption}>{block.caption}</Text>}
+                      </View>
+                    );
+                  }
+                  if (block.type === 'quote') {
+                    return (
+                      <View key={i} style={styles.quoteBlock}>
+                        <Text variant="h3" style={styles.quoteText}>“{block.content}”</Text>
+                        {block.author && <Text variant="caption" style={styles.quoteAuthor}>— {block.author}</Text>}
+                      </View>
+                    );
+                  }
+                  if (block.type === 'callout') {
+                    return (
+                      <View key={i} style={styles.calloutBlock}>
+                        <Text variant="h4" style={styles.calloutTitle} color={colors.primary[700]}>{block.title}</Text>
+                        <Text variant="body" style={styles.calloutContent}>{block.content}</Text>
+                      </View>
+                    );
+                  }
+                  return null;
+                })}
+              </View>
+            )}
 
             {section.statistic && (
               <View style={styles.pullQuoteContainer}>
@@ -425,5 +465,46 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     borderWidth: 1,
     borderColor: colors.primary[100],
+  },
+  inlineImageContainer: {
+    marginVertical: spacing.md,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
+    backgroundColor: colors.neutral[50],
+  },
+  inlineImage: {
+    width: '100%',
+  },
+  imageCaption: {
+    padding: spacing.sm,
+    textAlign: 'center',
+    color: colors.text.tertiary,
+    fontStyle: 'italic',
+  },
+  quoteBlock: {
+    marginVertical: spacing.md,
+    paddingLeft: spacing.lg,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.primary[300],
+  },
+  quoteText: {
+    fontStyle: 'italic',
+    color: colors.text.secondary,
+    marginBottom: spacing.xs,
+  },
+  quoteAuthor: {
+    color: colors.text.tertiary,
+  },
+  calloutBlock: {
+    backgroundColor: colors.primary[50],
+    padding: spacing.lg,
+    borderRadius: borderRadius.md,
+    marginVertical: spacing.md,
+  },
+  calloutTitle: {
+    marginBottom: spacing.xs,
+  },
+  calloutContent: {
+    color: colors.text.secondary,
   },
 });

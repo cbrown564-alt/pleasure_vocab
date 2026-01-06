@@ -146,16 +146,17 @@ export interface ResearchExplainer {
   keyTakeaways: string[];    // 3-5 bullet points
 
   // Main content sections
+  // Main content sections
   sections: {
     title: string;
-    content: string;         // 2-3 paragraphs
+    // content can be a simple string (legacy) or detailed blocks
+    content: string | LinkableContentBlock[];
     statistic?: {
       value: string;
       label: string;
       source: string;
     };
   }[];
-
   // Misconceptions
   misconceptions: {
     myth: string;
@@ -174,6 +175,13 @@ export interface ResearchExplainer {
 
   tier: ConceptTier;
 }
+
+export type LinkableContentBlock =
+  | { type: 'text'; content: string }
+  | { type: 'image'; source: any; caption?: string; height?: number }
+  | { type: 'quote'; content: string; author?: string; accent?: 'primary' | 'secondary' }
+  | { type: 'callout'; title: string; content: string; icon?: string };
+
 
 // Navigation params
 export type RootStackParamList = {

@@ -68,6 +68,7 @@ export default function LibraryScreen() {
       (id) => getDatabaseStatus(id) !== 'unexplored'
     ).length;
     const pathwayProgress = completedInPathway / pathway.conceptIds.length;
+    const isCompleted = completedInPathway === pathway.conceptIds.length;
 
     return (
       <Card
@@ -77,34 +78,51 @@ export default function LibraryScreen() {
         style={styles.pathwayCard}
         onPress={() => router.push(`/pathway/${pathway.id}`)}
       >
-        <View style={styles.pathwayIcon}>
-          {pathway.image ? (
-            <Image
-              source={pathway.image}
-              style={{ width: '100%', height: '100%', borderRadius: 20 }}
-            />
-          ) : (
-            <Ionicons
-              name={pathway.icon as keyof typeof Ionicons.glyphMap}
-              size={28}
-              color={colors.primary[500]}
-            />
-          )}
-        </View>
-        <View style={styles.pathwayContent}>
-          <Text variant="h3" style={{ marginBottom: spacing.xs }}>{pathway.name}</Text>
-          <Text variant="body" numberOfLines={2} style={{ marginBottom: spacing.sm }}>
-            {pathway.description}
-          </Text>
-
-          <View style={styles.pathwayMeta}>
-            <Text variant="caption">{pathway.estimatedTime}</Text>
-            <Text variant="caption">•</Text>
-            <Text variant="caption">{pathway.conceptIds.length} concepts</Text>
+        <View style={styles.pathwayCardInner}>
+          <View style={styles.pathwayIconContainer}>
+            {pathway.image ? (
+              <Image
+                source={pathway.image}
+                style={{ width: '100%', height: '100%', borderRadius: 28 }}
+              />
+            ) : (
+              <View style={styles.pathwayIconPlaceholder}>
+                <Ionicons
+                  name={pathway.icon as keyof typeof Ionicons.glyphMap}
+                  size={32}
+                  color={colors.primary[500]}
+                />
+              </View>
+            )}
           </View>
 
-          <View style={styles.pathwayProgressBar}>
-            <ProgressBar progress={pathwayProgress} height={4} />
+          <View style={styles.pathwayContent}>
+            <View style={styles.pathwayHeaderRow}>
+              <Text variant="h3" style={styles.pathwayTitle}>{pathway.name}</Text>
+              {isCompleted && <Ionicons name="checkmark-circle" size={20} color={colors.secondary[500]} />}
+            </View>
+
+            <Text variant="bodySmall" color={colors.text.secondary} style={styles.pathwayDescription}>
+              {pathway.description}
+            </Text>
+
+            <View style={styles.pathwayMeta}>
+              <View style={styles.metaItem}>
+                <Ionicons name="time-outline" size={14} color={colors.text.tertiary} />
+                <Text variant="label" color={colors.text.tertiary}>{pathway.estimatedTime}</Text>
+              </View>
+              <View style={styles.metaDivider} />
+              <Text variant="label" color={colors.text.tertiary}>{pathway.conceptIds.length} Steps</Text>
+            </View>
+
+            <View style={styles.progressContainer}>
+              <View style={styles.progressLabelRow}>
+                <Text variant="label" color={colors.primary[600]} style={{ fontSize: 10 }}>
+                  {Math.round(pathwayProgress * 100)}% Complete
+                </Text>
+              </View>
+              <ProgressBar progress={pathwayProgress} height={6} />
+            </View>
           </View>
         </View>
       </Card>
@@ -306,29 +324,72 @@ const styles = StyleSheet.create({
   // Pathway Card Styles
   pathwayCard: {
     marginBottom: spacing.md,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
     backgroundColor: colors.background.surface,
+    padding: 0, // Reset default padding to handle inner layout
   },
-  pathwayIcon: {
+  pathwayCardInner: {
+    flexDirection: 'row',
+    padding: spacing.md,
+  },
+  pathwayIconContainer: {
     marginRight: spacing.md,
-    marginTop: spacing.xs,
-    width: 40,
-    height: 40,
+    width: 80,
+    height: 80,
+  },
+  pathwayIconPlaceholder: {
+    width: '100%',
+    height: '100%',
     borderRadius: 20,
     backgroundColor: colors.primary[50],
     alignItems: 'center',
     justifyContent: 'center',
   },
+  pathwayIcon: {
+    // Kept for backward compatibility if needed, but overridden by above
+    width: 40, height: 40
+  },
   pathwayContent: {
     flex: 1,
+    justifyContent: 'space-between',
+  },
+  pathwayHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 2,
+  },
+  pathwayTitle: {
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  pathwayDescription: {
+    marginBottom: spacing.sm,
   },
   pathwayMeta: {
     flexDirection: 'row',
-    gap: spacing.xs,
-    marginBottom: spacing.sm,
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metaDivider: {
+    width: 1,
+    height: 10,
+    backgroundColor: colors.neutral[300],
+  },
+  progressContainer: {
+    width: '100%',
+  },
+  progressLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: 4,
   },
   pathwayProgressBar: {
-    marginTop: spacing.xs,
+    // Deprecated in new design
   }
 });

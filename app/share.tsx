@@ -1,19 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Share,
-  Platform,
-} from 'react-native';
-import { router } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Text, Card, Button } from '@/components/ui';
-import { colors, spacing, borderRadius } from '@/constants/theme';
-import { useUserConcepts } from '@/hooks/useDatabase';
+import { router } from 'expo-router';
+import React, { useMemo, useState } from 'react';
+import { Platform, ScrollView, Share, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Button, Card, Text, ThemedView } from '@/components/ui';
+import { borderRadius, colors, spacing } from '@/constants/theme';
 import { getConceptById } from '@/data/vocabulary';
+import { useUserConcepts } from '@/hooks/useDatabase';
 import { ConceptCategory } from '@/types';
 
 const categoryLabels: Record<ConceptCategory, string> = {
@@ -83,7 +77,7 @@ export default function ShareScreen() {
 
     if (selected.length === 0) return '';
 
-    let text = "I've been learning about pleasure and intimacy, and I wanted to share some things that resonate with me:\n\n";
+    let text = "I've been exploring my pleasure vocabulary, and these concepts really resonate with me:\n\n";
 
     // Group selected by category for the share text
     const selectedByCategory: Record<string, typeof selected> = {};
@@ -98,7 +92,7 @@ export default function ShareScreen() {
     });
 
     Object.entries(selectedByCategory).forEach(([category, concepts]) => {
-      text += `${categoryLabels[category as ConceptCategory]}:\n`;
+      text += `${categoryLabels[category as ConceptCategory].toUpperCase()}:\n`;
       concepts.forEach((c) => {
         if (c.concept) {
           text += `• ${c.concept.name}`;
@@ -111,7 +105,7 @@ export default function ShareScreen() {
       text += '\n';
     });
 
-    text += "I'd love to talk about these with you when you have time.";
+    text += "I'd love to explore these together when we have time.";
 
     return text;
   };
@@ -123,7 +117,7 @@ export default function ShareScreen() {
     try {
       await Share.share({
         message: text,
-        title: 'What Resonates With Me',
+        title: 'My Pleasure Profile',
       });
     } catch (error) {
       console.error('Error sharing:', error);
@@ -133,19 +127,21 @@ export default function ShareScreen() {
   const previewText = generateShareText();
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text variant="h3">Share with Partner</Text>
-          <Text variant="bodySmall" color={colors.text.secondary}>
-            Create a summary to share what resonates with you
-          </Text>
+    <ThemedView style={styles.container}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top }]}>
+        <View style={styles.headerTop}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.headerTitleRow}>
+          <Text variant="h1">Export Profile</Text>
+          <Text variant="body" color={colors.text.secondary}>Create a summary to share with a partner</Text>
         </View>
       </View>
 
@@ -154,304 +150,321 @@ export default function ShareScreen() {
         showsVerticalScrollIndicator={false}
       >
         {resonatingConcepts.length === 0 ? (
-          <Card variant="filled" padding="lg" style={styles.emptyCard}>
-            <Ionicons
-              name="heart-outline"
-              size={48}
-              color={colors.neutral[400]}
-              style={styles.emptyIcon}
-            />
-            <Text variant="body" align="center" color={colors.text.secondary}>
-              You haven't marked any concepts as resonating yet. Explore the
-              Library and mark what resonates with you to create a shareable
-              summary.
+          <View style={styles.emptyState}>
+            <View style={styles.emptyIconCircle}>
+              <Ionicons name="heart-outline" size={48} color={colors.neutral[300]} />
+            </View>
+            <Text variant="h3" style={{ textAlign: 'center', marginBottom: spacing.sm }}>
+              Nothing here yet
             </Text>
-            <TouchableOpacity
-              style={styles.exploreButton}
+            <Text variant="body" color={colors.text.secondary} style={{ textAlign: 'center', maxWidth: 300, marginBottom: spacing.xl }}>
+              Mark concepts as "Resonates" in the library to see them appear here.
+            </Text>
+            <Button
+              title="Explore Library"
               onPress={() => router.push('/(tabs)/library')}
-            >
-              <Text variant="label" color={colors.primary[500]}>
-                Go to Library
-              </Text>
-              <Ionicons
-                name="arrow-forward"
-                size={16}
-                color={colors.primary[500]}
-              />
-            </TouchableOpacity>
-          </Card>
+              style={{ width: 200 }}
+            />
+          </View>
         ) : (
           <>
             {/* Selection Controls */}
-            <View style={styles.selectionControls}>
-              <Text variant="h4">Select concepts to share</Text>
-              <View style={styles.selectButtons}>
-                <TouchableOpacity onPress={selectAll}>
-                  <Text variant="label" color={colors.primary[500]}>
-                    Select All
-                  </Text>
-                </TouchableOpacity>
-                <Text variant="bodySmall" color={colors.text.tertiary}>
-                  |
+            <View style={styles.selectionHeader}>
+              <View>
+                <Text variant="h4">Select Concepts</Text>
+                <Text variant="caption" color={colors.text.tertiary}>
+                  {selectedConcepts.size} selected
                 </Text>
+              </View>
+              <View style={styles.actionLinks}>
+                <TouchableOpacity onPress={selectAll}>
+                  <Text variant="label" color={colors.primary[600]}>All</Text>
+                </TouchableOpacity>
+                <View style={styles.dividerVertical} />
                 <TouchableOpacity onPress={selectNone}>
-                  <Text variant="label" color={colors.primary[500]}>
-                    Clear
-                  </Text>
+                  <Text variant="label" color={colors.primary[600]}>None</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
-            {/* Concept Selection */}
-            {Object.entries(groupedConcepts).map(([category, concepts]) => (
-              <View key={category} style={styles.categorySection}>
-                <Text
-                  variant="label"
-                  color={colors.text.tertiary}
-                  style={styles.categoryLabel}
-                >
-                  {categoryLabels[category as ConceptCategory]}
-                </Text>
-                {concepts.map((c) => {
-                  const isSelected = selectedConcepts.has(c.concept_id);
-                  return (
-                    <TouchableOpacity
-                      key={c.concept_id}
-                      style={[
-                        styles.conceptItem,
-                        isSelected && styles.conceptItemSelected,
-                      ]}
-                      onPress={() => toggleConcept(c.concept_id)}
-                    >
-                      <View
-                        style={[
-                          styles.checkbox,
-                          isSelected && styles.checkboxSelected,
-                        ]}
-                      >
-                        {isSelected && (
-                          <Ionicons
-                            name="checkmark"
-                            size={14}
-                            color={colors.background.primary}
-                          />
-                        )}
-                      </View>
-                      <View style={styles.conceptInfo}>
-                        <Text variant="body">{c.concept?.name}</Text>
-                        <Text
-                          variant="bodySmall"
-                          color={colors.text.secondary}
-                          numberOfLines={1}
+            {/* Lists */}
+            <View style={{ gap: spacing.lg }}>
+              {Object.entries(groupedConcepts).map(([category, concepts]) => (
+                <View key={category}>
+                  <Text variant="labelSmall" color={colors.text.tertiary} style={styles.categoryTitle}>
+                    {categoryLabels[category as ConceptCategory]}
+                  </Text>
+
+                  <View style={styles.grid}>
+                    {concepts.map((c) => {
+                      const isSelected = selectedConcepts.has(c.concept_id);
+                      return (
+                        <TouchableOpacity
+                          key={c.concept_id}
+                          style={[
+                            styles.conceptCard,
+                            isSelected && styles.conceptCardSelected
+                          ]}
+                          onPress={() => toggleConcept(c.concept_id)}
+                          activeOpacity={0.8}
                         >
-                          {c.concept?.definition}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            ))}
+                          <View style={styles.cardContent}>
+                            <Text
+                              variant="bodyBold"
+                              color={isSelected ? colors.primary[900] : colors.text.primary}
+                              numberOfLines={1}
+                            >
+                              {c.concept?.name}
+                            </Text>
+                            <Text
+                              variant="caption"
+                              color={colors.text.tertiary}
+                              numberOfLines={2}
+                              style={{ marginTop: 2 }}
+                            >
+                              {c.concept?.definition}
+                            </Text>
+                          </View>
+
+                          <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+                            {isSelected && <Ionicons name="checkmark" size={14} color="white" />}
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+              ))}
+            </View>
 
             {/* Options */}
-            <View style={styles.optionsSection}>
+            <View style={styles.optionsContainer}>
+              <Text variant="h4" style={{ marginBottom: spacing.md }}>Options</Text>
               <TouchableOpacity
                 style={styles.optionRow}
                 onPress={() => setIncludeDefinitions(!includeDefinitions)}
+                activeOpacity={0.7}
               >
-                <View
-                  style={[
-                    styles.checkbox,
-                    includeDefinitions && styles.checkboxSelected,
-                  ]}
-                >
-                  {includeDefinitions && (
-                    <Ionicons
-                      name="checkmark"
-                      size={14}
-                      color={colors.background.primary}
-                    />
-                  )}
+                <View style={[styles.switch, includeDefinitions && styles.switchActive]}>
+                  <View style={[styles.switchKnob, includeDefinitions && styles.switchKnobActive]} />
                 </View>
-                <Text variant="body">Include definitions</Text>
+                <Text variant="body">Include definitions in text</Text>
               </TouchableOpacity>
             </View>
 
             {/* Preview */}
             {selectedConcepts.size > 0 && (
-              <View style={styles.previewSection}>
-                <Text variant="h4" style={styles.previewTitle}>
-                  Preview
-                </Text>
-                <Card variant="outlined" padding="md" style={styles.previewCard}>
+              <View style={styles.previewContainer}>
+                <Text variant="h4" style={{ marginBottom: spacing.md }}>Preview</Text>
+                <Card variant="filled" style={styles.previewBubble} padding="lg">
                   <Text variant="bodySmall" style={styles.previewText}>
                     {previewText}
                   </Text>
+                  <View style={styles.bubbleTail} />
                 </Card>
               </View>
             )}
 
-            {/* Share Button */}
-            <Button
-              title={`Share ${selectedConcepts.size} concept${selectedConcepts.size !== 1 ? 's' : ''}`}
-              onPress={handleShare}
-              disabled={selectedConcepts.size === 0}
-              style={styles.shareButton}
-            />
-
-            {/* Tip */}
-            <Card variant="filled" padding="md" style={styles.tipCard}>
-              <View style={styles.tipHeader}>
-                <Ionicons
-                  name="bulb-outline"
-                  size={18}
-                  color={colors.secondary[600]}
-                />
-                <Text
-                  variant="label"
-                  color={colors.secondary[600]}
-                  style={styles.tipLabel}
-                >
-                  Tip
-                </Text>
-              </View>
-              <Text variant="bodySmall">
-                Sharing what resonates with you is an act of trust and openness.
-                Consider sharing this during a calm, relaxed moment when you
-                both have time to talk.
+            {/* Share FAB Substitute (Sticky-ish bottom) */}
+            <View style={styles.shareActionContainer}>
+              <Button
+                title={selectedConcepts.size > 0 ? "Share Profile" : "Select concepts to share"}
+                onPress={handleShare}
+                disabled={selectedConcepts.size === 0}
+                variant="primary"
+                fullWidth
+              />
+              <Text variant="caption" color={colors.text.tertiary} style={{ textAlign: 'center', marginTop: spacing.sm }}>
+                Exports as plain text to your favorite apps
               </Text>
-            </Card>
+            </View>
+
+            <View style={{ height: 40 }} />
           </>
         )}
       </ScrollView>
-    </View>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background.surface,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    backgroundColor: colors.background.surface,
+    zIndex: 10,
   },
-  backButton: {
-    padding: spacing.xs,
-    marginRight: spacing.sm,
-    marginTop: 2,
-  },
-  headerContent: {
-    flex: 1,
-  },
-  content: {
-    padding: spacing.md,
-    paddingBottom: spacing.xl,
-  },
-  emptyCard: {
-    alignItems: 'center',
-    marginTop: spacing.xl,
-  },
-  emptyIcon: {
+  headerTop: {
     marginBottom: spacing.md,
+    alignItems: 'flex-start',
   },
-  exploreButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing.md,
+  headerTitleRow: {
     gap: spacing.xs,
   },
-  selectionControls: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  selectButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  categorySection: {
-    marginBottom: spacing.md,
-  },
-  categoryLabel: {
-    marginBottom: spacing.sm,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  conceptItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: colors.background.primary,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: colors.neutral[200],
   },
-  conceptItemSelected: {
-    borderColor: colors.primary[300],
+
+  content: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+
+  // Empty State
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing['2xl'],
+    marginTop: spacing.xl,
+  },
+  emptyIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.neutral[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.lg,
+  },
+
+  // Selection Header
+  selectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.xl,
+    backgroundColor: colors.background.surface,
+    paddingVertical: spacing.sm,
+  },
+  actionLinks: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.primary[50],
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: borderRadius.full,
+  },
+  dividerVertical: {
+    width: 1,
+    height: 12,
+    backgroundColor: colors.primary[200],
+    marginHorizontal: spacing.md,
+  },
+
+  // Concept Grid & Cards
+  categoryTitle: {
+    marginBottom: spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginLeft: 4,
+  },
+  grid: {
+    gap: spacing.sm,
+  },
+  conceptCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.background.primary,
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+  },
+  conceptCardSelected: {
+    backgroundColor: colors.primary[50],
+    borderColor: colors.primary[300],
+  },
+  cardContent: {
+    flex: 1,
+    marginRight: spacing.md,
   },
   checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 4,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: 2,
     borderColor: colors.neutral[300],
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.md,
+    backgroundColor: colors.background.surface,
   },
   checkboxSelected: {
     backgroundColor: colors.primary[500],
     borderColor: colors.primary[500],
   },
-  conceptInfo: {
-    flex: 1,
-  },
-  optionsSection: {
-    marginVertical: spacing.md,
-    paddingVertical: spacing.md,
+
+  // Options
+  optionsContainer: {
+    marginTop: spacing.xl,
+    paddingTop: spacing.xl,
     borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.neutral[200],
+    borderTopColor: colors.neutral[100],
   },
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: spacing.md,
   },
-  previewSection: {
-    marginBottom: spacing.md,
+  switch: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.neutral[300],
+    padding: 2,
   },
-  previewTitle: {
-    marginBottom: spacing.sm,
+  switchActive: {
+    backgroundColor: colors.primary[500],
   },
-  previewCard: {
-    backgroundColor: colors.neutral[50],
+  switchKnob: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: 'white',
+  },
+  switchKnobActive: {
+    transform: [{ translateX: 20 }],
+  },
+
+  // Preview
+  previewContainer: {
+    marginTop: spacing.xl,
+  },
+  previewBubble: {
+    backgroundColor: colors.neutral[100],
+    borderRadius: borderRadius.lg,
+    borderBottomLeftRadius: 4,
   },
   previewText: {
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
     lineHeight: 20,
+    fontSize: 13,
   },
-  shareButton: {
-    marginBottom: spacing.md,
+  bubbleTail: {
+    position: 'absolute',
+    bottom: -8,
+    left: 0,
+    width: 0,
+    height: 0,
+    borderLeftWidth: 16,
+    borderTopWidth: 16,
+    borderLeftColor: 'transparent',
+    borderTopColor: colors.neutral[100],
   },
-  tipCard: {
-    backgroundColor: colors.secondary[50],
-  },
-  tipHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  tipLabel: {
-    marginLeft: spacing.xs,
+
+  // Footer Action
+  shareActionContainer: {
+    marginTop: spacing['2xl'],
   },
 });

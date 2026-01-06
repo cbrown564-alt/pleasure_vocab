@@ -310,29 +310,10 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {/* Secondary Actions: Grid */}
-        <View style={styles.featuresGrid}>
-          <TouchableOpacity style={styles.featureCard} onPress={() => router.push('/(tabs)/library')}>
-            <View style={[styles.featureIcon, { backgroundColor: colors.neutral[100] }]}>
-              <Ionicons name="library" size={24} color={colors.text.primary} />
-            </View>
-            <Text variant="bodyBold">Library</Text>
-            <Text variant="caption" color={colors.text.tertiary}>Browse all</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity style={styles.featureCard} onPress={() => router.push('/(tabs)/library')}>
-            <View style={[styles.featureIcon, { backgroundColor: colors.primary[50] }]}>
-              <Ionicons name="shuffle" size={24} color={colors.primary[600]} />
-            </View>
-            <Text variant="bodyBold">Shuffle</Text>
-            <Text variant="caption" color={colors.text.tertiary}>Discover</Text>
-          </TouchableOpacity>
-        </View>
+
       </View>
 
-
-
-      <View style={{ height: 100 }} />
     </ScrollView>
   );
 }
@@ -495,27 +476,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  featuresGrid: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  featureCard: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-    padding: spacing.md, // slightly larger padding
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    borderColor: colors.neutral[200],
-    alignItems: 'flex-start',
-  },
-  featureIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12, // soft square
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.md,
-  },
+
 
   // Articles
   sectionHeaderRow: {

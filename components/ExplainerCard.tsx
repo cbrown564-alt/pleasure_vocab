@@ -1,12 +1,11 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { router } from 'expo-router';
+import { colors, spacing } from '@/constants/theme';
+import { ResearchExplainer } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React from 'react';
+import { Image, StyleSheet, View } from 'react-native';
 import { Card } from './ui/Card';
 import { Text } from './ui/Typography';
-import { Badge } from './ui/Badge';
-import { colors, spacing, borderRadius } from '@/constants/theme';
-import { ResearchExplainer } from '@/types';
 
 interface ExplainerCardProps {
   explainer: ResearchExplainer;
@@ -59,32 +58,42 @@ export function ExplainerCard({ explainer, variant = 'full' }: ExplainerCardProp
       padding="md"
       style={styles.card}
     >
-      <View style={styles.header}>
+      <View style={styles.cardInner}>
         <View style={styles.iconContainer}>
-          <Ionicons
-            name={explainer.icon as keyof typeof Ionicons.glyphMap}
-            size={24}
-            color={colors.secondary[500]}
-          />
+          {explainer.image ? (
+            // @ts-ignore
+            <Image
+              source={explainer.image}
+              style={{ width: '100%', height: '100%', borderRadius: 20 }}
+              resizeMode="cover"
+            />
+          ) : (
+            <Ionicons
+              name={explainer.icon as keyof typeof Ionicons.glyphMap}
+              size={32}
+              color={colors.secondary[500]}
+            />
+          )}
         </View>
-        <Badge label={explainer.readTime} />
-      </View>
-      <Text variant="h4" style={styles.title}>
-        {explainer.title}
-      </Text>
-      <Text variant="bodySmall" numberOfLines={2} color={colors.text.secondary} style={styles.subtitle}>
-        {explainer.subtitle}
-      </Text>
-      <View style={styles.footer}>
-        <View style={styles.takeawaysPreview}>
-          <Ionicons name="bulb-outline" size={14} color={colors.text.tertiary} />
-          <Text variant="caption" color={colors.text.tertiary}>
-            {explainer.keyTakeaways.length} key takeaways
+
+        <View style={styles.content}>
+          <View style={styles.headerRow}>
+            <Text variant="h3" style={styles.title}>
+              {explainer.title}
+            </Text>
+          </View>
+
+          <Text variant="bodySmall" color={colors.text.secondary} style={styles.subtitle}>
+            {explainer.subtitle}
           </Text>
+
+          <View style={styles.footer}>
+            <View style={styles.metaItem}>
+              <Ionicons name="time-outline" size={14} color={colors.text.tertiary} />
+              <Text variant="label" color={colors.text.tertiary}>{explainer.readTime}</Text>
+            </View>
+          </View>
         </View>
-        <Text variant="caption" color={colors.secondary[500]}>
-          Read more
-        </Text>
       </View>
     </Card>
   );
@@ -93,37 +102,53 @@ export function ExplainerCard({ explainer, variant = 'full' }: ExplainerCardProp
 const styles = StyleSheet.create({
   card: {
     marginBottom: spacing.md,
+    backgroundColor: colors.background.surface,
+    padding: 0,
   },
-  header: {
+  cardInner: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
+    padding: spacing.md,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
+    width: 80,
+    height: 80,
     borderRadius: 20,
     backgroundColor: colors.secondary[50],
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: spacing.md,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  headerRow: {
+    marginBottom: 2,
   },
   title: {
-    marginBottom: spacing.xs,
+    marginBottom: 0,
   },
   subtitle: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
     lineHeight: 20,
   },
   footer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: spacing.sm,
   },
-  takeawaysPreview: {
+  metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: 4,
+  },
+  metaDivider: {
+    width: 1,
+    height: 10,
+    backgroundColor: colors.neutral[300],
+  },
+  takeawaysPreview: {
+    // Deprecated
   },
   // Compact variant styles
   compactCard: {

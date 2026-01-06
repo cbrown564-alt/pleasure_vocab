@@ -1,4 +1,5 @@
-import { Card, ProgressBar, Text } from '@/components/ui';
+import { ConceptCard } from '@/components/ConceptCard';
+import { Card, ProgressBar, Text, ThemedView } from '@/components/ui';
 import { borderRadius, colors, spacing } from '@/constants/theme';
 import { getPathwayById } from '@/data/pathways';
 import { getConceptById } from '@/data/vocabulary';
@@ -6,19 +7,19 @@ import { useUserConcepts } from '@/hooks/useDatabase';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
-import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function PathwayDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
-  const { getStatus } = useUserConcepts();
+  const { getStatus, isMastered } = useUserConcepts();
 
   const pathway = getPathwayById(id);
 
   if (!pathway) {
     return (
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => router.back()}
@@ -28,7 +29,7 @@ export default function PathwayDetailScreen() {
           </TouchableOpacity>
           <Text variant="h3">Pathway not found</Text>
         </View>
-      </View>
+      </ThemedView>
     );
   }
 
@@ -43,7 +44,7 @@ export default function PathwayDetailScreen() {
   );
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <ThemedView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -51,6 +52,7 @@ export default function PathwayDetailScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.text.primary} />
         </TouchableOpacity>
+        <Text variant="h4" style={styles.headerTitle}>{pathway.name}</Text>
       </View>
 
       <ScrollView
@@ -63,7 +65,7 @@ export default function PathwayDetailScreen() {
             {pathway.image ? (
               <Image
                 source={pathway.image}
-                style={{ width: '100%', height: '100%', borderRadius: 36 }}
+                style={{ width: '100%', height: '100%', borderRadius: 32 }}
               />
             ) : (
               <Ionicons
@@ -73,7 +75,7 @@ export default function PathwayDetailScreen() {
               />
             )}
           </View>
-          <Text variant="h2" style={styles.pathwayName}>
+          <Text variant="h2" style={styles.pathwayName} align="center">
             {pathway.name}
           </Text>
           <Text
@@ -87,28 +89,31 @@ export default function PathwayDetailScreen() {
           <View style={styles.pathwayMeta}>
             <View style={styles.metaItem}>
               <Ionicons name="time-outline" size={16} color={colors.text.tertiary} />
-              <Text variant="bodySmall" color={colors.text.tertiary}>
+              <Text variant="label" color={colors.text.tertiary}>
                 {pathway.estimatedTime}
               </Text>
             </View>
+            <View style={styles.metaDivider} />
             <View style={styles.metaItem}>
-              <Ionicons name="library-outline" size={16} color={colors.text.tertiary} />
-              <Text variant="bodySmall" color={colors.text.tertiary}>
-                {pathway.conceptIds.length} concepts
+              <Ionicons name="book-outline" size={16} color={colors.text.tertiary} />
+              <Text variant="label" color={colors.text.tertiary}>
+                {pathway.conceptIds.length} Concepts
               </Text>
             </View>
           </View>
         </View>
 
         {/* Progress Card */}
-        <Card variant="elevated" padding="md" style={styles.progressCard}>
+        <Card variant="elevated" padding="lg" style={styles.progressCard}>
           <View style={styles.progressHeader}>
             <Text variant="h4">Your Progress</Text>
-            <Text variant="label" color={colors.primary[500]}>
+            <Text variant="h4" color={colors.primary[500]}>
               {Math.round(progress * 100)}%
             </Text>
           </View>
-          <ProgressBar progress={progress} />
+
+          <ProgressBar progress={progress} height={8} />
+
           <Text
             variant="bodySmall"
             color={colors.text.secondary}
@@ -117,26 +122,25 @@ export default function PathwayDetailScreen() {
             {completedCount} of {pathway.conceptIds.length} concepts explored
           </Text>
 
-          {nextConceptId && (
+          {nextConceptId ? (
             <TouchableOpacity
               style={styles.continueButton}
+              activeOpacity={0.9}
               onPress={() => router.push({
                 pathname: '/concept/[id]',
                 params: { id: nextConceptId, pathway: pathway.id }
               })}
             >
-              <Text variant="label" color={colors.background.primary}>
-                Continue Learning
+              <Text variant="label" color={colors.background.primary} style={{ fontSize: 16 }}>
+                Continue Pathway
               </Text>
               <Ionicons
                 name="arrow-forward"
-                size={16}
+                size={20}
                 color={colors.background.primary}
               />
             </TouchableOpacity>
-          )}
-
-          {!nextConceptId && completedCount === pathway.conceptIds.length && (
+          ) : (
             <View style={styles.completedBadge}>
               <Ionicons
                 name="checkmark-circle"
@@ -144,7 +148,7 @@ export default function PathwayDetailScreen() {
                 color={colors.secondary[500]}
               />
               <Text variant="label" color={colors.secondary[600]}>
-                Pathway Complete!
+                Pathway Completed!
               </Text>
             </View>
           )}
@@ -152,148 +156,156 @@ export default function PathwayDetailScreen() {
 
         {/* Concept List */}
         <View style={styles.conceptsSection}>
-          <Text variant="h4" style={styles.sectionTitle}>
-            Concepts in this Pathway
-          </Text>
+          <View style={styles.sectionHeader}>
+            <Text variant="h4">Pathway Steps</Text>
+          </View>
 
           {pathway.conceptIds.map((conceptId, index) => {
             const concept = getConceptById(conceptId);
             if (!concept) return null;
 
             const status = getStatus(conceptId);
-            const isExplored = status !== 'unexplored';
             const isNext = conceptId === nextConceptId;
 
             return (
-              <Card
-                key={conceptId}
-                variant={isNext ? 'elevated' : 'outlined'}
-                padding="md"
-                style={[
-                  styles.conceptCard,
-                  isNext ? styles.conceptCardNext : undefined,
-                ]}
-                onPress={() => router.push({
-                  pathname: '/concept/[id]',
-                  params: { id: conceptId, pathway: pathway.id }
-                })}
-              >
-                <View style={styles.conceptRow}>
-                  <View
-                    style={[
-                      styles.conceptNumber,
-                      isExplored && styles.conceptNumberCompleted,
-                    ]}
-                  >
-                    {isExplored ? (
-                      <Ionicons
-                        name="checkmark"
-                        size={14}
-                        color={colors.background.primary}
-                      />
+              <View key={conceptId} style={styles.conceptWrapper}>
+                {/* Connector Line */}
+                {index !== pathway.conceptIds.length - 1 && (
+                  <View style={styles.connectorLine} />
+                )}
+
+                <View style={styles.stepContainer}>
+                  <View style={[
+                    styles.stepIndicator,
+                    status !== 'unexplored' && styles.stepIndicatorCompleted,
+                    isNext && styles.stepIndicatorActive
+                  ]}>
+                    {status !== 'unexplored' ? (
+                      <Ionicons name="checkmark" size={14} color="white" />
                     ) : (
-                      <Text
-                        variant="label"
-                        color={
-                          isNext ? colors.primary[600] : colors.text.tertiary
-                        }
-                      >
+                      <Text variant="label" style={{ color: isNext ? 'white' : colors.text.tertiary, fontSize: 12 }}>
                         {index + 1}
                       </Text>
                     )}
                   </View>
+                </View>
 
-                  <View style={styles.conceptContent}>
-                    <Text variant="h4">{concept.name}</Text>
-                    <Text
-                      variant="bodySmall"
-                      color={colors.text.secondary}
-                      numberOfLines={2}
-                    >
-                      {concept.definition}
-                    </Text>
-                    {isNext && (
-                      <View style={styles.upNextBadge}>
-                        <Text variant="caption" color={colors.primary[600]}>
-                          Up next
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-
-                  <Ionicons
-                    name="chevron-forward"
-                    size={20}
-                    color={colors.neutral[400]}
+                <View style={styles.cardWrapper}>
+                  {isNext && (
+                    <View style={styles.upNextLabel}>
+                      <Text variant="label" color={colors.primary[600]} style={{ fontSize: 10 }}>UP NEXT</Text>
+                    </View>
+                  )}
+                  <ConceptCard
+                    concept={concept}
+                    status={status}
+                    isCollected={isMastered(conceptId)}
+                    onPress={() => router.push({
+                      pathname: '/concept/[id]',
+                      params: { id: conceptId, pathway: pathway.id }
+                    })}
                   />
                 </View>
-              </Card>
+              </View>
             );
           })}
         </View>
       </ScrollView>
-    </View>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.secondary,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.background.primary,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
+    paddingBottom: spacing.sm,
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    marginRight: 40,
   },
   backButton: {
     padding: spacing.xs,
-    marginRight: spacing.md,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background.surface,
   },
   content: {
     padding: spacing.md,
+    paddingBottom: spacing.xl,
   },
   pathwayHeader: {
     alignItems: 'center',
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
+    marginTop: spacing.sm,
   },
   pathwayIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.primary[50],
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.background.surface,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
   pathwayName: {
     marginBottom: spacing.sm,
   },
   pathwayDescription: {
-    maxWidth: 300,
+    maxWidth: '90%',
+    marginBottom: spacing.lg,
+    lineHeight: 24,
   },
   pathwayMeta: {
     flexDirection: 'row',
-    marginTop: spacing.md,
-    gap: spacing.lg,
+    alignItems: 'center',
+    backgroundColor: colors.background.surface,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.full,
+    gap: spacing.md,
   },
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
   },
+  metaDivider: {
+    width: 1,
+    height: 12,
+    backgroundColor: colors.neutral[200],
+  },
   progressCard: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
+    backgroundColor: colors.background.surface,
+    borderWidth: 1,
+    borderColor: colors.neutral[100],
   },
   progressHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
   progressText: {
     marginTop: spacing.sm,
@@ -303,61 +315,86 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.primary[500],
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
-    marginTop: spacing.md,
-    gap: spacing.xs,
+    marginTop: spacing.lg,
+    gap: spacing.sm,
+    ...Platform.select({
+      ios: {
+        shadowColor: colors.primary[500],
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+        shadowColor: colors.primary[500],
+      },
+    }),
   },
   completedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.secondary[50],
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
-    marginTop: spacing.md,
-    gap: spacing.xs,
+    marginTop: spacing.lg,
+    gap: spacing.sm,
   },
   conceptsSection: {
-    marginBottom: spacing.xl,
+    paddingBottom: spacing.xl,
   },
-  sectionTitle: {
-    marginBottom: spacing.md,
+  sectionHeader: {
+    marginBottom: spacing.lg,
   },
-  conceptCard: {
-    marginBottom: spacing.sm,
-  },
-  conceptCardNext: {
-    borderColor: colors.primary[300],
-    borderWidth: 1,
-  },
-  conceptRow: {
+  conceptWrapper: {
     flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: spacing.sm,
+    position: 'relative',
   },
-  conceptNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+  connectorLine: {
+    position: 'absolute',
+    left: 14,
+    top: 30,
+    bottom: -10, // Extend to next item
+    width: 2,
+    backgroundColor: colors.neutral[200],
+    zIndex: -1,
+  },
+  stepContainer: {
+    width: 30,
+    marginRight: spacing.md,
+    alignItems: 'center',
+    paddingTop: spacing.lg, // Align with card center somewhat
+  },
+  stepIndicator: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     backgroundColor: colors.neutral[100],
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.md,
+    borderWidth: 2,
+    borderColor: colors.background.secondary,
   },
-  conceptNumberCompleted: {
+  stepIndicatorCompleted: {
     backgroundColor: colors.secondary[500],
+    borderColor: colors.secondary[500],
   },
-  conceptContent: {
+  stepIndicatorActive: {
+    backgroundColor: colors.primary[500],
+    borderColor: colors.primary[500],
+    transform: [{ scale: 1.1 }],
+  },
+  cardWrapper: {
     flex: 1,
   },
-  upNextBadge: {
-    backgroundColor: colors.primary[50],
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs / 2,
-    borderRadius: borderRadius.sm,
-    alignSelf: 'flex-start',
-    marginTop: spacing.xs,
-  },
+  upNextLabel: {
+    marginBottom: 4,
+    marginLeft: 4,
+  }
 });
+
+
+

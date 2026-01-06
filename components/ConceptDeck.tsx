@@ -4,7 +4,7 @@ import { Concept, ConceptSlide, ConceptStatus } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, Dimensions, FlatList, Platform, StyleSheet, ToastAndroid, View } from 'react-native';
+import { Alert, Dimensions, FlatList, StyleSheet, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -29,7 +29,7 @@ const Slide = ({
     concept: Concept,
     onFinish: () => void,
     isLast: boolean,
-    onSetStatus: (status: ConceptStatus) => void,
+    onSetStatus: (status: ConceptStatus) => Promise<void>,
     currentStatus: ConceptStatus,
     savingStatus: ConceptStatus | null,
     feedbackMessage?: string | null
@@ -77,23 +77,7 @@ export const ConceptDeck = ({ concept }: { concept: Concept }) => {
         setSelectedStatus(getStatus(concept.id));
     }, [concept.id, getStatus]);
 
-    const showStatusToast = (status: ConceptStatus) => {
-        const statusCopy: Record<ConceptStatus, string> = {
-            resonates: 'Added to your collection',
-            curious: 'Saved as curious',
-            explored: 'Marked as explored',
-            not_for_me: 'Saved as not for me',
-            unexplored: 'Marked as unexplored',
-        };
-        const message = statusCopy[status] || 'Status updated';
-        setFeedbackMessage(`${message}. Library badges, profile stats, and sharing are up to date.`);
 
-        if (Platform.OS === 'android') {
-            ToastAndroid?.show?.(message, ToastAndroid.SHORT);
-        } else {
-            Alert.alert('Status updated', message);
-        }
-    };
 
     const handleStatusSelection = async (status: ConceptStatus) => {
         try {
@@ -103,7 +87,7 @@ export const ConceptDeck = ({ concept }: { concept: Concept }) => {
                 await masterConcept(concept.id);
             }
             setSelectedStatus(status);
-            showStatusToast(status);
+            // Silent update - no toast
         } catch (error) {
             console.error('Failed to update status', error);
             Alert.alert('Could not save', 'Please try selecting a status again.');

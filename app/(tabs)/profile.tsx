@@ -5,8 +5,8 @@ import { useOnboarding, useStats, useUserConcepts } from '@/hooks/useDatabase';
 import { ConceptCategory } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
-import React, { useMemo } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useMemo } from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -24,11 +24,29 @@ const categoryLabels: Record<ConceptCategory, string> = {
   anatomy: 'Anatomy',
 };
 
+const getCategoryIcon = (category: string) => {
+  switch (category.toLowerCase()) {
+    case 'technique': return require('@/assets/images/ui/category-technique.png');
+    case 'sensation': return require('@/assets/images/ui/category-sensation.png');
+    case 'timing': return require('@/assets/images/ui/category-timing.png');
+    case 'psychological': return require('@/assets/images/ui/category-psychological.png');
+    case 'anatomy': return require('@/assets/images/ui/category-anatomy.png');
+    default: return null;
+  }
+};
+
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { concepts: userConcepts } = useUserConcepts();
+  const { concepts: userConcepts, reload: reloadConcepts } = useUserConcepts();
   const { goal } = useOnboarding();
-  const { exploredCount, resonatesCount } = useStats();
+  const { exploredCount, resonatesCount, reload: reloadStats } = useStats();
+
+  useFocusEffect(
+    useCallback(() => {
+      reloadConcepts();
+      reloadStats();
+    }, [reloadConcepts, reloadStats])
+  );
 
   const totalCount = concepts.length;
   const progress = totalCount > 0 ? exploredCount / totalCount : 0;
@@ -61,22 +79,19 @@ export default function ProfileScreen() {
   }, [resonatesConcepts]);
 
   return (
-    <ThemedView colorKey="secondary" style={styles.container}>
+    <ThemedView colorKey="background" style={styles.container}>
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + spacing.lg }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* 1. Identity Header */}
+        {/* 1. Header */}
         <View style={styles.header}>
-          <View style={styles.avatarContainer}>
-            <Text variant="h2" color={colors.primary[600]}>YOU</Text>
-          </View>
           <View style={styles.headerText}>
-            <Text variant="h2">Your Atelier</Text>
-            <Text variant="bodySmall" color={colors.text.tertiary}>Member since January 2025</Text>
+            <Text variant="h1" style={styles.pageTitle}>Your Profile</Text>
+            <Text variant="body" color={colors.text.secondary}>Your journey of discovery</Text>
           </View>
           <TouchableOpacity onPress={() => router.push('/modal')} style={styles.settingsButton}>
-            <Ionicons name="settings-outline" size={24} color={colors.text.secondary} />
+            <Ionicons name="settings-outline" size={24} color={colors.text.primary} />
           </TouchableOpacity>
         </View>
 
@@ -84,13 +99,17 @@ export default function ProfileScreen() {
         <View style={styles.bentoContainer}>
           {/* Left Column: Big Progress */}
           <Card variant="filled" style={styles.bentoBig}>
-            <View style={styles.bentoIcon}>
-              <Ionicons name="compass" size={24} color={colors.secondary[600]} />
+            <View style={styles.bentoIconWrapper}>
+              <Image
+                source={require('@/assets/images/ui/profile/stat-explored.png')}
+                style={styles.bentoImage}
+                resizeMode="cover"
+              />
             </View>
-            <View>
+            <View style={styles.bentoContentBig}>
               <Text variant="h1" color={colors.secondary[800]} style={{ fontSize: 42 }}>{exploredCount}</Text>
               <Text variant="bodyBold" color={colors.secondary[600]}>Explored</Text>
-              <Text variant="caption" color={colors.text.tertiary} style={{ marginTop: 4 }}>
+              <Text variant="caption" color={colors.text.primary} style={{ marginTop: 4, opacity: 0.7 }}>
                 {Math.round(progress * 100)}% of library
               </Text>
             </View>
@@ -101,12 +120,16 @@ export default function ProfileScreen() {
             {/* Resonates */}
             <Card variant="elevated" style={styles.bentoSmall}>
               <View style={styles.rowCentered}>
-                <View style={[styles.bentoIconSmall, { backgroundColor: colors.primary[50] }]}>
-                  <Ionicons name="heart" size={18} color={colors.primary[600]} />
+                <View style={styles.bentoIconWrapperSmall}>
+                  <Image
+                    source={require('@/assets/images/ui/profile/stat-resonates.png')}
+                    style={styles.bentoImageSmall}
+                    resizeMode="contain"
+                  />
                 </View>
-                <View>
+                <View style={{ flex: 1 }}>
                   <Text variant="h3" color={colors.primary[700]}>{resonatesCount}</Text>
-                  <Text variant="caption">Resonates</Text>
+                  <Text variant="caption">resonates</Text>
                 </View>
               </View>
             </Card>
@@ -136,7 +159,7 @@ export default function ProfileScreen() {
                   <Text variant="labelSmall" color={colors.primary[200]}>PATTERN FOUND</Text>
                 </View>
                 <Text variant="h3" color={colors.text.inverse}>
-                  You have a strong connection to <Text style={{ fontStyle: 'italic' }}>{categoryLabels[patternInsights.topCategory]}</Text>.
+                  You resonate with <Text style={{ fontStyle: 'italic' }}>{categoryLabels[patternInsights.topCategory]}</Text>.
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color={colors.primary[200]} />
@@ -144,34 +167,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         )}
 
-        {/* 4. Action List (Tools) */}
-        <View style={styles.section}>
-          <Text variant="h4" style={styles.sectionTitle}>Practice & Share</Text>
-
-          <TouchableOpacity style={styles.actionRow} onPress={() => router.push('/communicate')}>
-            <View style={[styles.actionIcon, { backgroundColor: colors.secondary[50] }]}>
-              <Ionicons name="chatbubbles-outline" size={24} color={colors.secondary[700]} />
-            </View>
-            <View style={styles.actionContent}>
-              <Text variant="bodyBold">Communication Toolkit</Text>
-              <Text variant="caption" color={colors.text.tertiary}>Scripts for better conversations</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.neutral[300]} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionRow} onPress={() => router.push('/share')}>
-            <View style={[styles.actionIcon, { backgroundColor: colors.primary[50] }]}>
-              <Ionicons name="share-social-outline" size={24} color={colors.primary[600]} />
-            </View>
-            <View style={styles.actionContent}>
-              <Text variant="bodyBold">Export Profile</Text>
-              <Text variant="caption" color={colors.text.tertiary}>Share your summary</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.neutral[300]} />
-          </TouchableOpacity>
-        </View>
-
-        {/* 5. The Collection (Shelf) */}
+        {/* 4. The Collection (Shelf) */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
             <Text variant="h4">Your Collection</Text>
@@ -183,17 +179,37 @@ export default function ProfileScreen() {
               {resonatesConcepts.map((uc) => {
                 const concept = getConceptById(uc.concept_id);
                 if (!concept) return null;
+
+                const illustrationSlide = concept.slides?.find(s => s.type === 'illustrate');
+                const imageSource = illustrationSlide?.illustrationAsset || getCategoryIcon(concept.category);
+
                 return (
                   <TouchableOpacity
                     key={uc.concept_id}
-                    style={styles.miniCard}
+                    style={styles.collectionCard}
+                    activeOpacity={0.8}
                     onPress={() => router.push(`/concept/${uc.concept_id}`)}
                   >
-                    <View style={[styles.miniCardBadge, { backgroundColor: colors.primary[100] }]}>
-                      <Text variant="labelSmall" color={colors.primary[800]}>{concept.category.slice(0, 1).toUpperCase()}</Text>
+                    <View style={styles.collectionIconArea}>
+                      {imageSource && (
+                        <Image
+                          source={imageSource}
+                          style={styles.collectionImage}
+                          resizeMode="contain"
+                        />
+                      )}
                     </View>
-                    <Text variant="bodyBold" numberOfLines={1}>{concept.name}</Text>
-                    <Text variant="caption" color={colors.text.tertiary} numberOfLines={1}>{concept.category}</Text>
+
+                    <View style={styles.collectionCardContent}>
+                      <View style={styles.collectionCardBadge}>
+                        <Text variant="labelSmall" style={{ fontSize: 10, color: colors.text.secondary }}>
+                          {concept.category.toUpperCase()}
+                        </Text>
+                      </View>
+                      <Text variant="bodyBold" color={colors.text.primary} numberOfLines={2} style={{ textAlign: 'center' }}>
+                        {concept.name}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 );
               })}
@@ -206,10 +222,45 @@ export default function ProfileScreen() {
                 resizeMode="contain"
               />
               <Text variant="bodySmall" style={{ fontStyle: 'italic', textAlign: 'center' }} color={colors.text.tertiary}>
-                Your collection is empty. Explore concepts to start building your profile.
+                Concepts that resonate with you will appear here.
               </Text>
             </View>
           )}
+        </View>
+
+        {/* 5. Tools Grid */}
+        <View style={styles.section}>
+          <Text variant="h4" style={styles.sectionTitle}>Tools & Settings</Text>
+
+          <View style={styles.toolsGrid}>
+            <TouchableOpacity style={styles.toolCard} onPress={() => router.push('/communicate')}>
+              <View style={styles.toolIconWrapper}>
+                <Image
+                  source={require('@/assets/images/ui/profile/tool-communicate.png')}
+                  style={styles.toolImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <View style={styles.toolContent}>
+                <Text variant="bodyBold" style={{ textAlign: 'center' }}>Communication</Text>
+                <Text variant="caption" color={colors.text.tertiary} style={{ textAlign: 'center' }}>Toolkit</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.toolCard} onPress={() => router.push('/share')}>
+              <View style={styles.toolIconWrapper}>
+                <Image
+                  source={require('@/assets/images/ui/profile/tool-export.png')}
+                  style={styles.toolImage}
+                  resizeMode="contain"
+                />
+              </View>
+              <View style={styles.toolContent}>
+                <Text variant="bodyBold" style={{ textAlign: 'center' }}>Export</Text>
+                <Text variant="caption" color={colors.text.tertiary} style={{ textAlign: 'center' }}>Profile</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={{ height: 100 }} />
@@ -230,28 +281,24 @@ const styles = StyleSheet.create({
   // 1. Header
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing['2xl'],
-  },
-  avatarContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.primary[100],
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-    borderWidth: 2,
-    borderColor: colors.background.primary,
-    ...shadows.sm,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: spacing.xl,
+    marginTop: spacing.xs,
   },
   headerText: {
     flex: 1,
   },
+  pageTitle: {
+    fontSize: 32,
+    marginBottom: 4,
+  },
   settingsButton: {
-    padding: spacing.xs,
-    backgroundColor: colors.background.primary,
+    padding: spacing.sm,
+    backgroundColor: colors.background.surface,
     borderRadius: borderRadius.full,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
     ...shadows.sm,
   },
 
@@ -259,14 +306,31 @@ const styles = StyleSheet.create({
   bentoContainer: {
     flexDirection: 'row',
     gap: spacing.md,
-    height: 200, // Fixed total height for the Bento block
+    height: 190,
     marginBottom: spacing['2xl'],
   },
   bentoBig: { // Left Column
     flex: 1.2,
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.background.surface, // WHITE
     justifyContent: 'space-between',
-    padding: spacing.lg,
+    padding: 0,
+    overflow: 'hidden',
+    ...shadows.sm, // Ensure it pops
+    borderRadius: borderRadius.lg,
+  },
+  bentoIconWrapper: {
+    width: '100%',
+    height: '60%',
+    overflow: 'hidden',
+  },
+  bentoImage: {
+    width: '100%',
+    height: '100%',
+    opacity: 0.9,
+  },
+  bentoContentBig: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md,
   },
   bentoStack: { // Right Column
     flex: 1,
@@ -276,23 +340,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
-    backgroundColor: colors.background.primary,
+    backgroundColor: colors.background.surface, // WHITE
+    overflow: 'hidden',
+    ...shadows.sm,
+    borderRadius: borderRadius.lg,
   },
-  bentoIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.secondary[100],
-    alignItems: 'center',
-    justifyContent: 'center',
+  bentoIconWrapperSmall: {
+    width: 56,
+    height: 56,
+    marginRight: spacing.xs,
   },
-  bentoIconSmall: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
+  bentoImageSmall: {
+    width: '100%',
+    height: '100%',
   },
   rowCentered: {
     flexDirection: 'row',
@@ -322,35 +382,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
 
-  // 4. Action List
+  // 4. Collection
   section: {
     marginBottom: spacing['2xl'],
   },
   sectionTitle: {
     marginBottom: spacing.md,
   },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.background.primary,
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.sm,
-    ...shadows.sm,
-  },
-  actionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  actionContent: {
-    flex: 1,
-  },
-
-  // 5. Shelf
   sectionHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -361,31 +399,83 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingRight: spacing.lg,
   },
-  miniCard: {
+  collectionCard: {
     width: 140,
-    height: 140,
-    backgroundColor: colors.background.primary,
+    height: 190,
     borderRadius: borderRadius.lg,
-    padding: spacing.md,
+    overflow: 'hidden',
+    backgroundColor: colors.background.primary, // CREAM/TRANSPARENT-LIKE
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+    padding: spacing.sm,
     justifyContent: 'space-between',
-    ...shadows.sm,
   },
-  miniCardBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+  collectionIconArea: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: spacing.sm,
+  },
+  collectionImage: {
+    width: 90,
+    height: 90,
+  },
+  collectionCardContent: {
+    width: '100%',
+    alignItems: 'center', // CENTERED
+  },
+  collectionCardBadge: {
+    backgroundColor: colors.background.tertiary,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    alignSelf: 'center', // CENTERED
+    marginBottom: 4,
   },
   emptyShelf: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: spacing.lg,
+    backgroundColor: colors.background.surface,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
+    padding: spacing.xl,
   },
   emptyShelfIllustration: {
-    width: 120,
-    height: 120,
+    width: 64,
+    height: 64,
     marginBottom: spacing.md,
-    opacity: 0.6,
+    opacity: 0.4,
+  },
+
+  // 5. Tools Grid
+  toolsGrid: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  toolCard: {
+    flex: 1,
+    backgroundColor: colors.background.surface, // WHITE
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    alignItems: 'center',
+    ...shadows.sm,
+    borderWidth: 1,
+    borderColor: colors.neutral[100],
+  },
+  toolIconWrapper: {
+    width: 80,
+    height: 80,
+    marginBottom: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toolImage: {
+    width: '100%',
+    height: '100%',
+  },
+  toolContent: {
+    alignItems: 'center',
   },
 });

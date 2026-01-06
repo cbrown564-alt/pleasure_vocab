@@ -11,7 +11,6 @@ export const explainers: ResearchExplainer[] = [
     icon: 'stats-chart',
     image: require('../assets/images/explainers/orgasm-gap.png'),
     readTime: '6 min read',
-
     overview:
       'In heterosexual encounters, women orgasm significantly less often than men—but this gap nearly disappears in same-sex encounters. Research shows this isn\'t about biology; it\'s about what happens during sex. Understanding the gap is the first step to closing it.',
 
@@ -26,11 +25,14 @@ export const explainers: ResearchExplainer[] = [
     sections: [
       {
         title: 'What Is the Orgasm Gap?',
-        content: `The "orgasm gap" refers to the consistent finding that in heterosexual partnered encounters, women orgasm significantly less frequently than men. This disparity has been documented across multiple large-scale studies and appears consistently across age groups and relationship types.
+        content: [
+          {
+            type: 'text', content: `The "orgasm gap" refers to the consistent finding that in heterosexual partnered encounters, women orgasm significantly less frequently than men. This disparity has been documented across multiple large-scale studies and appears consistently across age groups and relationship types.
 
 A landmark study of over 52,000 adults found that heterosexual men reported orgasming 95% of the time during partnered sexual encounters, while heterosexual women reported orgasming only 65% of the time. This 30-percentage-point gap represents a substantial and persistent inequality in sexual outcomes.
 
-Importantly, the gap is much smaller in same-sex encounters. Lesbian women reported orgasming 86% of the time—demonstrating that this isn't about women's bodies being "harder to please" but about what happens during different types of sexual encounters.`,
+Importantly, the gap is much smaller in same-sex encounters. Lesbian women reported orgasming 86% of the time—demonstrating that this isn't about women's bodies being "harder to please" but about what happens during different types of sexual encounters.` }
+        ],
         statistic: {
           value: '65% vs 95%',
           label: 'Women vs men orgasm rate in heterosexual encounters',
@@ -39,11 +41,14 @@ Importantly, the gap is much smaller in same-sex encounters. Lesbian women repor
       },
       {
         title: 'Why Does the Gap Exist?',
-        content: `The gap is not biological—research clearly demonstrates that women have equal physiological capacity for orgasm. Instead, the gap emerges from behavioral patterns: specifically, what activities are prioritized during heterosexual encounters versus same-sex encounters.
+        content: [
+          {
+            type: 'text', content: `The gap is not biological—research clearly demonstrates that women have equal physiological capacity for orgasm. Instead, the gap emerges from behavioral patterns: specifically, what activities are prioritized during heterosexual encounters versus same-sex encounters.
 
-The primary factor is clitoral stimulation. Research consistently shows that only about 18% of women can orgasm from vaginal penetration alone, yet penetration remains the primary focus of many heterosexual encounters. In contrast, same-sex encounters between women tend to include more direct clitoral stimulation.
-
-Cultural scripts about sex—particularly the idea that penetration is the "main event"—contribute to this pattern. When sex is defined as penis-in-vagina intercourse, activities that are more reliably pleasurable for women may be treated as optional extras rather than central components.`,
+The primary factor is clitoral stimulation. Research consistently shows that only about 18% of women can orgasm from penetration alone, yet penetration remains the primary focus of many heterosexual encounters. In contrast, same-sex encounters between women tend to include more direct clitoral stimulation.` },
+          { type: 'callout', title: 'The Script', content: 'Cultural scripts often define sex as penis-in-vagina intercourse, treating other activities as "foreplay" rather than central components of pleasure.' },
+          { type: 'text', content: `Cultural scripts about sex—particularly the idea that penetration is the "main event"—contribute to this pattern. When sex is defined as penis-in-vagina intercourse, activities that are more reliably pleasurable for women may be treated as optional extras rather than central components.` }
+        ],
         statistic: {
           value: '18%',
           label: 'Women who can orgasm from penetration alone',
@@ -52,11 +57,14 @@ Cultural scripts about sex—particularly the idea that penetration is the "main
       },
       {
         title: 'What Closes the Gap?',
-        content: `Research has identified specific factors that predict higher orgasm rates for women in heterosexual encounters. The most significant is receiving adequate clitoral stimulation—whether from hands, mouth, toys, or positioning that creates contact during penetration.
+        content: [
+          {
+            type: 'text', content: `Research has identified specific factors that predict higher orgasm rates for women in heterosexual encounters. The most significant is receiving adequate clitoral stimulation—whether from hands, mouth, toys, or positioning that creates contact during penetration.
 
-Variety matters too. Women who receive multiple types of stimulation (oral sex, manual stimulation, and penetration) in the same encounter report significantly higher orgasm rates than those receiving only one type. One study found an 86% orgasm rate when all three were included.
-
-Communication is equally crucial. Studies show a strong correlation between sexual communication and satisfaction. Women who communicate about their preferences—what feels good, what they'd like more of, what they'd like to try—report better outcomes. This includes in-the-moment guidance as well as conversations outside the bedroom.`,
+Variety matters too. Women who receive multiple types of stimulation (oral sex, manual stimulation, and penetration) in the same encounter report significantly higher orgasm rates than those receiving only one type. One study found an 86% orgasm rate when all three were included.` },
+          { type: 'quote', content: 'Women who communicate about their preferences report better outcomes.', author: 'Mallory, 2022' },
+          { type: 'text', content: `Communication is equally crucial. Studies show a strong correlation between sexual communication and satisfaction. Women who communicate about their preferences—what feels good, what they'd like more of, what they'd like to try—report better outcomes. This includes in-the-moment guidance as well as conversations outside the bedroom.` }
+        ],
         statistic: {
           value: '86%',
           label: 'Orgasm rate with oral + manual + penetration combined',
@@ -65,11 +73,14 @@ Communication is equally crucial. Studies show a strong correlation between sexu
       },
       {
         title: 'What This Means for You',
-        content: `Understanding the orgasm gap reframes the conversation: if you've ever felt that something was "wrong" with you because orgasm didn't come easily during partnered sex, the research suggests it's not you—it's the script you've been handed.
+        content: [
+          {
+            type: 'text', content: `Understanding the orgasm gap reframes the conversation: if you've ever felt that something was "wrong" with you because orgasm didn't come easily during partnered sex, the research suggests it's not you—it's the script you've been handed.
 
 This knowledge is empowering. If the gap is behavioral rather than biological, it can be addressed through behavior change: incorporating more of what works (clitoral stimulation, variety, communication), and less adherence to scripts that prioritize activities less likely to produce pleasure.
 
-Building vocabulary for your preferences—knowing the words for what you like and how to express them—is a concrete step toward closing your personal orgasm gap. The concepts in this app are tools for that project.`,
+Building vocabulary for your preferences—knowing the words for what you like and how to express them—is a concrete step toward closing your personal orgasm gap. The concepts in this app are tools for that project.` }
+        ]
       },
     ],
 
@@ -119,7 +130,6 @@ Building vocabulary for your preferences—knowing the words for what you like a
     icon: 'body',
     image: require('../assets/images/explainers/anatomy-101.png'),
     readTime: '5 min read',
-
     overview:
       'For centuries, female genital anatomy was poorly understood and rarely studied. Modern imaging has revealed that the clitoris is a much larger organ than previously recognized—mostly internal, richly innervated, and central to understanding pleasure.',
 
@@ -134,11 +144,13 @@ Building vocabulary for your preferences—knowing the words for what you like a
     sections: [
       {
         title: 'More Than Meets the Eye',
-        content: `What's visible of the clitoris—the glans and clitoral hood—represents only a fraction of the full organ. Modern MRI studies have mapped the complete clitoral structure, revealing it to be approximately 9cm in total size, with internal legs (crura) and vestibular bulbs extending inside the body.
+        content: [
+          {
+            type: 'text', content: `What's visible of the clitoris—the glans and clitoral hood—represents only a fraction of the full organ. Modern MRI studies have mapped the complete clitoral structure, revealing it to be approximately 9cm in total size, with internal legs (crura) and vestibular bulbs extending inside the body.
 
-The crura are two elongated structures that extend backward from the glans along the pubic bone. The vestibular bulbs are erectile tissue that flank the vaginal opening and fill with blood during arousal, contributing to the sensation of engorgement.
-
-This internal structure wraps around the vaginal canal, which explains why some internal stimulation feels pleasurable—pressure on the vaginal walls can affect the surrounding clitoral tissue. Understanding this anatomy reframes many aspects of sexual pleasure.`,
+The crura are two elongated structures that extend backward from the glans along the pubic bone. The vestibular bulbs are erectile tissue that flank the vaginal opening and fill with blood during arousal, contributing to the sensation of engorgement.` },
+          { type: 'callout', title: 'Internal Structure', content: 'The internal clitoris wraps around the vaginal canal, which explains why some internal stimulation feels pleasurable—pressure on the vaginal walls can affect the surrounding clitoral tissue.' }
+        ],
         statistic: {
           value: '~9cm',
           label: 'Total size of the clitoral organ including internal tissue',
@@ -147,11 +159,14 @@ This internal structure wraps around the vaginal canal, which explains why some 
       },
       {
         title: 'Understanding Sensitivity',
-        content: `The clitoral glans—the external, visible portion—contains over 8,000 nerve endings. This is approximately equal to the number found in the entire penis, but concentrated in a much smaller area. This density explains the glans' exquisite sensitivity.
+        content: [
+          {
+            type: 'text', content: `The clitoral glans—the external, visible portion—contains over 8,000 nerve endings. This is approximately equal to the number found in the entire penis, but concentrated in a much smaller area. This density explains the glans' exquisite sensitivity.
 
-Because of this concentration, direct stimulation of the glans can sometimes feel too intense, particularly before adequate arousal. Many women prefer indirect stimulation through the hood, or stimulation of the surrounding area rather than the glans directly. Sensitivity also varies with arousal level—what feels like too much early on may feel perfect later.
-
-The high nerve density also explains why small differences in technique can produce very different sensations. Slight changes in pressure, speed, or angle can significantly alter the experience. This is why having specific vocabulary for preferences matters—there's a lot of nuance to communicate.`,
+Because of this concentration, direct stimulation of the glans can sometimes feel too intense, particularly before adequate arousal. Many women prefer indirect stimulation through the hood, or stimulation of the surrounding area rather than the glans directly. Sensitivity also varies with arousal level—what feels like too much early on may feel perfect later.` },
+          { type: 'quote', content: 'Slight changes in pressure, speed, or angle can significantly alter the experience.', accent: 'secondary' },
+          { type: 'text', content: `The high nerve density also explains why small differences in technique can produce very different sensations. This is why having specific vocabulary for preferences matters—there's a lot of nuance to communicate.` }
+        ],
         statistic: {
           value: '8,000+',
           label: 'Nerve endings in the clitoral glans',
@@ -160,19 +175,25 @@ The high nerve density also explains why small differences in technique can prod
       },
       {
         title: 'The "G-Spot" Explained',
-        content: `The "G-spot" has been debated for decades, but modern anatomical understanding offers clarification. The sensitive area on the anterior (front) vaginal wall—typically 1-3 inches inside, toward the belly button—corresponds to where internal clitoral tissue and the urethral sponge can be felt through the vaginal lining.
+        content: [
+          {
+            type: 'text', content: `The "G-spot" has been debated for decades, but modern anatomical understanding offers clarification. The sensitive area on the anterior (front) vaginal wall—typically 1-3 inches inside, toward the belly button—corresponds to where internal clitoral tissue and the urethral sponge can be felt through the vaginal lining.
 
 Researchers now refer to this integrated area as the clitourethrovaginal (CUV) complex. Stimulation of this area affects multiple sensitive structures simultaneously: internal clitoral tissue, the urethra (surrounded by nerve-rich tissue), and the vaginal wall itself.
 
-This explains why there's no single "spot" that works for everyone—the anatomy varies between individuals, and responsiveness can change with arousal level. Rather than searching for a magic button, it's more helpful to explore the general area and notice what feels pleasurable.`,
+This explains why there's no single "spot" that works for everyone—the anatomy varies between individuals, and responsiveness can change with arousal level. Rather than searching for a magic button, it's more helpful to explore the general area and notice what feels pleasurable.` }
+        ]
       },
       {
         title: 'Why This Matters',
-        content: `Understanding clitoral anatomy has practical implications. It explains why external stimulation is important for most women's pleasure and orgasm—you're accessing the most nerve-dense part of a larger organ. It explains why positions and techniques that create clitoral contact often feel better.
+        content: [
+          {
+            type: 'text', content: `Understanding clitoral anatomy has practical implications. It explains why external stimulation is important for most women's pleasure and orgasm—you're accessing the most nerve-dense part of a larger organ. It explains why positions and techniques that create clitoral contact often feel better.
 
 It also explains internal pleasure. Techniques like angling (tilting the pelvis to change where penetration creates pressure) work because they optimize contact with internal clitoral tissue. The "G-spot" isn't separate from the clitoris—it's another way to access it.
 
-This anatomical knowledge can help with exploration and communication. Instead of thinking something is wrong if penetration alone isn't enough, you can recognize that you're working with anatomy that's designed for multi-point stimulation.`,
+This anatomical knowledge can help with exploration and communication. Instead of thinking something is wrong if penetration alone isn't enough, you can recognize that you're working with anatomy that's designed for multi-point stimulation.` }
+        ]
       },
     ],
 
@@ -218,7 +239,6 @@ This anatomical knowledge can help with exploration and communication. Instead o
     icon: 'bulb',
     image: require('../assets/images/explainers/mind-body.png'),
     readTime: '6 min read',
-
     overview:
       'Sexual response isn\'t purely physical—your brain plays a central role in arousal and pleasure. Research shows that mental factors like attention, presence, and self-evaluation significantly impact sexual experience. Understanding these patterns opens new avenues for enhancing pleasure.',
 
@@ -233,27 +253,36 @@ This anatomical knowledge can help with exploration and communication. Instead o
     sections: [
       {
         title: 'Your Brain During Sex',
-        content: `Sexual arousal involves a complex interplay between body and brain. Physical stimulation sends signals to the brain, but the brain's interpretation of those signals—influenced by attention, emotions, thoughts, and context—shapes the experience of pleasure.
+        content: [
+          {
+            type: 'text', content: `Sexual arousal involves a complex interplay between body and brain. Physical stimulation sends signals to the brain, but the brain's interpretation of those signals—influenced by attention, emotions, thoughts, and context—shapes the experience of pleasure.
 
 Attention is particularly crucial. When attention is focused on bodily sensations, pleasure tends to be enhanced. When attention is diverted—to worries, self-evaluation, or distractions—the same physical stimulation may produce less pleasure or none at all.
 
-This is why sex can feel completely different depending on your mental state. The same touch that feels electric when you're relaxed and present might barely register when you're stressed or distracted. Understanding this gives you a lever for enhancing pleasure that doesn't require any change to physical technique.`,
+This is why sex can feel completely different depending on your mental state. The same touch that feels electric when you're relaxed and present might barely register when you're stressed or distracted. Understanding this gives you a lever for enhancing pleasure that doesn't require any change to physical technique.` }
+        ]
       },
       {
         title: 'Spectatoring: The Arousal Killer',
-        content: `"Spectatoring" is a term coined by pioneering sex researchers Masters and Johnson to describe a common barrier to sexual enjoyment: mentally stepping outside yourself to observe and evaluate your own performance during sex.
-
-When you're spectatoring, you're not fully in the experience—you're watching yourself as if from the outside, often running critical commentary. "Do I look okay? Am I taking too long? Is my partner getting bored? Am I doing this right?" This self-focused attention pulls cognitive resources away from processing pleasure.
-
-Research confirms that spectatoring correlates with lower arousal, reduced pleasure, and increased sexual difficulties. The good news is that spectatoring is a mental habit, not a fixed trait. With practice, it's possible to notice when you've slipped into observer mode and gently redirect attention back to sensation.`,
+        content: [
+          {
+            type: 'text', content: `"Spectatoring" is a term coined by pioneering sex researchers Masters and Johnson to describe a common barrier to sexual enjoyment: mentally stepping outside yourself to observe and evaluate your own performance during sex.
+          
+When you're spectatoring, you're not fully in the experience—you're watching yourself as if from the outside, often running critical commentary. "Do I look okay? Am I taking too long? Is my partner getting bored? Am I doing this right?" This self-focused attention pulls cognitive resources away from processing pleasure.` },
+          { type: 'callout', title: 'The Antidote', content: 'With practice, it\'s possible to notice when you\'ve slipped into observer mode and gently redirect attention back to sensation.' },
+          { type: 'text', content: `Research confirms that spectatoring correlates with lower arousal, reduced pleasure, and increased sexual difficulties. The good news is that spectatoring is a mental habit, not a fixed trait.` }
+        ]
       },
       {
         title: 'Presence Over Performance',
-        content: `The antidote to spectatoring is embodied presence: focused, non-judgmental attention on the physical sensations you're experiencing in the moment. Rather than thinking about sex, you're feeling it.
+        content: [
+          {
+            type: 'text', content: `The antidote to spectatoring is embodied presence: focused, non-judgmental attention on the physical sensations you're experiencing in the moment. Rather than thinking about sex, you're feeling it.
 
 Mindfulness-based interventions have shown significant promise for improving sexual function and satisfaction. Research by Dr. Lori Brotto and colleagues has demonstrated that mindfulness training helps women with arousal difficulties by teaching them to redirect attention from anxious thoughts to bodily sensations.
 
-Cultivating presence doesn't mean trying to force your mind to be blank. It means noticing when your attention has wandered (to evaluation, worries, or distractions) and gently returning it to what you're actually feeling. What does this touch feel like right now? Where in your body do you notice sensation? This simple redirection can significantly enhance pleasure.`,
+Cultivating presence doesn't mean trying to force your mind to be blank. It means noticing when your attention has wandered (to evaluation, worries, or distractions) and gently returning it to what you're actually feeling. What does this touch feel like right now? Where in your body do you notice sensation? This simple redirection can significantly enhance pleasure.` }
+        ],
         statistic: {
           value: 'Significant improvement',
           label: 'Sexual satisfaction after mindfulness training',
@@ -262,11 +291,14 @@ Cultivating presence doesn't mean trying to force your mind to be blank. It mean
       },
       {
         title: 'When Body and Mind Disagree',
-        content: `"Non-concordance" refers to the common experience of disconnect between physical arousal signs (like lubrication or genital blood flow) and the subjective feeling of being turned on. Your body might show physical signs of arousal when you don't feel interested, or you might feel very mentally aroused while your body isn't visibly responding.
+        content: [
+          {
+            type: 'text', content: `"Non-concordance" refers to the common experience of disconnect between physical arousal signs (like lubrication or genital blood flow) and the subjective feeling of being turned on. Your body might show physical signs of arousal when you don't feel interested, or you might feel very mentally aroused while your body isn't visibly responding.
 
 Research shows that for women, there's only about a 10-25% overlap between genital response and subjective arousal. This is strikingly different from men, where the correlation is much higher. Non-concordance is now understood as normal female sexual response, not a dysfunction.
 
-This has important implications. Physical response alone doesn't indicate desire or consent. And lack of visible physical response doesn't mean you're not aroused or that something is wrong. Your felt sense of arousal—how turned on you actually feel—is what matters, regardless of what your body appears to be doing.`,
+This has important implications. Physical response alone doesn't indicate desire or consent. And lack of visible physical response doesn't mean you're not aroused or that something is wrong. Your felt sense of arousal—how turned on you actually feel—is what matters, regardless of what your body appears to be doing.` }
+        ],
         statistic: {
           value: '10-25%',
           label: 'Overlap between physical and subjective arousal in women',
@@ -321,7 +353,6 @@ This has important implications. Physical response alone doesn't indicate desire
     icon: 'chatbubbles',
     image: require('../assets/images/explainers/communication-science-101.png'),
     readTime: '5 min read',
-
     overview:
       'Research consistently shows that sexual communication is one of the strongest predictors of sexual satisfaction—yet many people find it difficult. Understanding why communication works and what holds us back can help bridge the gap between knowing what you want and being able to ask for it.',
 
@@ -336,11 +367,14 @@ This has important implications. Physical response alone doesn't indicate desire
     sections: [
       {
         title: 'The Research Is Clear',
-        content: `The relationship between sexual communication and sexual satisfaction is one of the most robust findings in sex research. A comprehensive meta-analysis found a correlation of r=.43 between communication about sex and sexual satisfaction—a strong effect in psychological research.
+        content: [
+          {
+            type: 'text', content: `The relationship between sexual communication and sexual satisfaction is one of the most robust findings in sex research. A comprehensive meta-analysis found a correlation of r=.43 between communication about sex and sexual satisfaction—a strong effect in psychological research.
 
 This relationship appears across different types of communication: talking about preferences, giving in-the-moment feedback, discussing what feels good, and expressing desires. All forms of sexual communication are associated with better outcomes.
 
-Importantly, the effect is even stronger for women than for men. This makes sense given the orgasm gap—if women's pleasure requires activities and attention that aren't always automatically included, communication becomes essential for ensuring those needs are met.`,
+Importantly, the effect is even stronger for women than for men. This makes sense given the orgasm gap—if women's pleasure requires activities and attention that aren't always automatically included, communication becomes essential for ensuring those needs are met.` }
+        ],
         statistic: {
           value: 'r = .43',
           label: 'Correlation between communication and satisfaction',
@@ -349,11 +383,14 @@ Importantly, the effect is even stronger for women than for men. This makes sens
       },
       {
         title: 'Why We Stay Silent',
-        content: `Despite knowing that communication helps, many people don't communicate about sex. Research has mapped the specific barriers people report:
+        content: [
+          {
+            type: 'text', content: `Despite knowing that communication helps, many people don't communicate about sex. Research has mapped the specific barriers people report:
 
 Fear of hurting their partner's feelings is the most common barrier, cited by 42% of people. Many worry that expressing a preference implies criticism of what their partner is currently doing. Discomfort with explicit discussion comes second at 40%—even in intimate relationships, talking explicitly about sex can feel more vulnerable than having it.
 
-Embarrassment about desires (38%) and worry about seeming demanding (35%) round out the top barriers. These fears often overestimate the negative reaction partners will have. Studies show that partners typically respond more positively to sexual communication than people predict.`,
+Embarrassment about desires (38%) and worry about seeming demanding (35%) round out the top barriers. These fears often overestimate the negative reaction partners will have. Studies show that partners typically respond more positively to sexual communication than people predict.` }
+        ],
         statistic: {
           value: '55%',
           label: 'Of women want to communicate but decide not to',
@@ -362,21 +399,25 @@ Embarrassment about desires (38%) and worry about seeming demanding (35%) round 
       },
       {
         title: 'What Works',
-        content: `Research on effective sexual communication points to several principles. Framing preferences positively ("I love when you...") tends to be received better than negative framing ("Don't do..."). Specific guidance ("a little slower" or "right there") is more useful than vague statements.
+        content: [
+          {
+            type: 'text', content: `Research on effective sexual communication points to several principles. Framing preferences positively ("I love when you...") tends to be received better than negative framing ("Don't do..."). Specific guidance ("a little slower" or "right there") is more useful than vague statements.
 
-Timing matters too. Some conversations are better outside the bedroom—discussing new things to try, addressing patterns, or sharing what you've learned about yourself. Other communication works best in the moment—guiding pressure, speed, or location of touch.
-
-Having vocabulary helps enormously. When you can name what you want—using terms like "angling" or "pairing" or "more warm-up time"—communication becomes more precise and less awkward. This is one of the core goals of building a pleasure vocabulary.`,
+Timing matters too. Some conversations are better outside the bedroom—discussing new things to try, addressing patterns, or sharing what you've learned about yourself. Other communication works best in the moment—guiding pressure, speed, or location of touch.` },
+          { type: 'callout', title: 'Why Vocabulary Matters', content: 'When you can name what you want—using terms like "angling" or "pairing"—communication becomes more precise and less awkward.' }
+        ]
       },
       {
         title: 'From Knowledge to Practice',
-        content: `Knowing that communication works is different from actually doing it. The gap between intention and action is where many people get stuck. Some practical bridges:
+        content: [
+          {
+            type: 'text', content: `Knowing that communication works is different from actually doing it. The gap between intention and action is where many people get stuck. Some practical bridges:
 
 Start small. You don't have to have a big vulnerable conversation to begin communicating. Simple in-the-moment guidance ("that feels good" or "a little softer") builds both your confidence and your partner's responsiveness.
 
-Use tools. The Communication Toolkit in this app provides scripts and starters—model language you can adapt. Sometimes having the words ready makes it easier to speak.
-
-Remember the research. Partners typically respond better than people fear. And even if a conversation feels awkward, the outcome is usually worth it. Temporary discomfort for lasting improvement is a worthwhile trade.`,
+Use tools. The Communication Toolkit in this app provides scripts and starters—model language you can adapt. Sometimes having the words ready makes it easier to speak.` },
+          { type: 'quote', content: 'Temporary discomfort for lasting improvement is a worthwhile trade.', accent: 'secondary' }
+        ]
       },
     ],
 
