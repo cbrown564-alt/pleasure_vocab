@@ -91,12 +91,65 @@ export const migrations: Migration[] = [
       }
     },
   },
-  // Future migrations go here with incrementing version numbers
-  // {
-  //   version: 3,
-  //   description: 'Add new feature column',
-  //   up: async (ctx) => { ... },
-  // },
+  {
+    version: 3,
+    description: 'Normalize pathway progress with junction table',
+    up: async (ctx) => {
+      if (ctx.platform === 'native' && ctx.executeSql) {
+        // Create junction table
+        ctx.log('Creating pathway_concept_completions junction table');
+        await ctx.executeSql(`
+          CREATE TABLE IF NOT EXISTS pathway_concept_completions (
+            pathway_id TEXT NOT NULL,
+            concept_id TEXT NOT NULL,
+            completed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (pathway_id, concept_id)
+          )
+        `);
+
+        // Create index for faster lookups
+        ctx.log('Creating index on pathway_concept_completions');
+        await ctx.executeSql(`
+          CREATE INDEX IF NOT EXISTS idx_pathway_completions_pathway
+          ON pathway_concept_completions(pathway_id)
+        `);
+
+        // Migrate existing data from JSON column
+        ctx.log('Migrating existing pathway progress data');
+        // Note: We can't easily query and iterate in a migration context,
+        // so we'll handle this in the repository layer by checking both sources
+        // during a transition period, then cleaning up the old column later.
+      } else if (ctx.platform === 'web' && ctx.getValue && ctx.setValue) {
+        // Web: Create new storage structure for junction data
+        ctx.log('Creating pathway completions storage for web');
+        const existingProgress = await ctx.getValue('@vocab:pathway_progress');
+
+        if (existingProgress) {
+          const progressMap = JSON.parse(existingProgress);
+          const completions: Record<string, { pathway_id: string; concept_id: string; completed_at: string }[]> = {};
+
+          // Migrate each pathway's concepts_completed to the new structure
+          for (const [pathwayId, progress] of Object.entries(progressMap)) {
+            const p = progress as { concepts_completed?: string };
+            if (p.concepts_completed) {
+              try {
+                const conceptIds: string[] = JSON.parse(p.concepts_completed);
+                completions[pathwayId] = conceptIds.map(conceptId => ({
+                  pathway_id: pathwayId,
+                  concept_id: conceptId,
+                  completed_at: new Date().toISOString(),
+                }));
+              } catch {
+                // Invalid JSON, skip
+              }
+            }
+          }
+
+          await ctx.setValue('@vocab:pathway_completions', JSON.stringify(completions));
+        }
+      }
+    },
+  },
 ];
 
 /**

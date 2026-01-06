@@ -86,6 +86,18 @@ export class SQLiteAdapter implements StorageAdapter {
           concepts_completed TEXT DEFAULT '[]'
         );
 
+        -- Pathway concept completions (normalized junction table)
+        CREATE TABLE IF NOT EXISTS pathway_concept_completions (
+          pathway_id TEXT NOT NULL,
+          concept_id TEXT NOT NULL,
+          completed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (pathway_id, concept_id)
+        );
+
+        -- Index for faster pathway completion lookups
+        CREATE INDEX IF NOT EXISTS idx_pathway_completions_pathway
+        ON pathway_concept_completions(pathway_id);
+
         -- Initialize onboarding row if not exists
         INSERT OR IGNORE INTO onboarding (id) VALUES (1);
       `);

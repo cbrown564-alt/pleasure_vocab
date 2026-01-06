@@ -116,6 +116,7 @@ export const Collections = {
   USER_CONCEPTS: 'user_concepts',
   JOURNAL_ENTRIES: 'journal_entries',
   PATHWAY_PROGRESS: 'pathway_progress',
+  PATHWAY_COMPLETIONS: 'pathway_concept_completions', // Junction table
   ONBOARDING: 'onboarding',
   SETTINGS: 'settings',
 } as const;
