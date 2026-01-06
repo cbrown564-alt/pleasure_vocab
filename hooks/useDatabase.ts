@@ -1,9 +1,9 @@
 // React hooks for database operations
-// Uses the repository pattern for cleaner data access
+// Uses DataContext for shared state and repository pattern for data access
 
-import { db, initDatabase } from '@/lib/database/index';
+import { db } from '@/lib/database/index';
+import { useData } from '@/lib/contexts';
 import { getErrorMessage } from '@/lib/errors';
-import { events, EVENTS } from '@/lib/events';
 import { logger } from '@/lib/logger';
 import {
   ValidatedJournalEntryRow,
@@ -17,69 +17,29 @@ const log = logger.scope('Hooks');
 
 // ============ Database Initialization ============
 
+/**
+ * Hook for database initialization status.
+ * Uses the DataContext for shared state.
+ */
 export function useInitDatabase() {
-  const [isReady, setIsReady] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    async function init() {
-      try {
-        await initDatabase();
-        if (mounted) {
-          setIsReady(true);
-        }
-      } catch (e) {
-        if (mounted) {
-          setError(e instanceof Error ? e : new Error('Failed to initialize database'));
-        }
-      }
-    }
-
-    init();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  return { isReady, error };
+  const { isDbReady, dbError } = useData();
+  return { isReady: isDbReady, error: dbError };
 }
 
 // ============ Onboarding Hook ============
 
+/**
+ * Hook for onboarding state with update capabilities.
+ * Uses DataContext for shared state and triggers context refresh on mutations.
+ */
 export function useOnboarding() {
-  const [state, setState] = useState<ValidatedOnboardingRow | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await db.onboarding.get();
-      setState(result);
-    } catch (err) {
-      const message = getErrorMessage(err);
-      log.error('useOnboarding load failed', err);
-      setError(message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const handleUpdate = () => load();
-    events.on(EVENTS.ONBOARDING_UPDATED, handleUpdate);
-    events.on(EVENTS.DATA_CLEARED, handleUpdate);
-
-    return () => {
-      events.off(EVENTS.ONBOARDING_UPDATED, handleUpdate);
-      events.off(EVENTS.DATA_CLEARED, handleUpdate);
-    };
-  }, [load]);
+  const {
+    onboarding: state,
+    onboardingLoading: isLoading,
+    onboardingError: error,
+    refreshOnboarding,
+    refreshAll,
+  } = useData();
 
   const update = useCallback(
     async (updates: {
@@ -88,10 +48,9 @@ export function useOnboarding() {
       firstConceptViewed?: boolean;
     }) => {
       await db.onboarding.update(updates);
-      events.emit(EVENTS.ONBOARDING_UPDATED);
-      await load();
+      await refreshOnboarding();
     },
-    [load]
+    [refreshOnboarding]
   );
 
   const completeOnboarding = useCallback(async () => {
@@ -106,68 +65,40 @@ export function useOnboarding() {
     goal: state?.goal as UserGoal | null,
     update,
     completeOnboarding,
-    reload: load,
+    reload: refreshOnboarding,
   };
 }
 
 // ============ User Concepts Hook ============
 
+/**
+ * Hook for user concepts with CRUD operations.
+ * Uses DataContext for shared state and triggers context refresh on mutations.
+ */
 export function useUserConcepts() {
-  const [concepts, setConcepts] = useState<ValidatedUserConceptRow[]>([]);
-  const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
-  const [masteredIds, setMasteredIds] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const [conceptsResult, unlocked, mastered] = await Promise.all([
-        db.concepts.getAll(),
-        db.concepts.getUnlockedIds(),
-        db.concepts.getMasteredIds(),
-      ]);
-      setConcepts(conceptsResult);
-      setUnlockedIds(unlocked);
-      setMasteredIds(mastered);
-    } catch (err) {
-      const message = getErrorMessage(err);
-      log.error('useUserConcepts load failed', err);
-      setError(message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-    const handleUpdate = () => load();
-    events.on(EVENTS.CONCEPTS_UPDATED, handleUpdate);
-    events.on(EVENTS.DATA_CLEARED, handleUpdate);
-
-    return () => {
-      events.off(EVENTS.CONCEPTS_UPDATED, handleUpdate);
-      events.off(EVENTS.DATA_CLEARED, handleUpdate);
-    };
-  }, [load]);
+  const {
+    concepts,
+    unlockedIds,
+    masteredIds,
+    conceptsLoading: isLoading,
+    conceptsError: error,
+    refreshConcepts,
+  } = useData();
 
   const setStatus = useCallback(
     async (conceptId: string, status: ConceptStatus) => {
       await db.concepts.updateStatus(conceptId, status);
-      events.emit(EVENTS.CONCEPTS_UPDATED);
-      await load();
+      await refreshConcepts();
     },
-    [load]
+    [refreshConcepts]
   );
 
   const markExplored = useCallback(
     async (conceptId: string) => {
       await db.concepts.markExplored(conceptId);
-      events.emit(EVENTS.CONCEPTS_UPDATED);
-      await load();
+      await refreshConcepts();
     },
-    [load]
+    [refreshConcepts]
   );
 
   const getStatus = useCallback(
@@ -181,19 +112,17 @@ export function useUserConcepts() {
   const unlockConcept = useCallback(
     async (conceptId: string) => {
       await db.concepts.unlock(conceptId);
-      events.emit(EVENTS.CONCEPTS_UPDATED);
-      await load();
+      await refreshConcepts();
     },
-    [load]
+    [refreshConcepts]
   );
 
   const masterConcept = useCallback(
     async (conceptId: string) => {
       await db.concepts.master(conceptId);
-      events.emit(EVENTS.CONCEPTS_UPDATED);
-      await load();
+      await refreshConcepts();
     },
-    [load]
+    [refreshConcepts]
   );
 
   const isUnlocked = useCallback(
@@ -223,38 +152,34 @@ export function useUserConcepts() {
     isMastered,
     unlockedConcepts: unlockedIds,
     masteredConcepts: masteredIds,
-    reload: load,
+    reload: refreshConcepts,
   };
 }
 
 // Hook for a single concept's user data
 export function useUserConcept(conceptId: string) {
-  const [concept, setConcept] = useState<ValidatedUserConceptRow | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { concepts, refreshConcepts } = useData();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    const result = await db.concepts.get(conceptId);
-    setConcept(result);
-    setIsLoading(false);
-  }, [conceptId]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  // Find the concept from the shared state
+  const concept = concepts.find((c) => c.concept_id === conceptId) ?? null;
 
   const setStatus = useCallback(
     async (status: ConceptStatus) => {
+      setIsLoading(true);
       await db.concepts.updateStatus(conceptId, status);
-      await load();
+      await refreshConcepts();
+      setIsLoading(false);
     },
-    [conceptId, load]
+    [conceptId, refreshConcepts]
   );
 
   const markExplored = useCallback(async () => {
+    setIsLoading(true);
     await db.concepts.markExplored(conceptId);
-    await load();
-  }, [conceptId, load]);
+    await refreshConcepts();
+    setIsLoading(false);
+  }, [conceptId, refreshConcepts]);
 
   return {
     concept,
@@ -262,12 +187,17 @@ export function useUserConcept(conceptId: string) {
     isLoading,
     setStatus,
     markExplored,
-    reload: load,
+    reload: refreshConcepts,
   };
 }
 
 // ============ Journal Hook ============
 
+/**
+ * Hook for journal entries.
+ * Journal entries are not in the shared context as they're less frequently
+ * accessed across components. Uses local state with repository pattern.
+ */
 export function useJournal(conceptId?: string) {
   const [entries, setEntries] = useState<ValidatedJournalEntryRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -322,53 +252,37 @@ export function useJournal(conceptId?: string) {
 
 // ============ Stats Hook ============
 
+/**
+ * Hook for stats.
+ * Uses computed values from DataContext.
+ */
 export function useStats() {
-  const [exploredCount, setExploredCount] = useState(0);
-  const [resonatesCount, setResonatesCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    const [explored, resonates] = await Promise.all([
-      db.concepts.getExploredCount(),
-      db.concepts.getResonatesCount(),
-    ]);
-    setExploredCount(explored);
-    setResonatesCount(resonates);
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
-    load();
-    const handleUpdate = () => load();
-    events.on(EVENTS.CONCEPTS_UPDATED, handleUpdate);
-    events.on(EVENTS.DATA_CLEARED, handleUpdate);
-
-    return () => {
-      events.off(EVENTS.CONCEPTS_UPDATED, handleUpdate);
-      events.off(EVENTS.DATA_CLEARED, handleUpdate);
-    };
-  }, [load]);
+  const { exploredCount, resonatesCount, conceptsLoading, refreshConcepts } = useData();
 
   return {
     exploredCount,
     resonatesCount,
-    isLoading,
-    reload: load,
+    isLoading: conceptsLoading,
+    reload: refreshConcepts,
   };
 }
 
 // ============ Clear Data Hook ============
 
+/**
+ * Hook for clearing all data.
+ * Triggers context refresh after clearing.
+ */
 export function useClearData() {
+  const { refreshAll } = useData();
   const [isClearing, setIsClearing] = useState(false);
 
   const clear = useCallback(async () => {
     setIsClearing(true);
     await db.clearAll();
-    events.emit(EVENTS.DATA_CLEARED);
+    await refreshAll();
     setIsClearing(false);
-  }, []);
+  }, [refreshAll]);
 
   return { clear, isClearing };
 }

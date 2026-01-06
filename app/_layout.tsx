@@ -16,7 +16,7 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/theme';
-import { useInitDatabase, useOnboarding } from '@/hooks/useDatabase';
+import { DataProvider, useData } from '@/lib/contexts';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -29,11 +29,11 @@ SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
   const segments = useSegments();
-  const { isReady: dbReady } = useInitDatabase();
-  const { isLoading: onboardingLoading, isCompleted: onboardingCompleted } = useOnboarding();
+  const { isDbReady, onboarding, onboardingLoading } = useData();
+  const onboardingCompleted = onboarding?.completed === 1;
 
   useEffect(() => {
-    if (!dbReady || onboardingLoading) return;
+    if (!isDbReady || onboardingLoading) return;
 
     const inOnboarding = segments[0] === 'onboarding';
 
@@ -45,7 +45,7 @@ function RootLayoutNav() {
       // User completed onboarding but is in onboarding flow, redirect to main
       setTimeout(() => router.replace('/(tabs)'), 0);
     }
-  }, [dbReady, onboardingLoading, onboardingCompleted, segments]);
+  }, [isDbReady, onboardingLoading, onboardingCompleted, segments]);
 
   return (
     <Stack
@@ -102,7 +102,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <RootLayoutNav />
+      <DataProvider>
+        <RootLayoutNav />
+      </DataProvider>
     </SafeAreaProvider>
   );
 }
