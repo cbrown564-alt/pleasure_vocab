@@ -150,6 +150,60 @@ export const migrations: Migration[] = [
       }
     },
   },
+  {
+    version: 4,
+    description: 'Remove legacy concepts_completed column from pathway_progress',
+    up: async (ctx) => {
+      if (ctx.platform === 'native' && ctx.executeSql) {
+        // SQLite doesn't support DROP COLUMN in older versions, so we recreate the table
+        ctx.log('Recreating pathway_progress table without concepts_completed');
+
+        // Create new table without the legacy column
+        await ctx.executeSql(`
+          CREATE TABLE IF NOT EXISTS pathway_progress_new (
+            pathway_id TEXT PRIMARY KEY,
+            started_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            completed_at TEXT
+          )
+        `);
+
+        // Copy existing data (excluding concepts_completed)
+        ctx.log('Migrating data to new table');
+        await ctx.executeSql(`
+          INSERT INTO pathway_progress_new (pathway_id, started_at, completed_at)
+          SELECT pathway_id, started_at, completed_at FROM pathway_progress
+        `);
+
+        // Drop old table
+        ctx.log('Dropping old table');
+        await ctx.executeSql('DROP TABLE pathway_progress');
+
+        // Rename new table
+        ctx.log('Renaming new table');
+        await ctx.executeSql('ALTER TABLE pathway_progress_new RENAME TO pathway_progress');
+
+        ctx.log('Successfully removed concepts_completed column');
+      } else if (ctx.platform === 'web' && ctx.getValue && ctx.setValue) {
+        // Web: Remove concepts_completed field from stored JSON objects
+        ctx.log('Removing concepts_completed from web storage');
+        const existingProgress = await ctx.getValue('@vocab:pathway_progress');
+
+        if (existingProgress) {
+          const progressMap = JSON.parse(existingProgress);
+
+          // Remove concepts_completed from each pathway record
+          for (const pathwayId of Object.keys(progressMap)) {
+            if (progressMap[pathwayId].concepts_completed !== undefined) {
+              delete progressMap[pathwayId].concepts_completed;
+            }
+          }
+
+          await ctx.setValue('@vocab:pathway_progress', JSON.stringify(progressMap));
+          ctx.log('Successfully removed concepts_completed from web storage');
+        }
+      }
+    },
+  },
 ];
 
 /**

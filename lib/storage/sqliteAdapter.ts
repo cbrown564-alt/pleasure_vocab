@@ -82,8 +82,7 @@ export class SQLiteAdapter implements StorageAdapter {
         CREATE TABLE IF NOT EXISTS pathway_progress (
           pathway_id TEXT PRIMARY KEY,
           started_at TEXT DEFAULT CURRENT_TIMESTAMP,
-          completed_at TEXT,
-          concepts_completed TEXT DEFAULT '[]'
+          completed_at TEXT
         );
 
         -- Pathway concept completions (normalized junction table)

@@ -95,7 +95,6 @@ export class PathwayRepository {
         pathway_id: pathwayId,
         started_at: now,
         completed_at: null,
-        concepts_completed: '[]', // Keep for backward compatibility
       });
     } catch (error) {
       log.error('Failed to start pathway', error, { pathwayId });
@@ -140,13 +139,6 @@ export class PathwayRepository {
           completed_at: now,
         });
       }
-
-      // Also update the legacy JSON column for backward compatibility
-      const updatedConcepts = [...completedConcepts, conceptId];
-      await this.adapter.update(Collections.PATHWAY_PROGRESS, pathwayId, {
-        concepts_completed: JSON.stringify(updatedConcepts),
-        completed_at: isComplete ? now : null,
-      });
     } catch (error) {
       log.error('Failed to update pathway progress', error, {
         pathwayId,
@@ -215,16 +207,6 @@ export class PathwayRepository {
       }
     } catch (error) {
       log.error('Failed to get completed concepts', error, { pathwayId });
-
-      // Fallback to legacy JSON column
-      const progress = await this.get(pathwayId);
-      if (progress) {
-        try {
-          return JSON.parse(progress.concepts_completed || '[]');
-        } catch {
-          return [];
-        }
-      }
       return [];
     }
   }
@@ -256,7 +238,8 @@ export class PathwayRepository {
    */
   async isCompleted(pathwayId: string): Promise<boolean> {
     const progress = await this.get(pathwayId);
-    return progress?.completed_at !== null;
+    // Return false if pathway doesn't exist, true only if completed_at is set
+    return progress?.completed_at != null;
   }
 
   /**
@@ -331,13 +314,15 @@ export class PathwayRepository {
 
   /**
    * Convert a row to a domain object.
+   * @deprecated Use getDomain() instead - this method returns empty conceptsCompleted
+   * since the legacy column was removed in migration v4.
    */
   toDomain(row: ValidatedPathwayProgressRow): PathwayProgress {
     return {
       pathwayId: row.pathway_id,
       startedAt: row.started_at,
       completedAt: row.completed_at,
-      conceptsCompleted: JSON.parse(row.concepts_completed || '[]'),
+      conceptsCompleted: [], // Legacy column removed - use getDomain() for completions
     };
   }
 

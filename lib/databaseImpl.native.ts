@@ -67,8 +67,7 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
     CREATE TABLE IF NOT EXISTS pathway_progress (
       pathway_id TEXT PRIMARY KEY,
       started_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      completed_at TEXT,
-      concepts_completed TEXT DEFAULT '[]'
+      completed_at TEXT
     );
 
     -- Initialize onboarding row if not exists
@@ -397,7 +396,6 @@ export interface PathwayProgressRow {
   pathway_id: string;
   started_at: string;
   completed_at: string | null;
-  concepts_completed: string; // JSON array
 }
 
 export async function getPathwayProgress(pathwayId: string): Promise<PathwayProgressRow | null> {
@@ -431,7 +429,7 @@ export async function startPathway(pathwayId: string): Promise<void> {
 
   if (!existing) {
     await db.runAsync(
-      `INSERT INTO pathway_progress (pathway_id, started_at, concepts_completed) VALUES (?, ?, '[]')`,
+      `INSERT INTO pathway_progress (pathway_id, started_at) VALUES (?, ?)`,
       [pathwayId, now]
     );
   }
@@ -453,17 +451,28 @@ export async function updatePathwayProgress(
   }
 
   if (progress) {
-    const completedConcepts: string[] = JSON.parse(progress.concepts_completed || '[]');
+    // Get completed concepts from junction table
+    const completedRows = await db.getAllAsync<{ concept_id: string }>(
+      `SELECT concept_id FROM pathway_concept_completions WHERE pathway_id = ?`,
+      [pathwayId]
+    );
+    const completedConcepts = completedRows.map(r => r.concept_id);
 
     if (!completedConcepts.includes(conceptId)) {
-      completedConcepts.push(conceptId);
-
-      const isComplete = completedConcepts.length >= totalConceptsInPathway;
-
+      // Add to junction table
       await db.runAsync(
-        `UPDATE pathway_progress SET concepts_completed = ?, completed_at = ? WHERE pathway_id = ?`,
-        [JSON.stringify(completedConcepts), isComplete ? now : null, pathwayId]
+        `INSERT OR IGNORE INTO pathway_concept_completions (pathway_id, concept_id, completed_at) VALUES (?, ?, ?)`,
+        [pathwayId, conceptId, now]
       );
+
+      const isComplete = completedConcepts.length + 1 >= totalConceptsInPathway;
+
+      if (isComplete) {
+        await db.runAsync(
+          `UPDATE pathway_progress SET completed_at = ? WHERE pathway_id = ?`,
+          [now, pathwayId]
+        );
+      }
     }
   }
 }

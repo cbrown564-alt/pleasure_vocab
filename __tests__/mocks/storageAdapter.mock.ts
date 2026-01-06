@@ -22,8 +22,9 @@ interface MockStorageAdapter {
   delete: jest.Mock;
   deleteAll: jest.Mock;
   count: jest.Mock;
-  rawQuery: jest.Mock;
-  rawExecute: jest.Mock;
+  // Note: rawQuery and rawExecute are optional - only present in native mode
+  rawQuery?: jest.Mock;
+  rawExecute?: jest.Mock;
 }
 
 /**
@@ -142,14 +143,10 @@ export function createMockStorageAdapter(): MockStorageAdapter {
       }
     ),
 
-    // Raw Operations
-    rawQuery: jest.fn(<T>(_sql: string, _params?: unknown[]): Promise<T[]> => {
-      return Promise.resolve([]);
-    }),
-
-    rawExecute: jest.fn((_sql: string, _params?: unknown[]): Promise<void> => {
-      return Promise.resolve();
-    }),
+    // Raw Operations - NOT included by default (web mode)
+    // To test native mode, add these after creation:
+    //   mockAdapter.rawQuery = jest.fn().mockResolvedValue([]);
+    //   mockAdapter.rawExecute = jest.fn().mockResolvedValue(undefined);
   };
 
   return adapter;

@@ -199,22 +199,11 @@ describe('PathwayProgressRowSchema', () => {
     pathway_id: 'pathway-123',
     started_at: '2024-01-01T00:00:00Z',
     completed_at: null,
-    concepts_completed: '["concept-1", "concept-2"]',
   };
 
   it('should accept valid pathway progress', () => {
     const result = PathwayProgressRowSchema.safeParse(validProgress);
     expect(result.success).toBe(true);
-  });
-
-  it('should apply default for concepts_completed', () => {
-    const data = {
-      pathway_id: 'pathway-123',
-      started_at: '2024-01-01T00:00:00Z',
-      completed_at: null,
-    };
-    const result = PathwayProgressRowSchema.parse(data);
-    expect(result.concepts_completed).toBe('[]');
   });
 
   it('should accept completed_at as string', () => {

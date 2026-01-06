@@ -67,7 +67,6 @@ export const PathwayProgressRowSchema = z.object({
   pathway_id: z.string().min(1),
   started_at: z.string(),
   completed_at: z.string().nullable(),
-  concepts_completed: z.string().default('[]'), // JSON array stored as string
 });
 
 export type ValidatedPathwayProgressRow = z.infer<typeof PathwayProgressRowSchema>;
@@ -175,5 +174,4 @@ export const DEFAULT_PATHWAY_PROGRESS: ValidatedPathwayProgressRow = {
   pathway_id: '',
   started_at: new Date().toISOString(),
   completed_at: null,
-  concepts_completed: '[]',
 };

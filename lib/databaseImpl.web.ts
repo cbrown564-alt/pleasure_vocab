@@ -24,6 +24,7 @@ const STORAGE_KEYS = {
   JOURNAL_ENTRIES: '@vocab:journal_entries',
   SETTINGS: '@vocab:settings',
   PATHWAY_PROGRESS: '@vocab:pathway_progress',
+  PATHWAY_COMPLETIONS: '@vocab:pathway_completions',
 };
 
 // ============ Onboarding Operations ============
@@ -326,7 +327,6 @@ export interface PathwayProgressRow {
   pathway_id: string;
   started_at: string;
   completed_at: string | null;
-  concepts_completed: string; // JSON array
 }
 
 async function getPathwayProgressMap(): Promise<Record<string, PathwayProgressRow>> {
@@ -376,10 +376,24 @@ export async function startPathway(pathwayId: string): Promise<void> {
       pathway_id: pathwayId,
       started_at: now,
       completed_at: null,
-      concepts_completed: '[]',
     };
     await savePathwayProgressMap(map);
   }
+}
+
+// Helper to get pathway completions from separate storage
+async function getPathwayCompletionsMap(): Promise<Record<string, { concept_id: string; completed_at: string }[]>> {
+  try {
+    const data = await AsyncStorage.getItem(STORAGE_KEYS.PATHWAY_COMPLETIONS);
+    return data ? JSON.parse(data) : {};
+  } catch (error) {
+    log.error('getPathwayCompletionsMap failed', error);
+    return {};
+  }
+}
+
+async function savePathwayCompletionsMap(map: Record<string, { concept_id: string; completed_at: string }[]>): Promise<void> {
+  await AsyncStorage.setItem(STORAGE_KEYS.PATHWAY_COMPLETIONS, JSON.stringify(map));
 }
 
 export async function updatePathwayProgress(
@@ -387,32 +401,44 @@ export async function updatePathwayProgress(
   conceptId: string,
   totalConceptsInPathway: number
 ): Promise<void> {
-  const map = await getPathwayProgressMap();
+  const progressMap = await getPathwayProgressMap();
+  const completionsMap = await getPathwayCompletionsMap();
   const now = new Date().toISOString();
 
-  if (!map[pathwayId]) {
-    map[pathwayId] = {
+  // Ensure pathway exists
+  if (!progressMap[pathwayId]) {
+    progressMap[pathwayId] = {
       pathway_id: pathwayId,
       started_at: now,
       completed_at: null,
-      concepts_completed: '[]',
     };
+    await savePathwayProgressMap(progressMap);
   }
 
-  const completedConcepts: string[] = JSON.parse(map[pathwayId].concepts_completed || '[]');
+  // Get or initialize completions for this pathway
+  if (!completionsMap[pathwayId]) {
+    completionsMap[pathwayId] = [];
+  }
+
+  const completedConcepts = completionsMap[pathwayId].map(c => c.concept_id);
 
   if (!completedConcepts.includes(conceptId)) {
-    completedConcepts.push(conceptId);
+    // Add to completions
+    completionsMap[pathwayId].push({
+      concept_id: conceptId,
+      completed_at: now,
+    });
+    await savePathwayCompletionsMap(completionsMap);
 
-    const isComplete = completedConcepts.length >= totalConceptsInPathway;
+    const isComplete = completionsMap[pathwayId].length >= totalConceptsInPathway;
 
-    map[pathwayId] = {
-      ...map[pathwayId],
-      concepts_completed: JSON.stringify(completedConcepts),
-      completed_at: isComplete ? now : null,
-    };
-
-    await savePathwayProgressMap(map);
+    if (isComplete) {
+      progressMap[pathwayId] = {
+        ...progressMap[pathwayId],
+        completed_at: now,
+      };
+      await savePathwayProgressMap(progressMap);
+    }
   }
 }
 
