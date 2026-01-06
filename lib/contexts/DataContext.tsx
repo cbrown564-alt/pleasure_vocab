@@ -9,6 +9,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useError } from '@/components/error';
 import { db, initDatabase } from '../database/index';
 import { getErrorMessage } from '../errors';
 import { logger } from '../logger';
@@ -57,6 +58,9 @@ interface DataProviderProps {
 }
 
 export function DataProvider({ children }: DataProviderProps) {
+  // Error context integration
+  const { setCriticalError, setOnRetry, setSectionError, clearSectionError } = useError();
+
   // Database initialization state
   const [isDbReady, setIsDbReady] = useState(false);
   const [dbError, setDbError] = useState<Error | null>(null);
@@ -82,10 +86,19 @@ export function DataProvider({ children }: DataProviderProps) {
         await initDatabase();
         if (mounted) {
           setIsDbReady(true);
+          setCriticalError(null); // Clear any previous critical error
         }
       } catch (e) {
+        const error = e instanceof Error ? e : new Error('Failed to initialize database');
         if (mounted) {
-          setDbError(e instanceof Error ? e : new Error('Failed to initialize database'));
+          setDbError(error);
+          // Set critical error for full-screen display
+          setCriticalError(error);
+          // Set retry handler to re-attempt initialization
+          setOnRetry(() => {
+            setDbError(null);
+            init();
+          });
         }
       }
     }
@@ -95,7 +108,7 @@ export function DataProvider({ children }: DataProviderProps) {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [setCriticalError, setOnRetry]);
 
   // Refresh concepts
   const refreshConcepts = useCallback(async () => {
@@ -103,6 +116,7 @@ export function DataProvider({ children }: DataProviderProps) {
 
     setConceptsLoading(true);
     setConceptsError(null);
+    clearSectionError('concepts');
 
     try {
       const [conceptsResult, unlocked, mastered] = await Promise.all([
@@ -117,10 +131,15 @@ export function DataProvider({ children }: DataProviderProps) {
       const message = getErrorMessage(err);
       log.error('Failed to load concepts', err);
       setConceptsError(message);
+      // Set section error for inline banner display
+      setSectionError('concepts', {
+        message,
+        retryFn: refreshConcepts,
+      });
     } finally {
       setConceptsLoading(false);
     }
-  }, [isDbReady]);
+  }, [isDbReady, clearSectionError, setSectionError]);
 
   // Refresh onboarding
   const refreshOnboarding = useCallback(async () => {
@@ -128,6 +147,7 @@ export function DataProvider({ children }: DataProviderProps) {
 
     setOnboardingLoading(true);
     setOnboardingError(null);
+    clearSectionError('onboarding');
 
     try {
       const result = await db.onboarding.get();
@@ -136,10 +156,15 @@ export function DataProvider({ children }: DataProviderProps) {
       const message = getErrorMessage(err);
       log.error('Failed to load onboarding', err);
       setOnboardingError(message);
+      // Set section error for inline banner display
+      setSectionError('onboarding', {
+        message,
+        retryFn: refreshOnboarding,
+      });
     } finally {
       setOnboardingLoading(false);
     }
-  }, [isDbReady]);
+  }, [isDbReady, clearSectionError, setSectionError]);
 
   // Refresh all data
   const refreshAll = useCallback(async () => {

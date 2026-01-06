@@ -16,6 +16,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { ErrorBoundaryProvider } from '@/components/error';
 import { colors } from '@/constants/theme';
 import { DataProvider, useData } from '@/lib/contexts';
 
@@ -104,9 +105,11 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <DataProvider>
-          <RootLayoutNav />
-        </DataProvider>
+        <ErrorBoundaryProvider>
+          <DataProvider>
+            <RootLayoutNav />
+          </DataProvider>
+        </ErrorBoundaryProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );
