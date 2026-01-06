@@ -12,6 +12,7 @@ import { Stack, router, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -102,9 +103,11 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <DataProvider>
-        <RootLayoutNav />
-      </DataProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <DataProvider>
+          <RootLayoutNav />
+        </DataProvider>
+      </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 }

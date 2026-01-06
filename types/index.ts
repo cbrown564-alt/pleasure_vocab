@@ -38,6 +38,7 @@ export interface Concept {
   id: string;
   name: string;
   category: ConceptCategory;
+  thumbnail?: any;              // Abstract icon for library view
   definition: string;           // Short one-line definition
   description: string;          // Detailed explanation
   researchBasis: string;        // Research backing this concept

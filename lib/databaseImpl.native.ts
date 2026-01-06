@@ -78,7 +78,9 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
   // Run migrations
   const migrationResult = await runNativeMigrations(db);
   if (!migrationResult.success) {
-    log.error('Migration failed', new Error(migrationResult.error || 'Unknown migration error'));
+    const errorMsg = migrationResult.error || 'Unknown migration error';
+    log.error(`Migration failed: ${errorMsg}`);
+    // Don't throw - allow app to continue with potentially outdated schema
   } else if (migrationResult.migrationsRun > 0) {
     log.info(`Ran ${migrationResult.migrationsRun} migration(s), now at version ${migrationResult.currentVersion}`);
   }

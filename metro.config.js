@@ -10,6 +10,10 @@ config.resolver.sourceExts = [
   'native.tsx',
   'web.ts',
   'web.tsx',
+  'web.tsx',
 ];
+
+// Add 'mov' to asset extensions
+config.resolver.assetExts = [...config.resolver.assetExts, 'mov'];
 
 module.exports = config;

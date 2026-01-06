@@ -26,6 +26,7 @@ The adjustment can be small - even a slight change in pelvic tilt can shift sens
     ],
     relatedConcepts: ['rocking', 'pairing'],
     tier: 'free',
+    thumbnail: require('@/assets/images/concepts/thumbnails/angling.png'),
     diagramType: 'angling',
     slides: [
       {
@@ -39,8 +40,8 @@ The adjustment can be small - even a slight change in pelvic tilt can shift sens
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/angling.png'),
-        illustrationCaption: 'Subtle pelvic tilts change where stimulation lands',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/angling.png'),
+        illustrationCaption: 'Pelvic tilt shifting internal contact point',
       },
       {
         type: 'understand',
@@ -74,6 +75,7 @@ This technique can be particularly relevant because it allows for simultaneous i
     ],
     relatedConcepts: ['angling', 'pairing'],
     tier: 'free',
+    thumbnail: require('@/assets/images/concepts/thumbnails/rocking.png'),
     diagramType: 'rocking',
     slides: [
       {
@@ -87,9 +89,9 @@ This technique can be particularly relevant because it allows for simultaneous i
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/rocking.png'),
-        illustrationVideo: require('@/assets/videos/rocking.mp4'),
-        illustrationCaption: 'Wave-like motion maintains continuous contact',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/rocking.png'),
+        illustrationVideo: require('@/assets/videos/rocking.mov'),
+        illustrationCaption: 'External pressure against the pubic bone',
       },
       {
         type: 'understand',
@@ -123,6 +125,7 @@ This technique can involve gentle circling, light pressure, teasing movements, o
     ],
     relatedConcepts: ['pairing'],
     tier: 'free',
+    thumbnail: require('@/assets/images/concepts/thumbnails/shallowing.png'),
     diagramType: 'shallowing',
     slides: [
       {
@@ -136,8 +139,8 @@ This technique can involve gentle circling, light pressure, teasing movements, o
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/shallowing.png'),
-        illustrationCaption: 'The entrance zone is the most sensitive area',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/shallowing.png'),
+        illustrationCaption: 'High nerve density at the entrance zone',
       },
       {
         type: 'understand',
@@ -154,6 +157,7 @@ This technique can involve gentle circling, light pressure, teasing movements, o
     id: 'pairing',
     name: 'Pairing',
     category: 'technique',
+    thumbnail: require('@/assets/images/concepts/thumbnails/pairing.png'),
     definition:
       'Adding external clitoral stimulation during penetration, either solo or with a partner.',
     description: `Pairing means combining internal penetration with external clitoral stimulation - using your own hand, a partner's hand, a toy, or body positioning to add external touch during penetrative activity.
@@ -171,7 +175,7 @@ Pairing can happen in many ways - reaching down yourself, guiding a partner's ha
     ],
     relatedConcepts: ['angling', 'rocking', 'shallowing'],
     tier: 'free',
-    diagramType: 'pairing',
+    diagramType: 'none',
     slides: [
       {
         type: 'recognize',
@@ -184,7 +188,7 @@ Pairing can happen in many ways - reaching down yourself, guiding a partner's ha
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/pairing.png'),
+        illustrationAsset: require('@/assets/images/concepts/illustrations/pairing.png'),
         illustrationCaption: 'Two types of stimulation working together',
       },
       {
@@ -233,8 +237,8 @@ Understanding building as a named experience helps recognize that arousal doesn'
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/building.png'),
-        illustrationVideo: require('@/assets/videos/building.mp4'),
+        illustrationAsset: require('@/assets/images/concepts/thumbnails/building.png'),
+        illustrationVideo: require('@/assets/videos/building.mov'),
         illustrationCaption: 'Arousal intensifying gradually over time',
       },
       {
@@ -252,6 +256,7 @@ Understanding building as a named experience helps recognize that arousal doesn'
     id: 'plateauing',
     name: 'Plateauing',
     category: 'sensation',
+    thumbnail: require('@/assets/images/concepts/thumbnails/plateauing.png'),
     definition:
       'Sustained arousal at a consistent level without increase - a holding pattern that may precede orgasm or signal a need for change.',
     description: `Plateauing is the experience of arousal staying at a steady level - neither building toward climax nor fading. It's like reaching a landing on a staircase and staying there for a while.
@@ -281,8 +286,8 @@ Recognizing a plateau helps you respond to it intentionally. You might choose to
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/plateauing.png'),
-        illustrationCaption: 'Sustained arousal at a steady level',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/plateauing.png'),
+        illustrationCaption: 'Sustained nerve activation holding energy',
       },
       {
         type: 'understand',
@@ -328,7 +333,7 @@ Edging requires body awareness - learning to recognize your own signs of approac
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/edging.png'),
+        illustrationAsset: require('@/assets/images/concepts/thumbnails/edging.png'),
         illustrationCaption: 'Approaching the peak, then pulling back',
       },
       {
@@ -375,7 +380,7 @@ Noticing spreading can enhance the experience of pleasure by expanding attention
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/spreading.png'),
+        illustrationAsset: require('@/assets/images/concepts/thumbnails/spreading.png'),
         illustrationCaption: 'Sensation radiating outward like ripples',
       },
       {
@@ -422,7 +427,7 @@ Having language for this sensation helps recognize it when it's happening, and h
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/pulsing.png'),
+        illustrationAsset: require('@/assets/images/concepts/thumbnails/pulsing.png'),
         illustrationCaption: 'Rhythmic waves of sensation',
       },
       {
@@ -442,6 +447,7 @@ Having language for this sensation helps recognize it when it's happening, and h
     id: 'warmup-window',
     name: 'Warm-up Window',
     category: 'timing',
+    thumbnail: require('@/assets/images/concepts/thumbnails/warmup-window.png'),
     definition:
       'The time needed for whole-body arousal before genital-focused stimulation feels best - often 20+ minutes.',
     description: `The warm-up window refers to the period of time many bodies need for full arousal before genital-focused stimulation becomes most pleasurable. This isn't a problem or delay - it's how arousal often works, particularly for vulva-owners.
@@ -471,8 +477,8 @@ Understanding the warm-up window reframes extended foreplay not as a requirement
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/warmup-window.png'),
-        illustrationCaption: 'Full arousal takes time to develop',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/warmup-window.png'),
+        illustrationCaption: 'Physiological engorgement takes time',
       },
       {
         type: 'understand',
@@ -518,8 +524,8 @@ Understanding responsive desire can be liberating. It means you don't need to "f
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/responsive-desire.png'),
-        illustrationVideo: require('@/assets/videos/responsive-desire.mp4'),
+        illustrationAsset: require('@/assets/images/concepts/thumbnails/responsive-desire.png'),
+        illustrationVideo: require('@/assets/videos/responsive-desire.mov'),
         illustrationCaption: 'Desire emerging in response to a spark',
       },
       {
@@ -566,7 +572,7 @@ Understanding spontaneous desire as one pattern among others helps remove the ex
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/spontaneous-desire.png'),
+        illustrationAsset: require('@/assets/images/concepts/thumbnails/spontaneous-desire.png'),
         illustrationCaption: 'Desire arising from within',
       },
       {
@@ -584,6 +590,7 @@ Understanding spontaneous desire as one pattern among others helps remove the ex
     id: 'golden-trio',
     name: 'Golden Trio',
     category: 'timing',
+    thumbnail: require('@/assets/images/concepts/thumbnails/golden-trio.png'),
     definition:
       'Combining intercourse with manual and oral stimulation - a combination associated with 86% orgasm rates in research.',
     description: `The Golden Trio refers to a specific combination of activities that research has found particularly effective for women's orgasms: vaginal intercourse combined with manual stimulation combined with oral sex (in the same session, not necessarily simultaneously).
@@ -613,8 +620,8 @@ The takeaway isn't that everyone should do exactly this combination, but rather 
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/golden-trio.png'),
-        illustrationCaption: 'Three types of stimulation working together',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/golden-trio.png'),
+        illustrationCaption: 'Three points of simultaneous stimulation',
       },
       {
         type: 'understand',
@@ -662,8 +669,8 @@ Spectatoring is common but interferes with arousal and pleasure. The good news i
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/spectatoring.png'),
-        illustrationCaption: 'Watching yourself from the outside',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/spectatoring.png'),
+        illustrationCaption: 'The "Watcher" separating from the body',
       },
       {
         type: 'understand',
@@ -709,8 +716,8 @@ Cultivating embodied presence can significantly enhance sexual experience. When 
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/embodied-presence.png'),
-        illustrationCaption: 'Fully present in your body',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/embodied-presence.png'),
+        illustrationCaption: 'Full sensory inhabitation of the body',
       },
       {
         type: 'understand',
@@ -756,8 +763,8 @@ Understanding non-concordance is liberating. It means you can trust your felt ex
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/non-concordance.png'),
-        illustrationCaption: 'Mind and body not always in sync',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/non-concordance.png'),
+        illustrationCaption: 'Brain and Body independent signaling',
       },
       {
         type: 'understand',
@@ -803,7 +810,7 @@ Sexual self-esteem can be affected by many factors: upbringing, past experiences
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/sexual-self-esteem.png'),
+        illustrationAsset: require('@/assets/images/concepts/thumbnails/sexual-self-esteem.png'),
         illustrationCaption: 'Confidence radiating from within',
       },
       {
@@ -850,8 +857,8 @@ Body appreciation isn't about thinking your body is perfect or ignoring appearan
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/body-appreciation.png'),
-        illustrationCaption: 'Appreciating what your body feels and does',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/body-appreciation.png'),
+        illustrationCaption: 'Sensory glow of accepting touch',
       },
       {
         type: 'understand',
@@ -899,8 +906,8 @@ This anatomical reality explains why external stimulation is important for most 
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/clitoral-structure.png'),
-        illustrationCaption: 'The hidden internal structure',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/clitoral-structure.png'),
+        illustrationCaption: 'The full internal wings and bulbs',
       },
       {
         type: 'understand',
@@ -946,8 +953,8 @@ Understanding nerve density helps explain why clitoral stimulation is central to
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/nerve-density.png'),
-        illustrationCaption: 'High concentration of sensitivity',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/nerve-density.png'),
+        illustrationCaption: '8,000+ nerve endings in a single zone',
       },
       {
         type: 'understand',
@@ -993,8 +1000,8 @@ Understanding the CUV complex resolves debates about whether the G-spot "exists.
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/clitourethrovaginal.png'),
-        illustrationCaption: 'Integrated cluster of sensitive tissue',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/clitourethrovaginal.png'),
+        illustrationCaption: 'Integrated cluster: Clitoris, Urethra, Vagina',
       },
       {
         type: 'understand',
@@ -1040,8 +1047,8 @@ Techniques like angling and certain positions work because they optimize contact
       {
         type: 'illustrate',
         content: '',
-        illustrationAsset: require('@/assets/images/concepts/internal-stimulation.png'),
-        illustrationCaption: 'Reaching internal structures through the wall',
+        illustrationAsset: require('@/assets/images/concepts/illustrations/internal-stimulation.png'),
+        illustrationCaption: 'Stimulating internal crus through the anterior wall',
       },
       {
         type: 'understand',

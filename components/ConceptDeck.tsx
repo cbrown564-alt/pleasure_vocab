@@ -24,6 +24,7 @@ const Slide = ({
     currentStatus,
     savingStatus,
     feedbackMessage,
+    isActive,
 }: {
     item: ConceptSlide,
     concept: Concept,
@@ -32,7 +33,8 @@ const Slide = ({
     onSetStatus: (status: ConceptStatus) => Promise<void>,
     currentStatus: ConceptStatus,
     savingStatus: ConceptStatus | null,
-    feedbackMessage?: string | null
+    feedbackMessage?: string | null,
+    isActive: boolean
 }) => {
     switch (item.type) {
         case 'recognize':
@@ -40,7 +42,7 @@ const Slide = ({
         case 'name':
             return <NameSlide item={item} concept={concept} />;
         case 'illustrate':
-            return <IllustrateSlide item={item} />;
+            return <IllustrateSlide item={item} isActive={isActive} diagramType={concept.diagramType} />;
         case 'understand':
             return <UnderstandSlide item={item} />;
         case 'explore':
@@ -163,6 +165,7 @@ export const ConceptDeck = ({ concept }: { concept: Concept }) => {
                         currentStatus={selectedStatus}
                         savingStatus={savingStatus}
                         feedbackMessage={feedbackMessage}
+                        isActive={index === activeIndex}
                     />
                 )}
                 onScroll={handleScroll}

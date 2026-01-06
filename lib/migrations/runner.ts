@@ -76,8 +76,11 @@ export async function runNativeMigrations(
       const context: MigrationContext = {
         platform: 'native',
         executeSql: async (sql: string, params?: unknown[]) => {
+          // Trim SQL to avoid issues with leading/trailing whitespace
+          const trimmedSql = sql.trim();
+
           // Skip ALTER TABLE if column already exists
-          const match = sql.match(/ALTER TABLE (\w+) ADD COLUMN (\w+)/i);
+          const match = trimmedSql.match(/ALTER TABLE (\w+) ADD COLUMN (\w+)/i);
           if (match) {
             const columnName = match[2];
             if (existingColumns.has(columnName)) {
@@ -88,11 +91,20 @@ export async function runNativeMigrations(
 
           // Use execAsync for DDL statements (CREATE, DROP, ALTER)
           // Use runAsync for DML statements (INSERT, UPDATE, DELETE)
-          const isDDL = /^\s*(CREATE|DROP|ALTER|PRAGMA)/i.test(sql.trim());
-          if (isDDL) {
-            await db.execAsync(sql);
-          } else {
-            await db.runAsync(sql, params);
+          const isDDL = /^(CREATE|DROP|ALTER|PRAGMA)/i.test(trimmedSql);
+
+          try {
+            if (isDDL) {
+              log.info(`Executing DDL: ${trimmedSql.substring(0, 50)}...`);
+              await db.execAsync(trimmedSql);
+            } else {
+              log.info(`Executing DML: ${trimmedSql.substring(0, 50)}...`);
+              await db.runAsync(trimmedSql, params);
+            }
+          } catch (sqlError) {
+            const errorMsg = sqlError instanceof Error ? sqlError.message : String(sqlError);
+            log.error(`SQL execution failed: ${errorMsg}`, sqlError, { sql: trimmedSql.substring(0, 100) });
+            throw sqlError;
           }
         },
         log: (message: string) => log.info(`  ${message}`),

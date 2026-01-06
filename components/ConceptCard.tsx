@@ -50,7 +50,8 @@ export function ConceptCard({ concept, status, isCollected, onPress }: ConceptCa
     }
   };
 
-  const displayIcon = conceptIcon || getCategoryIcon(concept.category);
+  // Priority: 1. Specific Thumbnail, 2. Illustration Slide (Legacy), 3. Category Icon
+  const displayIcon = concept.thumbnail || conceptIcon || getCategoryIcon(concept.category);
 
   return (
     <TouchableOpacity
