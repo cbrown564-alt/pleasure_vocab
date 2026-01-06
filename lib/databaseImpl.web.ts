@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ConceptStatus, UserGoal } from '@/types';
 import { generateId } from './utils/id';
 import { logger } from './logger';
+import { runWebMigrations } from './migrations';
 import {
   DEFAULT_ONBOARDING,
   JournalEntryRowSchema,
@@ -16,9 +17,6 @@ import {
 } from './validation';
 
 const log = logger.scope('Database:Web');
-
-// Default concepts that are unlocked from the start
-const DEFAULT_UNLOCKED_CONCEPTS = ['angling', 'rocking', 'shallowing'];
 
 const STORAGE_KEYS = {
   ONBOARDING: '@vocab:onboarding',
@@ -456,45 +454,24 @@ export async function clearAllData(): Promise<void> {
 
 // ============ Database Init ============
 
+let initialized = false;
+
 export async function initDatabase(): Promise<void> {
-  // Seed default unlocked concepts for web
-  await seedDefaultUnlockedConcepts();
+  if (initialized) return;
+
+  // Run migrations
+  const migrationResult = await runWebMigrations(AsyncStorage);
+  if (!migrationResult.success) {
+    log.error('Migration failed', new Error(migrationResult.error));
+  } else if (migrationResult.migrationsRun > 0) {
+    log.info(`Ran ${migrationResult.migrationsRun} migration(s), now at version ${migrationResult.currentVersion}`);
+  }
+
+  initialized = true;
 }
 
 export async function getDatabase(): Promise<void> {
-  // No-op for web - but ensure seeding runs
   await initDatabase();
-}
-
-// Seed default unlocked concepts if not already present
-async function seedDefaultUnlockedConcepts(): Promise<void> {
-  const map = await getUserConceptsMap();
-  const now = new Date().toISOString();
-  let updated = false;
-
-  for (const conceptId of DEFAULT_UNLOCKED_CONCEPTS) {
-    if (!map[conceptId]) {
-      // Create new entry with is_unlocked = 1
-      map[conceptId] = {
-        concept_id: conceptId,
-        status: 'unexplored',
-        is_unlocked: 1,
-        is_mastered: 0,
-        explored_at: null,
-        updated_at: now,
-      };
-      updated = true;
-    } else if (map[conceptId].is_unlocked !== 1) {
-      // Ensure existing entry is unlocked
-      map[conceptId].is_unlocked = 1;
-      map[conceptId].updated_at = now;
-      updated = true;
-    }
-  }
-
-  if (updated) {
-    await saveUserConceptsMap(map);
-  }
 }
 
 // Note: generateId is now imported from './utils/id'

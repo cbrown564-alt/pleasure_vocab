@@ -5,6 +5,7 @@ import * as SQLite from 'expo-sqlite';
 import { ConceptStatus, UserGoal } from '@/types';
 import { generateId } from './utils/id';
 import { logger } from './logger';
+import { runNativeMigrations } from './migrations';
 import {
   DEFAULT_ONBOARDING,
   DEFAULT_USER_CONCEPT,
@@ -19,9 +20,6 @@ import {
 const log = logger.scope('Database:Native');
 
 const DATABASE_NAME = 'vocab.db';
-
-// Default concepts that are unlocked from the start
-const DEFAULT_UNLOCKED_CONCEPTS = ['angling', 'rocking', 'shallowing'];
 
 // Initialize database with schema
 export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
@@ -77,61 +75,15 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
     INSERT OR IGNORE INTO onboarding (id) VALUES (1);
   `);
 
-  // Run migrations for existing databases
-  await runMigrations(db);
-
-  // Seed default unlocked concepts
-  await seedDefaultUnlockedConcepts(db);
+  // Run migrations
+  const migrationResult = await runNativeMigrations(db);
+  if (!migrationResult.success) {
+    log.error('Migration failed', new Error(migrationResult.error));
+  } else if (migrationResult.migrationsRun > 0) {
+    log.info(`Ran ${migrationResult.migrationsRun} migration(s), now at version ${migrationResult.currentVersion}`);
+  }
 
   return db;
-}
-
-// Run migrations for schema changes
-async function runMigrations(db: SQLite.SQLiteDatabase): Promise<void> {
-  // Check if is_unlocked column exists
-  const tableInfo = await db.getAllAsync<{ name: string }>(
-    `PRAGMA table_info(user_concepts)`
-  );
-  const columnNames = tableInfo.map(col => col.name);
-
-  // Migration 1: Add is_unlocked and is_mastered columns if they don't exist
-  if (!columnNames.includes('is_unlocked')) {
-    await db.execAsync(`
-      ALTER TABLE user_concepts ADD COLUMN is_unlocked INTEGER DEFAULT 0;
-    `);
-  }
-  if (!columnNames.includes('is_mastered')) {
-    await db.execAsync(`
-      ALTER TABLE user_concepts ADD COLUMN is_mastered INTEGER DEFAULT 0;
-    `);
-  }
-}
-
-// Seed default unlocked concepts if not already present
-async function seedDefaultUnlockedConcepts(db: SQLite.SQLiteDatabase): Promise<void> {
-  const now = new Date().toISOString();
-
-  for (const conceptId of DEFAULT_UNLOCKED_CONCEPTS) {
-    // Check if concept exists
-    const existing = await db.getFirstAsync<{ concept_id: string }>(
-      'SELECT concept_id FROM user_concepts WHERE concept_id = ?',
-      [conceptId]
-    );
-
-    if (!existing) {
-      // Insert with is_unlocked = 1
-      await db.runAsync(
-        `INSERT INTO user_concepts (concept_id, status, is_unlocked, is_mastered, updated_at) VALUES (?, 'unexplored', 1, 0, ?)`,
-        [conceptId, now]
-      );
-    } else {
-      // Ensure it's unlocked
-      await db.runAsync(
-        `UPDATE user_concepts SET is_unlocked = 1 WHERE concept_id = ? AND is_unlocked = 0`,
-        [conceptId]
-      );
-    }
-  }
 }
 
 // Get database instance (singleton pattern)
