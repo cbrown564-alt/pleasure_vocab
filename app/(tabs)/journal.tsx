@@ -1,8 +1,7 @@
 import { Button, Text, ThemedInput } from '@/components/ui';
 import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
 import { getConceptById } from '@/data/vocabulary';
-import { useJournal } from '@/hooks/useDatabase';
-import { JournalEntryRow } from '@/lib/database';
+import { JournalEntryRow, useJournal } from '@/hooks/useDatabase';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {

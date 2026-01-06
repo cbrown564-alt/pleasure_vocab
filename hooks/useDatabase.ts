@@ -1,31 +1,15 @@
 // React hooks for database operations
+// Uses the repository pattern for cleaner data access
 
-import {
-  clearAllData,
-  createJournalEntry,
-  deleteJournalEntry,
-  getAllUserConcepts,
-  getDatabase,
-  getExploredCount,
-  getJournalEntries,
-  getJournalEntriesForConcept,
-  getMasteredConceptIds,
-  getOnboardingState,
-  getResonatesCount,
-  getUnlockedConceptIds,
-  getUserConcept,
-  JournalEntryRow,
-  markConceptExplored,
-  masterConcept as dbMasterConcept,
-  OnboardingRow,
-  unlockConcept as dbUnlockConcept,
-  updateConceptStatus,
-  updateJournalEntry,
-  updateOnboarding,
-  UserConceptRow,
-} from '@/lib/database';
+import { db, initDatabase } from '@/lib/database/index';
 import { getErrorMessage } from '@/lib/errors';
+import { events, EVENTS } from '@/lib/events';
 import { logger } from '@/lib/logger';
+import {
+  ValidatedJournalEntryRow,
+  ValidatedOnboardingRow,
+  ValidatedUserConceptRow,
+} from '@/lib/validation';
 import { ConceptStatus, UserGoal } from '@/types';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -42,7 +26,7 @@ export function useInitDatabase() {
 
     async function init() {
       try {
-        await getDatabase();
+        await initDatabase();
         if (mounted) {
           setIsReady(true);
         }
@@ -63,14 +47,10 @@ export function useInitDatabase() {
   return { isReady, error };
 }
 
-import { events, EVENTS } from '@/lib/events';
-
-// ... (imports)
-
 // ============ Onboarding Hook ============
 
 export function useOnboarding() {
-  const [state, setState] = useState<OnboardingRow | null>(null);
+  const [state, setState] = useState<ValidatedOnboardingRow | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,7 +58,7 @@ export function useOnboarding() {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await getOnboardingState();
+      const result = await db.onboarding.get();
       setState(result);
     } catch (err) {
       const message = getErrorMessage(err);
@@ -107,9 +87,9 @@ export function useOnboarding() {
       goal?: UserGoal;
       firstConceptViewed?: boolean;
     }) => {
-      await updateOnboarding(updates);
+      await db.onboarding.update(updates);
       events.emit(EVENTS.ONBOARDING_UPDATED);
-      await load(); // optional since listener catches it, but immediate consistency is good
+      await load();
     },
     [load]
   );
@@ -133,7 +113,7 @@ export function useOnboarding() {
 // ============ User Concepts Hook ============
 
 export function useUserConcepts() {
-  const [concepts, setConcepts] = useState<UserConceptRow[]>([]);
+  const [concepts, setConcepts] = useState<ValidatedUserConceptRow[]>([]);
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
   const [masteredIds, setMasteredIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -144,9 +124,9 @@ export function useUserConcepts() {
     setError(null);
     try {
       const [conceptsResult, unlocked, mastered] = await Promise.all([
-        getAllUserConcepts(),
-        getUnlockedConceptIds(),
-        getMasteredConceptIds(),
+        db.concepts.getAll(),
+        db.concepts.getUnlockedIds(),
+        db.concepts.getMasteredIds(),
       ]);
       setConcepts(conceptsResult);
       setUnlockedIds(unlocked);
@@ -174,7 +154,7 @@ export function useUserConcepts() {
 
   const setStatus = useCallback(
     async (conceptId: string, status: ConceptStatus) => {
-      await updateConceptStatus(conceptId, status);
+      await db.concepts.updateStatus(conceptId, status);
       events.emit(EVENTS.CONCEPTS_UPDATED);
       await load();
     },
@@ -183,7 +163,7 @@ export function useUserConcepts() {
 
   const markExplored = useCallback(
     async (conceptId: string) => {
-      await markConceptExplored(conceptId);
+      await db.concepts.markExplored(conceptId);
       events.emit(EVENTS.CONCEPTS_UPDATED);
       await load();
     },
@@ -198,10 +178,9 @@ export function useUserConcepts() {
     [concepts]
   );
 
-  // New unlock/master methods
   const unlockConcept = useCallback(
     async (conceptId: string) => {
-      await dbUnlockConcept(conceptId);
+      await db.concepts.unlock(conceptId);
       events.emit(EVENTS.CONCEPTS_UPDATED);
       await load();
     },
@@ -210,7 +189,7 @@ export function useUserConcepts() {
 
   const masterConcept = useCallback(
     async (conceptId: string) => {
-      await dbMasterConcept(conceptId);
+      await db.concepts.master(conceptId);
       events.emit(EVENTS.CONCEPTS_UPDATED);
       await load();
     },
@@ -238,7 +217,6 @@ export function useUserConcepts() {
     setStatus,
     markExplored,
     getStatus,
-    // New unlock/master exports
     unlockConcept,
     masterConcept,
     isUnlocked,
@@ -251,12 +229,12 @@ export function useUserConcepts() {
 
 // Hook for a single concept's user data
 export function useUserConcept(conceptId: string) {
-  const [concept, setConcept] = useState<UserConceptRow | null>(null);
+  const [concept, setConcept] = useState<ValidatedUserConceptRow | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
     setIsLoading(true);
-    const result = await getUserConcept(conceptId);
+    const result = await db.concepts.get(conceptId);
     setConcept(result);
     setIsLoading(false);
   }, [conceptId]);
@@ -267,14 +245,14 @@ export function useUserConcept(conceptId: string) {
 
   const setStatus = useCallback(
     async (status: ConceptStatus) => {
-      await updateConceptStatus(conceptId, status);
+      await db.concepts.updateStatus(conceptId, status);
       await load();
     },
     [conceptId, load]
   );
 
   const markExplored = useCallback(async () => {
-    await markConceptExplored(conceptId);
+    await db.concepts.markExplored(conceptId);
     await load();
   }, [conceptId, load]);
 
@@ -291,14 +269,14 @@ export function useUserConcept(conceptId: string) {
 // ============ Journal Hook ============
 
 export function useJournal(conceptId?: string) {
-  const [entries, setEntries] = useState<JournalEntryRow[]>([]);
+  const [entries, setEntries] = useState<ValidatedJournalEntryRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
     setIsLoading(true);
     const result = conceptId
-      ? await getJournalEntriesForConcept(conceptId)
-      : await getJournalEntries();
+      ? await db.journal.getForConcept(conceptId)
+      : await db.journal.getAll();
     setEntries(result);
     setIsLoading(false);
   }, [conceptId]);
@@ -309,7 +287,7 @@ export function useJournal(conceptId?: string) {
 
   const create = useCallback(
     async (content: string, entryConceptId?: string) => {
-      const id = await createJournalEntry(content, entryConceptId ?? conceptId);
+      const id = await db.journal.create(content, entryConceptId ?? conceptId);
       await load();
       return id;
     },
@@ -318,7 +296,7 @@ export function useJournal(conceptId?: string) {
 
   const update = useCallback(
     async (id: string, content: string) => {
-      await updateJournalEntry(id, content);
+      await db.journal.update(id, content);
       await load();
     },
     [load]
@@ -326,7 +304,7 @@ export function useJournal(conceptId?: string) {
 
   const remove = useCallback(
     async (id: string) => {
-      await deleteJournalEntry(id);
+      await db.journal.delete(id);
       await load();
     },
     [load]
@@ -352,8 +330,8 @@ export function useStats() {
   const load = useCallback(async () => {
     setIsLoading(true);
     const [explored, resonates] = await Promise.all([
-      getExploredCount(),
-      getResonatesCount(),
+      db.concepts.getExploredCount(),
+      db.concepts.getResonatesCount(),
     ]);
     setExploredCount(explored);
     setResonatesCount(resonates);
@@ -387,10 +365,16 @@ export function useClearData() {
 
   const clear = useCallback(async () => {
     setIsClearing(true);
-    await clearAllData();
+    await db.clearAll();
     events.emit(EVENTS.DATA_CLEARED);
     setIsClearing(false);
   }, []);
 
   return { clear, isClearing };
 }
+
+// ============ Re-export types for backward compatibility ============
+
+export type { ValidatedJournalEntryRow as JournalEntryRow } from '@/lib/validation';
+export type { ValidatedOnboardingRow as OnboardingRow } from '@/lib/validation';
+export type { ValidatedUserConceptRow as UserConceptRow } from '@/lib/validation';
