@@ -1,6 +1,7 @@
 import { Text } from '@/components/ui/Typography';
 import { borderRadius, colors, shadows, spacing } from '@/constants/theme';
 import { ConceptSlide } from '@/types';
+import { ResizeMode, Video } from 'expo-av';
 import React from 'react';
 import { Dimensions, Image, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
@@ -16,8 +17,19 @@ export const IllustrateSlide = ({ item }: IllustrateSlideProps) => {
         <View style={styles.container}>
             <View style={styles.content}>
 
-                {/* Illustration */}
-                {item.illustrationAsset && (
+                {/* Illustration (Video or Image) */}
+                {item.illustrationVideo ? (
+                    <Animated.View entering={ZoomIn.delay(200).springify()} style={styles.illustrationContainer}>
+                        <Video
+                            source={item.illustrationVideo}
+                            style={styles.illustration}
+                            resizeMode={ResizeMode.CONTAIN}
+                            shouldPlay
+                            isLooping
+                            isMuted
+                        />
+                    </Animated.View>
+                ) : item.illustrationAsset ? (
                     <Animated.View entering={ZoomIn.delay(200).springify()} style={styles.illustrationContainer}>
                         <Image
                             source={item.illustrationAsset}
@@ -25,7 +37,7 @@ export const IllustrateSlide = ({ item }: IllustrateSlideProps) => {
                             resizeMode="contain"
                         />
                     </Animated.View>
-                )}
+                ) : null}
 
                 {/* Caption */}
                 {item.illustrationCaption && (

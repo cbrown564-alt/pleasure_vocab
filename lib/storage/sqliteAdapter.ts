@@ -105,7 +105,7 @@ export class SQLiteAdapter implements StorageAdapter {
       // Run migrations
       const migrationResult = await runNativeMigrations(this.db);
       if (!migrationResult.success) {
-        log.error('Migration failed', new Error(migrationResult.error));
+        log.error('Migration failed', new Error(migrationResult.error || 'Unknown migration error'));
       } else if (migrationResult.migrationsRun > 0) {
         log.info(
           `Ran ${migrationResult.migrationsRun} migration(s), now at version ${migrationResult.currentVersion}`

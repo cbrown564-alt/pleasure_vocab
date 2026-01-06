@@ -27,6 +27,7 @@ export interface ConceptSlide {
   content: string;
   image?: any;
   illustrationAsset?: any; // require() path for illustration image
+  illustrationVideo?: any; // require() path for illustration video
   illustrationCaption?: string; // Optional caption below illustration
 }
 

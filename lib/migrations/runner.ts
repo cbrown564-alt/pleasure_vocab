@@ -85,7 +85,15 @@ export async function runNativeMigrations(
               return;
             }
           }
-          await db.runAsync(sql, params);
+
+          // Use execAsync for DDL statements (CREATE, DROP, ALTER)
+          // Use runAsync for DML statements (INSERT, UPDATE, DELETE)
+          const isDDL = /^\s*(CREATE|DROP|ALTER|PRAGMA)/i.test(sql.trim());
+          if (isDDL) {
+            await db.execAsync(sql);
+          } else {
+            await db.runAsync(sql, params);
+          }
         },
         log: (message: string) => log.info(`  ${message}`),
       };

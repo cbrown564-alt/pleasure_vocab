@@ -88,6 +88,7 @@ This technique can be particularly relevant because it allows for simultaneous i
         type: 'illustrate',
         content: '',
         illustrationAsset: require('@/assets/images/concepts/rocking.png'),
+        illustrationVideo: require('@/assets/videos/rocking.mp4'),
         illustrationCaption: 'Wave-like motion maintains continuous contact',
       },
       {
@@ -233,6 +234,7 @@ Understanding building as a named experience helps recognize that arousal doesn'
         type: 'illustrate',
         content: '',
         illustrationAsset: require('@/assets/images/concepts/building.png'),
+        illustrationVideo: require('@/assets/videos/building.mp4'),
         illustrationCaption: 'Arousal intensifying gradually over time',
       },
       {
@@ -517,6 +519,7 @@ Understanding responsive desire can be liberating. It means you don't need to "f
         type: 'illustrate',
         content: '',
         illustrationAsset: require('@/assets/images/concepts/responsive-desire.png'),
+        illustrationVideo: require('@/assets/videos/responsive-desire.mp4'),
         illustrationCaption: 'Desire emerging in response to a spark',
       },
       {
